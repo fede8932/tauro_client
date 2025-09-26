@@ -1,0 +1,10 @@
+@font-face {
+  font-family: 'MiFuentePersonalizada';
+  src: url('./myfont.woff2') format('woff2');
+  /* Agrega más formatos de fuente si es necesario */
+}
+
+.my-component {
+  font-family: 'MiFuentePersonalizada', sans-serif; /* Aplica la fuente a tu componente */
+  /* Estilos adicionales para tu componente */
+}

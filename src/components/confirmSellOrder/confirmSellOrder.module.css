@@ -1,0 +1,30 @@
+.dataContainer {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0px;
+}
+.datosSpan {
+  font-weight: 600;
+}
+.formContainer {
+  margin-top: 25px;
+}
+.buttonContainer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+.message {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  border-radius: 5px;
+  border: 1px solid #00aaff;
+  background-color: rgba(0, 170, 255, 0.1);
+  font-weight: 600;
+  color: #004a6f;
+}
+.inputLabelCon {
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,155 @@
+.formContainer {
+  width: 100%;
+  min-height: 300px;
+  max-height: 790px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  padding-right: 15px;
+}
+.infoContainer {
+  width: 100%;
+  margin-bottom: 15px;
+}
+.provider {
+  width: 100%;
+}
+.form {
+  width: 100%;
+}
+.buttonContainer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+.label {
+  font-size: 12px;
+  padding: 1px 4px;
+  background-color: grey;
+  border-radius: 10px;
+  margin: 0px 2px;
+}
+.tableContainer {
+  width: 100%;
+  height: 370px;
+  border: 1px solid #f3f3f3;
+  overflow-y: auto;
+}
+.tableContainer {
+  width: 100%;
+  height: 370px;
+  border: 1px solid #f3f3f3;
+  overflow-y: auto;
+}
+
+.tableContainer::-webkit-scrollbar {
+  width: 4px; /* Ancho del scrollbar */
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+  background-color: #888; /* Color del thumb (la parte deslizante) */
+  border-radius: 1px; /* Borde redondeado del thumb */
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover {
+  background-color: #555; /* Cambia el color del thumb al pasar el mouse */
+}
+.ncTotalCont {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 9px;
+  margin-bottom: 12px;
+}
+.ncTableCont {
+  padding-top: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 10px 0px;
+}
+
+/* Estilos del scrollbar */
+.ncTableCont::-webkit-scrollbar {
+  width: 4px; /* Ancho del scrollbar */
+}
+
+/* Estilos de la pista del scrollbar */
+.ncTableCont::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Color de fondo de la pista */
+}
+
+/* Estilos del thumb del scrollbar */
+.ncTableCont::-webkit-scrollbar-thumb {
+  background: #888; /* Color del thumb */
+  border-radius: 2px; /* Radio de borde del thumb */
+}
+
+/* Estilos del thumb del scrollbar cuando está siendo hover */
+.ncTableCont::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Color del thumb en hover */
+}
+.divInputCont2 {
+  padding-top: 15px;
+  margin-bottom: -10px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+.pickStyle {
+  height: 47px;
+  width: 48%;
+  border-radius: 15px;
+  border: 1px solid #c6c6c6;
+}
+.pickStyle .ant-picker-dropdown {
+  z-index: 1000; /* Ajusta el valor según sea necesario */
+  position: relative; /* Asegura que el z-index funcione */
+}
+.checkCont {
+  margin: 10px 0px;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+.seisCont {
+  margin-left: 25px;
+}
+.pLabel {
+  position: absolute;
+  z-index: 50;
+  padding: 0px 5px;
+  margin-top: -13px;
+  background-color: #c6c6c6;
+  border-radius: 10px;
+}
+.addButtonCont{
+  padding: 0px 5px;
+  margin-top: -15px;
+  width: 100%;
+  display: flex;
+  justify-content: end;
+  position: relative;
+  height: 20px;
+}
+.addButton{
+  all: unset;
+  position: absolute;
+  border: 1px solid grey;
+  height: 18px;
+  width: 18px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  transition: all 0.2s ease;
+}
+.addButton:hover{
+  border: 2px solid grey;
+}
+.addButton i{
+  color: grey;
+  font-size: 17px;
+  transition: color 0.2s ease;
+}

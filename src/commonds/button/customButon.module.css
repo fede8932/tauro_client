@@ -1,0 +1,114 @@
+.menuIconVio {
+  color: #673ab7;
+  font-size: 18px;
+  font-weight: 300;
+}
+.menuIconBla {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 300;
+  transition: 0.5s;
+}
+.menuIconBla:active {
+  color: #ece6ff;
+}
+.menuButton {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background-color: #ece6ff;
+  border-radius: 30%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+}
+.menuButton:hover {
+  background-color: #673ab7;
+  border: 1px solid #673ab7;
+  transition: 0.5s;
+  border: none;
+}
+.menuButton:active {
+  box-shadow: 0 0 5px #673ab7;
+}
+
+/* -------------------------------------------- */
+
+.findIconVio {
+  color: #673ab7;
+  font-size: 15px;
+  font-weight: 100;
+}
+.findIconBla {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 100;
+  transition: 0.5s;
+}
+.findIconBla:active {
+  color: #ece6ff;
+}
+.findButton {
+  width: 30px;
+  height: 28px;
+  padding: 0;
+  background-color: #ece6ff;
+  border-radius: 35%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.findButton:hover {
+  background-color: #673ab7;
+  border: 1px solid #673ab7;
+  transition: 0.5s;
+}
+.findButton:active {
+  box-shadow: 0 0 5px #673ab7;
+}
+
+/* -------------------------------------------- */
+
+.sideOptionButton {
+  width: 100%;
+  height: 43px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  border-radius: 13px;
+  padding-left: 20px;
+  background-color: white;
+  border: none;
+  transition: 0.5s;
+  margin: 5px 0px;
+}
+.sideOptionButton:hover {
+  background-color: #eee6ff;
+  border: none;
+}
+.textButton {
+  font-size: 15px;
+  font-weight: 400;
+  color: #848484;
+  margin: 0px 15px;
+}
+.textButtonOver {
+  font-size: 15px;
+  font-weight: 400;
+  color: #673ab7;
+  margin: 0px 15px;
+  transition: 0.5s;
+}
+.sideIconGri {
+  color: #848484;
+  font-size: 15px;
+  font-weight: 300;
+  transition: 0.5s;
+}
+.sideIconVio {
+  color: #673ab7;
+  font-size: 15px;
+  font-weight: 300;
+  transition: 0.5s;
+}

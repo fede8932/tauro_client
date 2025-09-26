@@ -1,0 +1,93 @@
+.paginationContainer {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pagination {
+  display: flex;
+  height: 100%;
+  align-items: center;
+}
+.buttonContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  /* justify-content: space-around; */
+  /* align-items: center; */
+}
+.chContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  /* justify-content: space-around; */
+  align-items: center;
+}
+.iconB {
+  color: #dcd365;
+  font-size: 17px;
+  margin-top: -2px;
+}
+.input {
+  all: unset;
+  width: 100%;
+  height: 30px;
+  border: 1px solid #f7f7f7;
+  background-color: #ffffff;
+  padding: 0px 5px;
+}
+.blueIcon {
+  color: #2185d0;
+}
+
+.iconButton {
+  all: unset;
+}
+
+.greenIcon {
+  color: #1abc9c;
+}
+.greenRow {
+  color: green;
+}
+.green {
+  background-color: rgba(92, 255, 86, 0.28);
+}
+.blue {
+  background-color: rgba(19, 72, 156, 0.28);
+}
+.yellow {
+  background-color: rgba(255, 219, 86, 0.28);
+}
+.red {
+  background-color: rgba(255, 86, 86, 0.28);
+}
+.Creada {
+  background-color: #f7d256;
+  padding: 3px 5px;
+  border-radius: 2px;
+  color: white;
+  font-weight: 700;
+}
+.Preparada {
+  background-color: #0c7bd0;
+  padding: 3px 5px;
+  border-radius: 2px;
+  color: white;
+  font-weight: 700;
+}
+.Entregada {
+  background-color: #1abc9c;
+  padding: 3px 5px;
+  border-radius: 2px;
+  color: white;
+  font-weight: 700;
+}
+.link{
+  color: rgb(0, 149, 255);
+}
+.link:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}

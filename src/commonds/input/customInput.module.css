@@ -1,0 +1,80 @@
+.inputContainer {
+  height: 47px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  border-radius: 14px;
+  border: 1px solid #c6c6c6;
+  /* padding: 0px 10px; */
+  background-color: white;
+  position: relative;
+}
+.inputContainer:hover {
+  border: 1px solid #575757;
+}
+.inputContainerActive {
+  height: 47px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  border-radius: 14px;
+  border: 1px solid #367ff6;
+  box-shadow: inset 0 0 0 1px #367ff6;
+  /* padding: 0px 10px; */
+  background-color: white;
+  position: relative;
+}
+.extraSmall {
+  width: 31%;
+  min-width: 180px;
+}
+.small {
+  width: 48%;
+  min-width: 180px;
+}
+.xsmall {
+  width: 50%;
+}
+.medium {
+  width: 75%;
+  min-width: 280px;
+}
+.extraMedium {
+  width: 49%;
+  min-width: 280px;
+}
+.large {
+  width: 100%;
+  min-width: 380px;
+}
+.complete {
+  width: 100%;
+}
+.input {
+  width: 99%;
+  height: 99%;
+  padding: 0px 25px 0 33px;
+  /* margin: 0px 5px; */
+  border: none;
+  outline: none;
+  box-shadow: none;
+  border-radius: 14px;
+  font-size: 19px;
+  z-index: 2;
+  background-color: transparent;
+  color: black;
+}
+.searchIcon {
+  font-size: 15px;
+  color: #c6c6c6;
+  position: absolute;
+  margin: 0 10px;
+  z-index: 15;
+}
+.errorContainer {
+  margin: 0;
+  color: #ff4848;
+  padding: 0 12px;
+  height: 15px;
+  font-size: 12px;
+}

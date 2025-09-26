@@ -1,0 +1,33 @@
+.paginationContainer {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pagination {
+  display: flex;
+  height: 100%;
+  align-items: center;
+}
+.buttonContainer {
+  width: 50%;
+  display: flex;
+  justify-content: space-around;
+}
+.iconB {
+  color: #dcd365;
+  font-size: 17px;
+  margin-top: -2px;
+}
+.input {
+  all: unset;
+  width: 100%;
+  height: 30px;
+  border: 1px solid #f7f7f7;
+  background-color: #ffffff;
+  padding: 0px 5px;
+}
+.blueIcon {
+  color: #2185d0;
+}

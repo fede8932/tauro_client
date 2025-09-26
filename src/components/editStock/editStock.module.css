@@ -1,0 +1,34 @@
+.editStockContainer {
+  width: 100%;
+  height: 680px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.genericInfo {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  color: #707070;
+}
+.spanData {
+  font-weight: 600;
+  color: #616161;
+}
+.tableContainer {
+  width: 100%;
+  height: 645px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow-y: auto;
+}
+.paginationContainer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0px 25px;
+}
+.editInput {
+  width: 50px;
+}

@@ -1,0 +1,19 @@
+.selectContainer {
+  height: 47px;
+  border: 1px solid #c6c6c6;
+  background-color: white;
+  margin-bottom: 25px;
+}
+.selectContainer:hover {
+  border: 1px solid #575757;
+}
+.selectContainerMedium {
+  max-width: 49%;
+}
+.small {
+  max-width: 25%;
+  height: 33px;
+}
+.medium {
+  max-width: 49%;
+}

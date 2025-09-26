@@ -1,0 +1,29 @@
+.butContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.inpChangeCont {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90px;
+}
+.inputChange {
+  all: unset;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.inputChange:hover {
+  color: blueviolet;
+}
+.inputTable{
+  all: unset;
+  width: 80px;
+  border: 1px solid grey;
+  border-radius: 2px;
+  padding: 0px 2px;
+}

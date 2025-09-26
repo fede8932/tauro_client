@@ -1,0 +1,68 @@
+.editContainer {
+  height: 550px;
+  padding: 0px 15px;
+}
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.dataContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 25px;
+  margin-bottom: 10px;
+}
+.dataUser {
+  height: 20px;
+  margin-left: 5px;
+  font-weight: 600;
+}
+.inputContainer {
+  display: flex;
+  justify-content: space-around;
+  height: 450px;
+  margin-bottom: 15px;
+}
+.leftInputContainer {
+  width: 49%;
+  height: 99%;
+}
+.rigthInputContainer {
+  width: 45%;
+  height: 99%;
+}
+.buttonContainer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+.buttonSubContainer {
+  margin: 0 5px;
+}
+.inputLabel {
+  margin: 0 10px;
+  color: #202020;
+}
+.tableContainer {
+  height: 445px;
+  margin-bottom: 10px;
+  overflow-y: auto;
+}
+.tableContainer::-webkit-scrollbar {
+  width: 4px;
+  border-radius: 2px;
+}
+.tableContainer::-webkit-scrollbar-track {
+  background-color: #f8f4ff;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+  background-color: #e7e5ec;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover {
+  background-color: #e7e5ec;
+}

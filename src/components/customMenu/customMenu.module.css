@@ -1,0 +1,19 @@
+.filterBut {
+  all: unset;
+  padding: 3px 5px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  width: 65px;
+  height: 29px;
+  border-radius: 5px;
+  background-color: #e0e1e2;
+}
+.filterBut:hover {
+  background-color: #c2c2c2;
+}
+.bodyCont {
+  margin-top: 4px;
+  padding: 4px;
+  border-radius: 3px;
+  border: 1px solid #c2c2c2;
+}

@@ -1,0 +1,23 @@
+.inputContainer {
+  display: flex;
+  width: 45px;
+  height: 24px;
+  border-radius: 3px;
+}
+.inputStyle {
+  all: initial;
+  width: 100%;
+  height: 100%;
+  padding: 0 5px;
+}
+input.inputStyle::-webkit-inner-spin-button,
+input.inputStyle::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.inputBorderGrey {
+  border: 2px solid #ededed;
+}
+.inputBorderRed {
+  border: 2px solid #d64b4b;
+}

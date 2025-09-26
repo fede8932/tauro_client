@@ -1,0 +1,26 @@
+.subButton {
+  background-color: grey;
+  border-color: grey;
+  margin-right: 15px;
+}
+.subButton:hover {
+  background-color: #a0a0a0;
+  border-color: #a0a0a0;
+}
+.buttonContaainer {
+  width: 100%;
+  text-align: end;
+}
+.filterContainer {
+  height: 160px;
+}
+.filtros {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.sp{
+  margin-left: 10px;
+  font-weight: 300;
+  font-size: 10px;
+  color: red;
+}

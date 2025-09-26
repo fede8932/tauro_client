@@ -1,0 +1,31 @@
+.container {
+  font-family: sans-serif;
+  font-size: 12px;
+  margin: 20px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  color: blue;
+}
+
+.encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logoAfip {
+  width: 100px;
+}
+
+.informacionComprobante {
+  text-align: right;
+}
+
+.datosEmisor,
+.datosReceptor {
+  margin-top: 20px;
+}
+
+.detalleItems {
+  /* Tabla para items de la factura */
+}

@@ -1,0 +1,42 @@
+.container {
+  height: 30px;
+  width: 120px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  padding: 0px 5px;
+}
+.inputInter {
+  height: 100%;
+  width: 92px;
+  padding: 0px 8px;
+  border-width: 1px 0.5px 1px 1px;
+  border-style: solid;
+  border-color: #c6c6c6;
+  border-radius: 5px 0px 0px 5px;
+}
+.inputInter:focus {
+  border-width: 1px 0.5px 1px 1px;
+  border-style: solid;
+  border-color: #c6c6c6;
+  border-radius: 5px 0px 0px 5px;
+  outline: none;
+}
+.button {
+  height: 100%;
+  width: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.buttonSup {
+  border-width: 1px 0.5px;
+  border-style: solid;
+  border-color: #c6c6c6;
+}
+.buttonAdd {
+  border-width: 1px 1px 1px 0.5px;
+  border-style: solid;
+  border-color: #c6c6c6;
+  border-radius: 0px 5px 5px 0px;
+}

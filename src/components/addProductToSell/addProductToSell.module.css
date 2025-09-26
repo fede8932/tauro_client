@@ -1,0 +1,12 @@
+.inpFlex {
+  display: flex;
+  justify-content: space-between;
+}
+.medium {
+  width: 49%;
+}
+.buttoContainer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}

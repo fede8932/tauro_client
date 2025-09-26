@@ -1,0 +1,10 @@
+.button {
+  height: 32px;
+  margin-left: 10px;
+  width: 150px;
+}
+.extButton{
+  height: 35px;
+  margin-top: -1px;
+  margin-right: 5px;
+}

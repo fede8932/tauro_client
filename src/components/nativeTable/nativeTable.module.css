@@ -1,0 +1,87 @@
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.table {
+  width: 100%;
+  height: 97%;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid rgba(41, 164, 255, 0.9);
+  border-radius: 5px;
+}
+.headRow {
+  width: 100%;
+  height: 38px;
+  display: flex;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 0px 5px;
+  background-color: #f2faff;
+}
+.headCell {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+.body {
+  width: 100%;
+  overflow-y: auto;
+  height: calc(100% - 38px);
+  padding: 0px 5px 5px 5px;
+}
+.body::-webkit-scrollbar {
+  width: 4px;
+  border-radius: 2px;
+}
+
+.body::-webkit-scrollbar-track {
+  background-color: #f8f4ff;
+}
+
+.body::-webkit-scrollbar-thumb {
+  background-color: #e7e5ec;
+}
+
+.body::-webkit-scrollbar-thumb:hover {
+  background-color: #e7e5ec;
+}
+.row {
+  width: 100%;
+  /* height: 45px; */
+  display: flex;
+  border-bottom: 1px solid #f3f3f3;
+}
+.rowSelect {
+  width: 100%;
+  /* height: 45px; */
+  display: flex;
+  background-color: #f8f1ff;
+  font-weight: 600;
+}
+.cell {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.cell p {
+  font-size: 12px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all; /* Forzar ruptura de palabras largas */
+  padding: 0px 2px;
+}
+.pagContainer {
+  display: flex;
+  justify-content: end;
+  padding: 12px 10px 3px 10px;
+}
+.buttonsContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+  height: 100%;
+}

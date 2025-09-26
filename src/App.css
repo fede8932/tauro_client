@@ -1,0 +1,33 @@
+.panelViewContainer {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+.panelSubContainer {
+  display: flex;
+  justify-content: flex-start;
+}
+.viewContainer {
+  height: calc(100vh - 72px);
+  width: calc(100vw - 250px);
+  padding: 18px;
+  padding-top: 3px;
+  margin-left: 250px;
+  transform: translateX(0);
+  transition-property: transform, width;
+  transition-duration: 0.4s, 0.4s;
+  transition-timing-function: ease-in-out;
+  transition-delay: 0.3s, 0.1s;
+  position: absolute;
+}
+.viewContainer.big {
+  width: 100vw;
+  transform: translateX(-255px);
+  transition-property: transform, width;
+  transition-duration: 0.4s, 0.4s;
+  transition-timing-function: ease-in-out;
+  transition-delay: 0.2s, 0.3s;
+}

@@ -1,0 +1,110 @@
+.navbarContainer {
+  height: 72px;
+  width: 100vw;
+  /* margin: 7px 0px; */
+  display: flex;
+  align-items: center;
+  padding: 0px 15px;
+}
+.titleLogo {
+  display: flex;
+  align-items: center;
+  /* width: 30%;
+    max-width: 240px; */
+  width: 240px;
+  justify-content: space-between;
+}
+.logo {
+  width: 30px;
+  height: 30px;
+  padding-right: 5px;
+}
+.title {
+  font-size: 22px;
+  font-weight: 600;
+  display: contents;
+}
+.barContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: calc(100vw - 240px);
+  padding: 0px 15px;
+}
+.perfilContainer {
+  width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.configContainerWhite {
+  height: 45px;
+  width: 85px;
+  display: flex;
+  align-items: center;
+  background-color: #f1f4f8;
+  border-radius: 50px;
+  justify-content: space-around;
+  padding: 5px;
+}
+.configContainerBlue {
+  height: 45px;
+  width: 85px;
+  display: flex;
+  align-items: center;
+  background-color: #367ff6;
+  border-radius: 50px;
+  justify-content: space-around;
+  padding: 5px;
+  transition: 0.5s;
+}
+.configIconBlue {
+  color: #367ff6;
+  font-size: 22px;
+  font-weight: 100;
+  padding-top: 2px;
+}
+.configIconWhite {
+  color: #f1f4f8;
+  font-size: 22px;
+  font-weight: 100;
+  padding-top: 2px;
+  transition: 0.5s;
+}
+.avatarContainer {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #fff164;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#buttonToogle {
+  display: none;
+}
+.subMenuContainer {
+  width: 150px;
+  margin-left: -80px;
+  margin-top: 5px;
+  position: absolute;
+  z-index: 100;
+  border: 1px solid #f0f0f0;
+  background-color: white;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -1px 0px 7px 2px rgba(0, 0, 0, 0.13);
+  -webkit-box-shadow: -1px 0px 7px 2px rgba(0, 0, 0, 0.13);
+  -moz-box-shadow: -1px 0px 7px 2px rgba(0, 0, 0, 0.13);
+}
+.menuButton {
+  all: initial;
+  padding: 6px 0px 6px 12px;
+  margin: 1px;
+  color: #818082;
+  border-radius: 4px;
+}
+.menuButton:hover {
+  background-color: #f1f4f8;
+}

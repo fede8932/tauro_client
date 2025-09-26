@@ -1,0 +1,8 @@
+.loadingContainer {
+  display: flex;
+  justify-content: center; /* Centrar horizontalmente */
+  align-items: center; /* Centrar verticalmente */
+  height: calc(
+    100vh - 300px
+  ); /* Establecer la altura del contenedor para ocupar toda la vista */
+}

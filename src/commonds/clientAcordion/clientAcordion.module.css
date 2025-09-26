@@ -1,0 +1,59 @@
+.acordionBodyContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.dataContainer {
+  padding: 2px;
+  width: 100%;
+}
+.titleInfo {
+  color: #5b5b5b;
+  font-size: 20px;
+}
+.info {
+  color: #818181;
+  font-size: 18px;
+  margin: 0px 7px;
+}
+.colUno {
+  display: flex;
+  justify-content: flex-start;
+}
+.colDos {
+  display: flex;
+  justify-content: center;
+}
+.colTres {
+  display: flex;
+  justify-content: flex-end;
+}
+.filas {
+  display: flex;
+  height: 30px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.statusTrue {
+  color: #00f770;
+}
+.statusFalse {
+  color: #f70040;
+}
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.miniInputContainer {
+  display: flex;
+  width: 98%;
+  justify-content: space-around;
+}
+.miniSelectContainer {
+  width: 98%;
+}
+.miniSelect {
+  width: 50%;
+  padding: 0px 14px;
+}

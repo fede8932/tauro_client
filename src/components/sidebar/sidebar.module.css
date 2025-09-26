@@ -1,0 +1,36 @@
+.sidebarContainer {
+  /* width: 23vw;
+  max-width: 250px;
+  min-width: 220px; */
+  position: absolute;
+  width: 250px;
+  height: calc(100vh - 72px);
+  padding: 25px 10px 10px 18px;
+  overflow-y: auto;
+  transition: transform 0.4s ease-in-out;
+  transform: translateX(0);
+}
+.sidebarContainer.close {
+  transition: transform 0.4s ease-in-out;
+  transform: translateX(-250px);
+}
+.sidebarContainer::-webkit-scrollbar {
+  width: 4px;
+  border-radius: 2px;
+}
+
+.sidebarContainer::-webkit-scrollbar-track {
+  background-color: #f8f4ff;
+}
+
+.sidebarContainer::-webkit-scrollbar-thumb {
+  background-color: #e7e5ec;
+}
+
+.sidebarContainer::-webkit-scrollbar-thumb:hover {
+  background-color: #e7e5ec;
+}
+.sideTitle {
+  font-size: 15px;
+  font-weight: 450;
+}

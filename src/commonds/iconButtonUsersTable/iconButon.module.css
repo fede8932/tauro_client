@@ -1,0 +1,44 @@
+.butStyle {
+  all: unset;
+  height: 20px;
+}
+.iconStyleGrey {
+  color: #5f655c;
+  font-size: 17px;
+}
+.iconStyleBlue {
+  color: #2185d0;
+  font-size: 17px;
+}
+.iconStyleRed {
+  color: #d64b4b;
+  font-size: 17px;
+}
+.iconStyleGreen {
+  color: #21ba45;
+  font-size: 17px;
+}
+.iconStyleYellow {
+  color: #ffc300;
+  font-size: 17px;
+}
+.iconStyleTeal {
+  color: #65dca9;
+  font-size: 17px;
+}
+.iconStyleBlack {
+  color: black;
+  font-size: 17px;
+}
+.iconStyleRedSale {
+  color: #d64b4b;
+  font-size: 14px;
+}
+.iconStyleGreenSale {
+  color: #21ba45;
+  font-size: 14px;
+}
+.iconStyleGreySale {
+  color: #5f655c;
+  font-size: 14px;
+}

@@ -1,0 +1,16 @@
+.pestañasContainer {
+  width: 100%;
+  display: flex;
+  margin-bottom: 20px;
+}
+.linkContainer {
+  width: 50%;
+  padding: 15px 60px;
+}
+#linkInactive {
+  text-decoration: none;
+  color: #6a6a6a;
+}
+#linkActive {
+  color: #367ff6;
+}

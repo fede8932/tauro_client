@@ -1,0 +1,73 @@
+.sideOptionButton {
+  font-size: 15px;
+  font-weight: 400;
+  color: #848484;
+  width: 100%;
+  height: 43px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 13px;
+  padding-left: 20px;
+  background-color: white;
+  border: none;
+  transition: 0.5s;
+  margin: 5px 0px;
+}
+.sideOptionButton:hover {
+  background-color: #eee6ff;
+  border: none;
+  color: #673ab7;
+}
+.sideIconGri {
+  color: #848484;
+  font-size: 15px;
+  font-weight: 300;
+  transition: 0.5s;
+}
+.sideIconVio {
+  color: #673ab7;
+  font-size: 15px;
+  font-weight: 300;
+  transition: 0.5s;
+}
+.textContainer {
+  margin: 0px 0px 0px 15px;
+}
+.contentContainer {
+  margin-left: 25px;
+  padding-left: 15px;
+  border-left: 1px solid #f0f0f0;
+  font-size: 12px;
+}
+.interButton {
+  color: #665e75;
+  height: 40px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  background-color: white;
+  border: none;
+  font-weight: 400;
+}
+.interButton:hover {
+  color: #673ab7;
+  transition: 0.5s;
+  border: none;
+}
+.pointIcon {
+  font-size: 5px;
+  margin-right: 10px;
+}
+
+.notif {
+  width: 6px; /* Ancho del punto */
+  height: 6px; /* Altura del punto */
+  background-color: #40ec5a; /* Color del punto */
+  border-radius: 50%; /* Forma redondeada para crear un círculo */
+  display: inline-block;
+  margin-bottom: 1px;
+  margin-left: 5px;
+}

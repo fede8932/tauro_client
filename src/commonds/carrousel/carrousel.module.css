@@ -1,0 +1,14 @@
+.slickDots li.slick-active button {
+  background-color: #ff6347; /* Cambia este color a tu preferencia */
+}
+
+/* Cambia el color de los puntos de navegación inactivos */
+.slickDots li button {
+  background-color: #d3d3d3; /* Cambia este color a tu preferencia */
+}
+
+/* Ajusta el tamaño de los puntos de navegación si es necesario */
+.slickDots li button {
+  width: 10px;
+  height: 10px;
+}

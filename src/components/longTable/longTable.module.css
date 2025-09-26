@@ -1,0 +1,48 @@
+.container {
+  overflow-y: auto;
+  height: 90%;
+}
+.table {
+  width: 100%;
+  table-layout: fixed;
+}
+.table th {
+  position: sticky;
+  top: 0;
+  background-color: #f5f5f5;
+  z-index: 2;
+}
+.container::-webkit-scrollbar {
+  width: 4px;
+  border-radius: 2px;
+}
+.container::-webkit-scrollbar-track {
+  background-color: #f8f4ff;
+}
+
+.container::-webkit-scrollbar-thumb {
+  background-color: #e7e5ec;
+}
+
+.container::-webkit-scrollbar-thumb:hover {
+  background-color: #e7e5ec;
+}
+
+.iconButton {
+  all: unset;
+}
+.blueIcon {
+  color: #2185d0;
+}
+.greyIcon {
+  color: grey;
+}
+.redIcon {
+  color: #d64b4b;
+}
+.greenIcon {
+  color: #1abc9c;
+}
+.customModalIcon {
+  font-size: 18px;
+}

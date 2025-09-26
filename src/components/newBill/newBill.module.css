@@ -1,0 +1,81 @@
+.facContainer {
+  height: 760px;
+}
+.dataContainer {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0px;
+}
+.datosSpan {
+  font-weight: 600;
+}
+.formContainer {
+  margin-top: 15px;
+}
+.message {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  border-radius: 5px;
+  border: 1px solid #00aaff;
+  background-color: rgba(0, 170, 255, 0.1);
+  font-weight: 600;
+  color: #004a6f;
+}
+.tableContainer {
+  margin-top: 10px;
+  height: 590px;
+  overflow-y: auto;
+}
+.buttonContainer {
+  margin-top: 25px;
+  width: 100%;
+  height: 45px;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+}
+.Green {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #00f770;
+  margin-right: 5px;
+}
+.Blue {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #0010f7;
+  margin-right: 5px;
+}
+.Orange {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: orange;
+  margin-right: 5px;
+}
+.Red {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: red;
+  margin-right: 5px;
+}
+.arrCont{
+  display: flex;
+}
+.arrConLef{
+  width: 93%;
+}
+.arrConRig{
+  width: 7%;
+  display: flex;
+  justify-content: end;
+  height: 35px;
+}

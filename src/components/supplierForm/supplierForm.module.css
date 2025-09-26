@@ -1,0 +1,93 @@
+.addUserContainer {
+  height: calc(100% - 25px);
+  width: 100%;
+  border-radius: 12px;
+  background-color: #fbfbfb;
+  padding: 20px 35px;
+  overflow-y: auto;
+}
+.addUserContainer::-webkit-scrollbar {
+  width: 4px;
+  border-radius: 2px;
+}
+
+.addUserContainer::-webkit-scrollbar-track {
+  background-color: #f8f4ff;
+}
+
+.addUserContainer::-webkit-scrollbar-thumb {
+  background-color: #e7e5ec;
+}
+
+.addUserContainer::-webkit-scrollbar-thumb:hover {
+  background-color: #e7e5ec;
+}
+.formTitle {
+  font-size: 28px;
+  font-weight: 400;
+  margin-bottom: 25px;
+  color: #367ff6;
+}
+.formContainer {
+  display: flex;
+  flex-direction: column;
+}
+.subFormContainer {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.inputContainer {
+  width: 49%;
+  padding: 0px 16px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #eaeaea;
+  border-radius: 14px;
+}
+.subTitle {
+  margin-top: -11px;
+  margin-bottom: 15px;
+  color: #575757;
+  font-size: 13px;
+  background-color: #fbfbfb;
+  z-index: 2;
+  width: 115px;
+  display: flex;
+  justify-content: center;
+}
+.inputContainerLong {
+  width: 100%;
+  padding: 0px 16px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #eaeaea;
+  border-radius: 14px;
+  margin-top: 25px;
+  min-height: 300px;
+}
+.divContainer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+.containerTable1 {
+  width: 29%;
+  height: 290px;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+.containerTable2 {
+  width: 48%;
+  height: 290px;
+}
+.selectButton {
+  width: 50%;
+  color: white;
+}
+.subContainer {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
