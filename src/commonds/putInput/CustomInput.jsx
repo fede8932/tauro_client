@@ -2,24 +2,35 @@ import React, { useEffect, useState } from 'react';
 import styles from './customInput.module.css';
 import { useFormContext } from 'react-hook-form';
 
-const formatNumber = (value) => {
-  if (value == null || value === '') return '0,00';
-  const nValue = String(value);
-  
-  // Si el valor ya está formateado (contiene comas o puntos), lo parseamos primero
-  if (nValue.includes(',') || nValue.includes('.')) {
-    // Remover formato existente y convertir a número
-    const cleanValue = nValue.replace(/\./g, '').replace(',', '.');
-    const numValue = parseFloat(cleanValue);
-    if (isNaN(numValue)) return '0,00';
-    return numValue.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// Formatea una cadena de dígitos como moneda con formato es-AR: x.xxx.xxx,xx
+// Reglas:
+// - Solo se permiten dígitos en la entrada
+// - Los últimos 2 dígitos son los decimales
+// - Se insertan separadores de miles "." y decimales ","
+const formatCurrencyFromDigits = (value) => {
+  if (value == null) return '0,00';
+  // Mantener únicamente los dígitos (soporta pegar valores con símbolos)
+  const digits = String(value).replace(/\D/g, '');
+  if (digits.length === 0) return '0,00';
+
+  let intPart = '0';
+  let fracPart = '00';
+
+  if (digits.length === 1) {
+    // x -> 0,0x
+    fracPart = `0${digits}`;
+  } else if (digits.length === 2) {
+    // xy -> 0,xy
+    fracPart = digits;
+  } else {
+    // abc..xy -> abc..,xy
+    intPart = digits.slice(0, -2).replace(/^0+/, '') || '0';
+    fracPart = digits.slice(-2);
   }
-  
-  // Si es un número puro del backend (como 174000), lo tratamos como pesos completos
-  const numValue = parseFloat(nValue);
-  if (isNaN(numValue)) return '0,00';
-  
-  return numValue.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  // Agregar separadores de miles a la parte entera
+  const intWithSep = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return `${intWithSep},${fracPart}`;
 };
 
 function CustomInput(props) {
@@ -42,8 +53,10 @@ function CustomInput(props) {
 
   const handleChange = (e) => {
     const rawValue = e.target.value;
-    const formattedValue = formatNumber(rawValue);
-    setValue(name, formattedValue); // Actualiza el valor en el formulario
+    const formattedValue = formatCurrencyFromDigits(rawValue);
+    // Actualiza el valor en el formulario y en el input visible
+    setValue(name, formattedValue, { shouldDirty: true, shouldValidate: false });
+    e.target.value = formattedValue;
   };
 
   // Mantener sincronizado el valor cuando se pasa via props.value
@@ -56,7 +69,7 @@ function CustomInput(props) {
   // Si se habilita formatNum, formatear el defaultValue inicial
   useEffect(() => {
     if (formatNum) {
-      const formatted = formatNumber(defaultValue);
+      const formatted = formatCurrencyFromDigits(defaultValue ?? '');
       setValue(name, formatted);
     }
   }, [formatNum, defaultValue, name, setValue]);
@@ -71,7 +84,7 @@ function CustomInput(props) {
       >
         <i className={`${styles.searchIcon} ${icon}`}></i>
         <input
-          defaultValue={!formatNum ? defaultValue || '' : formatNumber(defaultValue)}
+          defaultValue={!formatNum ? defaultValue || '' : formatCurrencyFromDigits(defaultValue ?? '')}
           disabled={readOnly}
           {...register(name, validate)}
           onFocus={() => {
