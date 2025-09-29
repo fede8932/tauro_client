@@ -51,12 +51,58 @@ function CustomInput(props) {
     setValue, // Para actualizar el valor del campo en el formulario
   } = useFormContext();
 
+  // Cuenta cuántos dígitos hay a la izquierda del caret
+  const countDigitsLeft = (str, caretIndex) => {
+    let count = 0;
+    for (let i = 0; i < Math.max(0, caretIndex); i++) {
+      const ch = str[i];
+      if (ch >= '0' && ch <= '9') count++;
+    }
+    return count;
+  };
+
+  // Dado un string formateado y una cantidad de dígitos a la izquierda,
+  // devuelve el índice de caret equivalente en el texto formateado
+  const caretIndexFromDigits = (formatted, digitsLeft) => {
+    if (digitsLeft <= 0) return 0;
+    let count = 0;
+    for (let i = 0; i < formatted.length; i++) {
+      const ch = formatted[i];
+      if (ch >= '0' && ch <= '9') {
+        count++;
+        if (count === digitsLeft) {
+          // Posicionar el caret justo después de este dígito
+          return i + 1;
+        }
+      }
+    }
+    // Si hay menos dígitos que digitsLeft, ubicar al final
+    return formatted.length;
+  };
+
   const handleChange = (e) => {
-    const rawValue = e.target.value;
+    const input = e.target;
+    const rawValue = input.value;
+    const caretBefore = input.selectionStart ?? rawValue.length;
+
+    // Cantidad de dígitos a la izquierda del caret antes de formatear
+    const digitsLeft = countDigitsLeft(rawValue, caretBefore);
+
+    // Formatear (se normaliza a dígitos => formato es-AR con ., y ,)
     const formattedValue = formatCurrencyFromDigits(rawValue);
-    // Actualiza el valor en el formulario y en el input visible
+
+    // Actualizar el valor en el formulario y en el input visible
     setValue(name, formattedValue, { shouldDirty: true, shouldValidate: false });
-    e.target.value = formattedValue;
+    input.value = formattedValue;
+
+    // Calcular nueva posición del caret equivalente
+    const newCaret = caretIndexFromDigits(formattedValue, digitsLeft);
+    // Restaurar selección/caret
+    requestAnimationFrame(() => {
+      try {
+        input.setSelectionRange(newCaret, newCaret);
+      } catch (_) {}
+    });
   };
 
   // Mantener sincronizado el valor cuando se pasa via props.value
