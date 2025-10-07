@@ -48,7 +48,7 @@ function NewMenu(props) {
           <ProtectedComponent listAccesss={[1]}>
             <DropdownItem
               text="Ir a Blase"
-              onClick={() => redirectToGoogle('https://admin.blasedistribuidora.com')}
+              onClick={() => redirectToGoogle('https://admin.blasedistribuidora.shop')}
             />
           </ProtectedComponent>
         ) : null}
