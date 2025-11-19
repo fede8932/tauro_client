@@ -250,11 +250,8 @@ export const billHtml = async (
           <div class="dataEmisor">
             <img class="logo" src=${logoBlaseBase64} alt="logo">
             <div class="infoEminContainer">
-              <span class="infoEmisTex">De Blase Distribuidora</span>
-              <span class="infoEmisTex">Don Bosco 2175, Morón. CP: 1708</span>
-              <span class="infoEmisTex">4460-5972</span>
-              <span class="infoEmisTex">ventas@blasedistribuidora.com</span>
-              <span class="infoEmisTex">IVA: Responsable Inscripto</span>
+              <span class="infoEmisTex">Tel: 11 7619-9643</span>
+              <span class="infoEmisTex">ventas@tauroparts.shop</span>
             </div>
           </div>
           <div class="factCode">

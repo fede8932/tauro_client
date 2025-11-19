@@ -37,19 +37,8 @@ const PdfGenR = (props) => {
                     alt="logo"
                   />
                   <div className={styles.infoEminContainer}>
-                    <span className={styles.infoEmisTex}>
-                      De Hernan Blasevich
-                    </span>
-                    <span className={styles.infoEmisTex}>
-                      Don Bosco 2175, Morón. CP: 1708
-                    </span>
-                    <span className={styles.infoEmisTex}>4460-5972</span>
-                    <span className={styles.infoEmisTex}>
-                      ventas@blasedistribuidora.com
-                    </span>
-                    <span className={styles.infoEmisTex}>
-                      IVA: Responsable Inscripto
-                    </span>
+                    <span className={styles.infoEmisTex}>Tel: 11 7619-9643</span>
+                    <span className={styles.infoEmisTex}>ventas@tauroparts.shop</span>
                   </div>
                 </div>
                 <div className={styles.factCode}>
