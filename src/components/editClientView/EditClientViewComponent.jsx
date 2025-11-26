@@ -296,6 +296,21 @@ function EditClientViewComponent(props) {
                     />
                   </ProtectedComponent>
                 </div>
+                <div
+                  style={{
+                    marginBottom: '8px',
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                  }}
+                >
+                  <Checkbox
+                    label="Permite cambio de contraseña"
+                    disabled={readOnly}
+                    checked={client?.user?.allowPasswordChange}
+                    name="allowPasswordChange"
+                    onChange={handleChequedChange}
+                  />
+                </div>
                 <span className={styles.inputLabel}>Comentarios</span>
                 <PutCustomTextArea
                   width="large"

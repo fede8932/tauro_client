@@ -24,6 +24,7 @@ function EditClientViewContainer(props) {
     const { iva, sellerId, ...clientData } = data;
     clientData.acceptPending = sendClient.acceptPending;
     clientData.hasSale = sendClient.hasSale;
+    clientData.allowPasswordChange = sendClient.user.allowPasswordChange;
     clientData.iva = iva != '' ? iva : sendClient.iva;
     clientData.sellerId =
       sellerId != '' ? Number(sellerId) : sendClient.sellerId;
@@ -32,7 +33,7 @@ function EditClientViewContainer(props) {
     clientData.id = clientId ? clientId : client.id;
     clientData.comitionSale = sendClient.comitionSale;
 
-    
+
     dispatch(UpdateClientsRequest(clientData)).then((res) => {
       // console.log(clientData);
       // console.log(res);

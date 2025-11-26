@@ -1,5 +1,5 @@
 .inputContainer {
-  height: 125px;
+  height: 80px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -10,11 +10,13 @@
   margin-bottom: 30px;
   /* padding: 2.5px 0px; */
 }
+
 .inputContainer:hover {
   border: 1px solid #575757;
 }
+
 .inputContainerActive {
-  height: 125px;
+  height: 80px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -26,18 +28,22 @@
   background-color: white;
   /* padding: 2.5px 0px; */
 }
+
 .small {
   width: 48%;
   min-width: 180px;
 }
+
 .medium {
   width: 75%;
   min-width: 280px;
 }
+
 .large {
   width: 100%;
   min-width: 380px;
 }
+
 .input {
   width: 99%;
   height: 98%;
@@ -49,6 +55,7 @@
   border-radius: 14px;
   padding: 7px;
 }
+
 .searchIcon {
   font-size: 15px;
   color: #c6c6c6;
