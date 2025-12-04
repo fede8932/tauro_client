@@ -281,3 +281,18 @@ export const getFileProducts = async (filterProducts) => {
     throw error;
   }
 };
+
+export const downloadProductTemplate = async () => {
+  try {
+    const res = await axios.get(`${apiUrl}/api/productos/template`, {
+      withCredentials: true,
+      responseType: 'blob',
+    });
+    return res;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};

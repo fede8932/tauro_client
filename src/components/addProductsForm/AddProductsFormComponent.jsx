@@ -5,6 +5,7 @@ import Button from 'react-bootstrap/esm/Button';
 import Spinner from 'react-bootstrap/esm/Spinner';
 import ExcelUpload from '../../commonds/upload/ExcelUpload';
 import { Checkbox } from 'semantic-ui-react';
+import { downloadProductTemplate } from '../../request/productRequest';
 
 function AddProductsFormComponent(props) {
   const {
@@ -16,6 +17,26 @@ function AddProductsFormComponent(props) {
     checks,
     setChecks,
   } = props;
+
+  const handleDownloadTemplate = async () => {
+    try {
+      const response = await downloadProductTemplate();
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'cargar_productos_template.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error descargando template:', error);
+    }
+  };
+
   const changeCheck = (e, d) => {
     let newChecks = { ...checks };
     newChecks[d.name] = d.checked;
@@ -59,7 +80,23 @@ function AddProductsFormComponent(props) {
         <div className={styles.subFormContainer}>
           <div className={styles.infoInputContainer}></div>
           <div className={styles.subUploadContainer}>
-            <span className={styles.subTitle}>Subir productos</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+              <span className={styles.subTitle}>Subir productos</span>
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={handleDownloadTemplate}
+                style={{
+                  marginTop: '5px',
+                  fontSize: '12px',
+                  padding: '4px 8px',
+                  height: 'auto',
+                }}
+              >
+                <i className="fa-solid fa-download" style={{ marginRight: '5px' }}></i>
+                Descargar template
+              </Button>
+            </div>
             <div className={styles.uploadContainer}>
               <ExcelUpload
                 label={true}
