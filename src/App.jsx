@@ -211,7 +211,7 @@ function App() {
                     <Route
                       path="search/brand"
                       element={
-                        <ProtectedView listAccesss={[1, 2, 5, 6]}>
+                        <ProtectedView listAccesss={[1, 2, 5]}>
                           <SearchBrand />
                         </ProtectedView>
                       }
