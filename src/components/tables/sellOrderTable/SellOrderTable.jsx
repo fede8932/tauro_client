@@ -430,6 +430,19 @@ function SellOrderTable(props) {
               Facturado
             </Label>
           ) : null}
+          {params.data.status == 'Paid' ? (
+            <Label
+              color="green"
+              style={{
+                width: '75px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              Pagada
+            </Label>
+          ) : null}
         </div>
       ),
       filter: false,
