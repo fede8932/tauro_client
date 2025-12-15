@@ -32,7 +32,7 @@ const CustomComp = ({ data }) => {
   return (
     <div className={styles.buttonContainer}>
       <Checkbox
-        disabled={data.oferta ? true : data.status == 'Sent' ? true : false}
+        disabled={data.oferta ? true : false}
         onChange={onClick}
         checked={list?.find((item) => item.id == data.id)?.marc}
       />
@@ -135,7 +135,7 @@ const CustomActionComp = ({
             style={{ margin: '1px 0px 0px 7px' }}
             className={styles.iconButton}
             disabled={
-              data.status == 'Open' || data.status == 'Confirm' ? false : true
+              data.status == 'Open' || data.status == 'Confirm' || data.status == 'Paid' ? false : true
             }
             onClick={() => {
               setOrder(data.id, data.clientId);
@@ -144,7 +144,7 @@ const CustomActionComp = ({
           >
             <i
               className={`fa-regular fa-pen-to-square fa-lg ${
-                data.status == 'Open' || data.status == 'Confirm'
+                data.status == 'Open' || data.status == 'Confirm' || data.status == 'Paid'
                   ? styles.blueIcon
                   : styles.greyIcon
               }`}
