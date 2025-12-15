@@ -1,10 +1,11 @@
 export const orderStatus = {
     0: 'Open',
-    1: 'Confirm',
-    2: 'Cancel',
-    3: 'Recived',
-    4: 'Sent',
-    5: 'Ajusted',
+    1: 'Paid',
+    2: 'Confirm',
+    3: 'Cancel',
+    4: 'Recived',
+    5: 'Sent',
+    6: 'Ajusted',
   };
   export const typeOrder = {
     0: 'Buy',

@@ -863,3 +863,19 @@ export const newPending = async (sendData) => {
     throw error;
   }
 };
+
+export const markOrderAsPaid = async (orderId) => {
+  try {
+    const { data } = await axios.patch(
+      `${apiUrl}/api/purchase/order/mark-as-paid/${orderId}`,
+      null,
+      { withCredentials: true }
+    );
+    return data;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};

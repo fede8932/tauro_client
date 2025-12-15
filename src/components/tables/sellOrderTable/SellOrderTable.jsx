@@ -17,7 +17,8 @@ import {
 } from '../../../redux/searchOrders';
 import ProtectedComponent from '../../../protected/protectedComponent/ProtectedComponent';
 import ActionModalContainer from '../../../containers/ActionModalContainer';
-import { printBillRequest } from '../../../request/orderRequest';
+import { printBillRequest, markOrderAsPaid } from '../../../request/orderRequest';
+import Swal from 'sweetalert2';
 import { QRCode } from 'antd';
 import { billHtml } from '../../../templates/bill';
 
@@ -45,6 +46,7 @@ const CustomActionComp = ({
   cancelOrder,
   setOrder,
   buyOrderSelect,
+  refreshOrders,
 }) => {
   const printBill = async (id) => {
     // Obtener datos de la factura
@@ -73,6 +75,43 @@ const CustomActionComp = ({
     });
     // Imprimir la ventana
     nuevaVentana.print();
+  };
+
+  const handleMarkAsPaid = async (orderId) => {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Vas a marcar esta orden como pagada',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, marcar como pagada',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await markOrderAsPaid(orderId);
+          Swal.fire({
+            position: 'center',
+            icon: 'success',
+            title: 'Orden marcada como pagada',
+            showConfirmButton: false,
+            timer: 1500
+          });
+          if (refreshOrders) {
+            refreshOrders();
+          }
+        } catch (error) {
+          Swal.fire({
+            position: 'center',
+            icon: 'error',
+            title: 'Error',
+            text: error.response?.data?.error || 'No se pudo marcar la orden como pagada',
+            showConfirmButton: true
+          });
+        }
+      }
+    });
   };
 
   return (
@@ -114,6 +153,28 @@ const CustomActionComp = ({
         }
         content="Editar"
       />
+      <ProtectedComponent listAccesss={[1, 2]}>
+        <Popup
+          trigger={
+            <button
+              style={{ margin: '1px 0px 0px 7px' }}
+              className={styles.iconButton}
+              disabled={data.status !== 'Open' || data.mercadoPagoPayment === true}
+              onClick={() => handleMarkAsPaid(data.id)}
+              type="button"
+            >
+              <i
+                className={`fa-solid fa-dollar-sign fa-lg ${
+                  data.status === 'Open' && data.mercadoPagoPayment !== true
+                    ? styles.greenIcon
+                    : styles.greyIcon
+                }`}
+              ></i>
+            </button>
+          }
+          content="Marcar como pagada"
+        />
+      </ProtectedComponent>
       <ProtectedComponent listAccesss={[1, 2]}>
         <Popup
           trigger={
@@ -383,6 +444,7 @@ function SellOrderTable(props) {
           cancelOrder={cancelOrder}
           setOrder={setOrder}
           buyOrderSelect={buyOrderSelect}
+          refreshOrders={() => dispatch(searchSellOrderRequest(filterSellOrder))}
         />
       ),
       filter: false,
