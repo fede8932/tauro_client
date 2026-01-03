@@ -44,6 +44,7 @@ import ChangePass from './components/changePass/ChangePass';
 import SellPending from './views/sellPending/SellPending';
 import SearchClosing from './views/searchClosing/SearchClosing';
 import ListPaymentOrderSupplier from './components/listPaymentOrderSupplier/ListPaymentOrderSupplier';
+import WhatsAppView from './views/whatsapp/WhatsAppView';
 
 function App() {
   const signalHub = `${import.meta.env.VITE_API_URL}/${
@@ -430,6 +431,14 @@ function App() {
                       element={
                         <ProtectedView listAccesss={[1, 2, 5, 6]}>
                           <SellPending />
+                        </ProtectedView>
+                      }
+                    />
+                    <Route
+                      path="whatsapp/connection"
+                      element={
+                        <ProtectedView listAccesss={[1]}>
+                          <WhatsAppView />
                         </ProtectedView>
                       }
                     />

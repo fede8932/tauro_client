@@ -253,6 +253,24 @@ function SideBarComponent(props) {
           }}
         />
       </div>
+      <ProtectedComponent listAccesss={[1]}>
+        <Separador props={{ clase: 'sideSeparador' }} />
+        <div className={styles.section}>
+          <h5 className={styles.sideTitle}>Configuración</h5>
+          <CustomButton
+            props={{
+              buttonStyle: 'sideOptionButton',
+              icon: 'fab fa-whatsapp',
+              iconStyle: 'sideIconGri',
+              iconHoverStyle: 'sideIconVio',
+              textButton: 'Conexión WhatsApp',
+              fnSidebar: () => {
+                fnNavigate('/whatsapp/connection');
+              },
+            }}
+          />
+        </div>
+      </ProtectedComponent>
     </div>
   );
 }
