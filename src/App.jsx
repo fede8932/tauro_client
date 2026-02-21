@@ -45,6 +45,7 @@ import SellPending from './views/sellPending/SellPending';
 import SearchClosing from './views/searchClosing/SearchClosing';
 import ListPaymentOrderSupplier from './components/listPaymentOrderSupplier/ListPaymentOrderSupplier';
 import WhatsAppView from './views/whatsapp/WhatsAppView';
+import Pos from './views/pos/Pos';
 
 function App() {
   const signalHub = `${import.meta.env.VITE_API_URL}/${
@@ -439,6 +440,14 @@ function App() {
                       element={
                         <ProtectedView listAccesss={[1]}>
                           <WhatsAppView />
+                        </ProtectedView>
+                      }
+                    />
+                    <Route
+                      path="pos"
+                      element={
+                        <ProtectedView listAccesss={[1, 2, 5, 6]}>
+                          <Pos />
                         </ProtectedView>
                       }
                     />

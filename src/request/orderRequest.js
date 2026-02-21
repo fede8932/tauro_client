@@ -13,12 +13,10 @@ export const createBuyOrder = async (objInfo) => {
     if (error.response?.status == 401) {
       window.location.href = '/';
     }
-    if (error.response?.status == 401) {
-      window.location.href = '/';
-    }
     throw error;
   }
 };
+
 export const addOrderItem = async (dataOrder) => {
   try {
     const { productId, brandId, orderId, cantidad, type } = dataOrder;

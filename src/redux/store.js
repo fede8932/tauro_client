@@ -60,6 +60,7 @@ import supCurrAcSlice from './supCurrentAcount';
 import filterSupMovementSlice from './filtersSupMovements';
 import supPaymentOrderSlice from './supPaymentOrder';
 import filterPaymentOrderSlice from './filtersPaymentOrder'
+import sellPosOrderReducer from './sellPosOrder';
 
 const store = configureStore({
   middleware: (getDefaultMiddleware) =>
@@ -125,7 +126,8 @@ const store = configureStore({
     supCurrentAcount: supCurrAcSlice,
     filterSupMovement: filterSupMovementSlice,
     filterPaymentOrder: filterPaymentOrderSlice,
-    supPaymentOrder: supPaymentOrderSlice
+    supPaymentOrder: supPaymentOrderSlice,
+    posSellOrder: sellPosOrderReducer
   },
 });
 

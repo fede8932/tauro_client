@@ -1,0 +1,58 @@
+.newBillContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 10px;
+}
+
+.billTypeContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+.billTypeContainer p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+  color: #333;
+}
+
+.billTypeContainer p i {
+  color: #367ff6;
+  font-size: 18px;
+}
+
+.radio {
+  margin-left: 10px;
+}
+
+.inputCont {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.inputCont label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+}
+
+.inputCont input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.inputCont input:focus {
+  outline: none;
+  border-color: #367ff6;
+}
