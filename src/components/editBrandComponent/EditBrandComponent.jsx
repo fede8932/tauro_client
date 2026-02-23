@@ -3,7 +3,6 @@ import styles from './editBrand.module.css';
 import { FormProvider } from 'react-hook-form';
 import CustomInput from '../../commonds/putInput/CustomInput';
 import { Button, Spinner } from 'react-bootstrap';
-import PutSelect from '../../commonds/putSelect/PutSelect';
 
 function EditBrandComponent(props) {
   const { brand, methods, handleSubmit, suppliers, loading } = props;
@@ -50,16 +49,6 @@ function EditBrandComponent(props) {
             placeholder="Porcentaje de renta"
             icon="fa-solid fa-percent"
             validate={{ required: true }}
-          />
-          <PutSelect
-            text="Selecioná una opción"
-            name="seFactura"
-            validate={{ required: true }}
-            defaultValue={brand?.seFactura}
-            arrayOptions={[
-              { value: true, text: 'Facturar' },
-              { value: false, text: 'No facturar' },
-            ]}
           />
           <Button
             onClick={methods.handleSubmit(handleSubmit)}

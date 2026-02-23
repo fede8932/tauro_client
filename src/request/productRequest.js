@@ -2,6 +2,7 @@ import axios from 'axios';
 const apiUrl = import.meta.env.VITE_API_URL;
 
 let cancelTokenSource = null;
+let searchCancelTokenSource = null;
 
 export const createProduct = async (productData) => {
   try {
@@ -82,17 +83,37 @@ export const searchProduct = async (productData) => {
 };
 export const searchProducts = async (productData) => {
   try {
-    const { page, text, equivalenceId } = productData;
+    // Cancelar la solicitud anterior si existe (evita respuestas fuera de orden al tipear)
+    if (searchCancelTokenSource) {
+      searchCancelTokenSource.cancel('Cancel previous search request');
+    }
+
+    const { page, text, equivalenceId, rows = 100 } = productData;
+    searchCancelTokenSource = axios.CancelToken.source();
+
     let url = text
-      ? `${apiUrl}/api/productos?rows=100&page=${page}&data=${text}`
-      : `${apiUrl}/api/productos?rows=100&page=${page}`;
+      ? `${apiUrl}/api/productos?rows=${rows}&page=${page}&data=${text}`
+      : `${apiUrl}/api/productos?rows=${rows}&page=${page}`;
     url = equivalenceId ? url + `&equivalenceId=${equivalenceId}` : url;
-    const products = await axios.get(url, { withCredentials: true });
+
+    const products = await axios.get(url, {
+      withCredentials: true,
+      cancelToken: searchCancelTokenSource.token,
+    });
+
+    // Restablecer después de éxito
+    searchCancelTokenSource = null;
     return products.data;
   } catch (error) {
+    if (axios.isCancel(error)) {
+      // No propagar cancelaciones explícitas
+      return;
+    }
     if (error.response?.status == 401) {
       window.location.href = '/';
     }
+    // Restablecer en error
+    searchCancelTokenSource = null;
     throw error;
   }
 };

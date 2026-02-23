@@ -18,7 +18,15 @@ function EditProductContainer(props) {
   const [selectedFiles, setSelectedFiles] = useState([]);
   // console.log(selectedFiles);
   const selectProduct = useSelector((state) => state.selectProduct);
-  const methods = useForm();
+  const methods = useForm({
+    defaultValues: {
+      article: '',
+      location: '',
+      stock: '',
+      price: '',
+      description: '',
+    },
+  });
   const dispatch = useDispatch();
 
   const productUpdate = (data) => {
@@ -45,6 +53,19 @@ function EditProductContainer(props) {
       dispatch(resetSelectProduct(null));
     };
   }, []);
+
+  useEffect(() => {
+    if (selectProduct?.data) {
+      methods.reset({
+        article: selectProduct.data.article ?? '',
+        location: selectProduct.data.location ?? '',
+        stock: selectProduct.data?.stock?.stock ?? '',
+        price: selectProduct.data?.price?.price ?? '',
+        description: selectProduct.data.description ?? '',
+      });
+      methods.clearErrors();
+    }
+  }, [selectProduct?.data, methods]);
 
   // console.log(selectProduct);
 

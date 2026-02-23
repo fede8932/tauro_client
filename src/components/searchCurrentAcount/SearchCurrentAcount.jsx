@@ -5,6 +5,7 @@ import CustomModal from '../../commonds/customModal/CustomModal';
 import NewMovimientContainer from '../../containers/NewMovimentContainer';
 import CustomMenu from '../customMenu/CustomMenu';
 import NewNCContainer from '../../containers/NewNCContainer';
+import NewDebitNote from '../newDebitNote/NewDebitNote';
 import { newPayButtonActive, numberToString } from '../../utils';
 import ProtectedComponent from '../../protected/protectedComponent/ProtectedComponent';
 import { Spinner } from 'react-bootstrap';
@@ -241,6 +242,15 @@ function SearchCurrentAcount(props) {
                   type: 'nc',
                 }}
               />
+              <CustomModal
+                title={`Registrar nota de débito`}
+                size="small"
+                actionButton={<Button>Nueva nota de débito</Button>}
+                bodyModal={(props) => <NewDebitNote {...props} />}
+                bodyProps={{
+                  currentAcountId: currentAcount?.id,
+                }}
+              />
               <div>
                 <CustomMenu>
                   <div className={styles.radCont}>
@@ -314,6 +324,21 @@ function SearchCurrentAcount(props) {
                             setFilterMovements({
                               name: 'descuentos',
                               value: !filterMovements.descuentos,
+                            })
+                          );
+                        }}
+                      />
+                    </div>
+                    <div className={styles.labTogCont}>
+                      <label>Notas de débito</label>
+                      <Radio
+                        toggle
+                        defaultChecked={filterMovements.notasDebito}
+                        onChange={() => {
+                          dispatch(
+                            setFilterMovements({
+                              name: 'notasDebito',
+                              value: !filterMovements.notasDebito,
                             })
                           );
                         }}

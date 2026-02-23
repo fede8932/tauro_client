@@ -42,8 +42,10 @@ import { getBillByIdRequest } from '../../../request/billRequest';
 import { ncAHtml } from '../../../templates/ncA';
 import { ncPresupHtml } from '../../../templates/ncPresupBlase';
 import { presupHtml } from '../../../templates/presupBlase';
+import { ndHtml } from '../../../templates/ndBlase';
 import { remitHtml } from '../../../templates/RemBlase';
 import { payDetail } from '../../../templates/payDetail';
+import { printNDByIdRequest } from '../../../request/currentAcountRequest';
 
 const CustomComp = ({ data }) => {
   // console.log(data);
@@ -84,6 +86,26 @@ const CustomActionComp = ({ data }) => {
     const { billType, numComprobante, id } = bill;
 
     let nuevaVentana;
+    // NOTA DE DEBITO (manejar antes de presupuestos y remitos)
+    if (data.type == 5) {
+      const ndData = await printNDByIdRequest(bill.id);
+
+      nuevaVentana = window.open('', '', 'width=900,height=1250');
+      const render = ndHtml(ndData, ndData.client, logoBlaseBase64);
+
+      const containerND = nuevaVentana.document.createElement('div');
+      nuevaVentana.document.body.appendChild(containerND);
+      containerND.innerHTML = render;
+
+      await waitForImagesToLoad(nuevaVentana);
+      nuevaVentana.addEventListener('afterprint', () => {
+        nuevaVentana.close();
+      });
+      nuevaVentana.print();
+      setPrintLoading(false);
+      return;
+    }
+
     //FACTURA A
     if (billType == 1 || billType == 6) {
       const billData = await getBillDataRequest(
@@ -207,17 +229,44 @@ const CustomActionComp = ({ data }) => {
       // ).style.pageBreakBefore = "always";
     }
 
-    // Después imprimimos los remitos
-    const itemsRemPage = 14;
-    const totalRemPages = Math.ceil(
-      purchaseOrder.purchaseOrderItems.length / itemsRemPage
-    );
+    // NOTA DE DEBITO
+    if (data.type == 5) {
+      const ndData = await printNDByIdRequest(bill.id);
+      
+      nuevaVentana = window.open('', '', 'width=900,height=1250');
+      
+      const render = ndHtml(
+        ndData,
+        ndData.client,
+        logoBlaseBase64
+      );
+      
+      const containerND = nuevaVentana.document.createElement('div');
+      nuevaVentana.document.body.appendChild(containerND);
+      
+      containerND.innerHTML = render;
+      
+      await waitForImagesToLoad(nuevaVentana);
+      nuevaVentana.addEventListener('afterprint', () => {
+        nuevaVentana.close();
+      });
+      nuevaVentana.print();
+      setPrintLoading(false);
+      return;
+    }
 
-    for (
-      let i = 0;
-      i < purchaseOrder.purchaseOrderItems.length;
-      i += itemsRemPage
-    ) {
+    // Después imprimimos los remitos (solo si hay purchaseOrder)
+    if (purchaseOrder && purchaseOrder.purchaseOrderItems) {
+      const itemsRemPage = 14;
+      const totalRemPages = Math.ceil(
+        purchaseOrder.purchaseOrderItems.length / itemsRemPage
+      );
+
+      for (
+        let i = 0;
+        i < purchaseOrder.purchaseOrderItems.length;
+        i += itemsRemPage
+      ) {
       const pageNumber = Math.floor(i / itemsRemPage) + 1;
       const pageItems = purchaseOrder.purchaseOrderItems.slice(
         i,
@@ -242,6 +291,7 @@ const CustomActionComp = ({ data }) => {
         const pageBreak = nuevaVentana.document.createElement('div');
         pageBreak.style.pageBreakAfter = 'always'; // Salto de página después del contenido
         nuevaVentana.document.body.appendChild(pageBreak);
+      }
       }
     }
     setPrintLoading(false);

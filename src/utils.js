@@ -232,6 +232,7 @@ export function tabReport(products) {
 export const filterOrders = (movs) => {
   let orderList = [];
   movs.map((mov, i) => {
+    if (!mov.purchaseOrder) return;
     if (i == 0) {
       orderList.push(mov.purchaseOrder);
     } else {
@@ -245,6 +246,7 @@ export const filterOrders = (movs) => {
 export const filterOrdersId = (movs) => {
   let orderList = [];
   movs.map((mov, i) => {
+    if (!mov.purchaseOrder) return;
     if (i == 0) {
       orderList.push(mov.purchaseOrder.id);
     } else {
@@ -481,7 +483,8 @@ export const waitForImagesToLoad = (nuevaVentana) => {
 
 export const checkActive = (obj) => {
   // console.log("tipo:", obj.type, "pendiente:", obj.pending);
-  if (obj.type == 0 && obj.pending) return false;
+  // Type 0 = Factura, Type 5 = NotaDebito - both can be selected when pending
+  if ((obj.type == 0 || obj.type == 5) && obj.pending) return false;
   return true;
 };
 

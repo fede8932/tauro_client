@@ -1,0 +1,266 @@
+import {
+  formatNumberWithLeadingZeros,
+  presDateIsoTostringDate,
+  redondearADosDecimales,
+} from '../utils';
+
+export const ndHtml = (
+  movimentData,
+  client,
+  logoBlaseBase64
+) => {
+  return `<!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Nota de Débito</title>
+      <style type="text/css">
+        * {
+          box-sizing: border-box;
+          -webkit-user-select: none; /* Chrome, Opera, Safari */
+          -moz-user-select: none; /* Firefox 2+ */
+          -ms-user-select: none; /* IE 10+ */
+          user-select: none; /* Standard syntax */
+        }
+        body {
+          width: 794px;
+          height: 1123px;
+        }
+        .encabezado {
+          display: flex;
+          width: 100%;
+          justify-content: space-between;
+        }
+        .logo {
+          width: 200px;
+        }
+        .descrip {
+          font-size: 10px;
+        }
+        .infoEminContainer {
+          display: flex;
+          flex-direction: column;
+          width: 225px;
+          align-items: center;
+          padding-left: 15px;
+        }
+        .infoEmisTex {
+          width: 100%;
+        }
+        .tipeFact {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 70px;
+          height: 70px;
+          border: 2px solid black;
+          font-size: 50px;
+          font-weight: 600;
+        }
+        .cod {
+          font-size: 12px;
+          display: flex;
+          justify-content: center;
+        }
+        .factCode {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        .dataFact {
+          width: 310px;
+          height: 175px;
+          border: 2px solid black;
+        }
+        .leftCont {
+          width: 50%;
+          display: flex;
+          justify-content: space-between;
+        }
+        .factCont {
+          border-bottom: 2px solid black;
+        }
+        .hojaCont {
+          font-size: 23px;
+          font-weight: 600;
+          display: flex;
+          justify-content: center;
+        }
+        .numberFact {
+          display: flex;
+          justify-content: center;
+          font-size: 21px;
+          font-weight: 600;
+        }
+        .fechaFact {
+          border-bottom: 2px solid black;
+          font-size: 19px;
+          font-weight: 500;
+        }
+        .dataFact p {
+          margin: 0px;
+          margin-bottom: 7px;
+        }
+        .dataFact span {
+          margin: 0px;
+          margin-bottom: 10px;
+          font-weight: 600;
+        }
+        .datFisc {
+          margin-top: 2px;
+        }
+        .clientContainer {
+          width: 100%;
+          height: 185px;
+          border: 1px solid black;
+          margin: 10px 0px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 12px;
+        }
+        .conceptContainer {
+          width: 100%;
+          min-height: 200px;
+          border: 1px solid black;
+          margin: 10px 0px;
+          padding: 20px;
+        }
+        .conceptTitle {
+          font-size: 20px;
+          font-weight: 600;
+          margin-bottom: 15px;
+        }
+        .conceptText {
+          font-size: 16px;
+          line-height: 1.6;
+          white-space: pre-wrap;
+        }
+        .afipDataDosContainer {
+          width: 100%;
+          border-top: 2px solid black;
+          padding: 10px;
+          display: flex;
+          margin-top: 50px;
+        }
+        .libreDeResp {
+          font-size: 10px;
+        }
+        .afipDataDosContainerLeft {
+          width: 67%;
+        }
+        .totalCont {
+          width: 33%;
+          margin-top: 35px;
+          height: 110px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          justify-content: flex-end;
+        }
+        .pesosSpanCont {
+          font-size: 17px;
+          font-weight: 500;
+        }
+        .pesosSpan {
+          margin-left: 15px;
+          font-weight: 600;
+        }
+        .ivaClient{
+          width: 100%;
+          display: flex;
+        }
+        .clientInfoText{
+          width: 100%;
+          font-size: 18px;
+        }
+        .clientInfoTextDos{
+          font-weight: 600;
+          margin-left: 10px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="encabezado">
+        <div class="leftCont">
+          <div class="dataEmisor">
+            <img class="logo" src="${logoBlaseBase64}" alt="logo" />
+            <div class="infoEminContainer">
+              <span class="infoEmisTex">Tel: 11 7619-9643</span>
+              <span class="infoEmisTex">ventas@tauroparts.shop</span>
+            </div>
+          </div>
+          <div class="factCode">
+            <div class="tipeFact">P</div>
+            <span class="cod">No valido como factura</span>
+          </div>
+        </div>
+        <div class="dataFact">
+          <div class="factCont">
+            <div class="hojaCont">
+              <span>NOTA DE DÉBITO</span>
+            </div>
+            <div class="numberFact"><span>${formatNumberWithLeadingZeros(
+              movimentData.numComprobante,
+              8
+            )}</span></div>
+          </div>
+          <div class="fechaFact">FECHA: ${presDateIsoTostringDate(
+            movimentData.fecha
+          )}</div>
+          <div class="datFisc">
+          </div>
+        </div>
+      </div>
+      <div class="clientContainer">
+        <div class="ivaClient">
+          <span class="clientInfoText">Razon Social: <span class="clientInfoTextDos">${
+            client.razonSocial
+          }</span></span>
+          <span class="clientInfoText">Teléfono: <span class="clientInfoTextDos">${
+            client.telefono
+          }</span></span>
+        </div>
+        <div class="ivaClient">
+          <span class="clientInfoText">Dirección<span class="clientInfoTextDos">${`${client.calle} ${client.altura}, ${client.localidad}`}</span></span>
+        </div>
+        <div class="ivaClient">
+          <span class="clientInfoText">IVA:<span class="clientInfoTextDos">${`IVA ${client.iva}`}</span></span>
+          <span class="clientInfoText">CUIT:<span class="clientInfoTextDos">${
+            client.cuit
+          }</span></span>
+        </div>
+      </div>
+      <div class="conceptContainer">
+        <div class="conceptTitle">CONCEPTO:</div>
+        <div class="conceptText">${movimentData.concept || 'Sin concepto especificado'}</div>
+      </div>
+      <div class="afipDataDosContainer">
+        <div class="afipDataDosContainerLeft">
+          <span class="libreDeResp">
+            Documento no válido como factura
+          </span>
+        </div>
+        <div class="totalCont">
+          <span class="pesosSpanCont"
+            >SUBTOTAL<span class="pesosSpan">$${redondearADosDecimales(
+              movimentData.amount
+            )}</span></span
+          >
+          <span class="pesosSpanCont"
+            >IVA 21%<span class="pesosSpan">$${redondearADosDecimales(
+              movimentData.iva
+            )}</span></span
+          >
+          <span class="pesosSpanCont"
+            >TOTAL<span class="pesosSpan">$${redondearADosDecimales(
+              movimentData.total
+            )}</span></span
+          >
+        </div>
+      </div>
+    </body>
+  </html>
+  `;
+};

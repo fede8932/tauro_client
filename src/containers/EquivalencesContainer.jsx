@@ -18,6 +18,8 @@ import { deleteEquivalence } from '../request/equivalencesRequest';
 function EquivalencesContainer(props) {
   const dispatch = useDispatch();
 
+  const ROWS_PER_PAGE = 50;
+
   const [text, setText] = useState('');
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
@@ -167,7 +169,11 @@ function EquivalencesContainer(props) {
 
   useEffect(() => {
     dispatch(
-      getProductListRequest({ page: page, text: text != '' ? text : null })
+      getProductListRequest({
+        page: page,
+        text: text != '' ? text : null,
+        rows: ROWS_PER_PAGE,
+      })
     );
   }, [equivalences.product, text, page]);
 

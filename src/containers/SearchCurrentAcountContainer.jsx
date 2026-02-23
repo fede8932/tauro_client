@@ -17,6 +17,7 @@ function SearchCurrentAcountContainer(props) {
     notasCredito: true,
     devoluciones: true,
     descuentos: true,
+    notasDebito: true,
   });
   // console.log(filterCheck);
   const changeFilter = (prop) => {
