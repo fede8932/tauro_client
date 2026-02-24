@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './navbar.module.css';
-import logo from '../../assets/logo/logo.png';
+import logo from '../../assets/logo/logo_tauro.png';
 import CustomButton from '../../commonds/button/CustomButton';
 import CustomSearch from '../../commonds/search/CustomSearch';
 import NewMenu from '../../commonds/newMenu/NewMenu';
@@ -25,18 +25,10 @@ function NavbarComponent(props) {
   return (
     <div className={styles.navbarContainer}>
       <div className={styles.titleLogo}>
-        <div>
-          <div style={{ position: 'relative' }}>
-            <img className={styles.logo} src={logo} alt="Logo" />
-            <h1 className={styles.title}>Ad panel</h1>
-          </div>
+        <div className={styles.brandBlock}>
+          <img className={styles.logo} src={logo} alt="Logo" />
           <span className={styles.userInfo}>
-            {`<${
-              Rol[user.rolId]
-            }> ${user.name.toUpperCase()} ${user.lastName.toUpperCase()}`.substring(
-              0,
-              28
-            )}
+            {`<${Rol[user.rolId]}> ${user.name.toUpperCase()} ${user.lastName.toUpperCase()}`.substring(0, 32)}
           </span>
         </div>
         <CustomButton

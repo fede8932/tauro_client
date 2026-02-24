@@ -39,6 +39,7 @@ function EquivalencesContainer(props) {
     Swal.fire({
       title: 'Descripción de equivalencia',
       input: 'text',
+      inputValue: equivalences.product?.description ?? '',
       inputAttributes: {
         autocapitalize: 'off',
       },
@@ -163,9 +164,12 @@ function EquivalencesContainer(props) {
   };
 
   useEffect(() => {
+    setPage(1);
+    setText('');
+    dispatch(resetEquivState());
     dispatch(getProductRequest(Number(pathname.split('/')[2])));
     return () => dispatch(resetEquivState());
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     dispatch(

@@ -136,6 +136,7 @@ function CustomInput(props) {
           onFocus={() => {
             setClassDivContainer('inputContainerActive');
           }}
+          autoComplete="off"
           className={styles.input}
           onChange={formatNum ? handleChange : () => {}}
           {...rest}

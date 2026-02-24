@@ -83,6 +83,7 @@ function EquivalencesComponent(props) {
               placeholder="Search..."
               className={styles.input}
               onChange={handleChange}
+              autoComplete="off"
               value={inputValue}
             />
             <Button

@@ -12,6 +12,9 @@ export const getEquivalennceByProductId = async (productId) => {
     if (error.response?.status == 401) {
       window.location.href = '/';
     }
+    if (error.response?.status == 409) {
+      return { error: true, status: 409, message: error.response.data };
+    }
     throw error;
   }
 };
@@ -25,6 +28,9 @@ export const createEquivalence = async (dataEquiv) => {
   } catch (error) {
     if (error.response?.status == 401) {
       window.location.href = '/';
+    }
+    if (error.response?.status == 409) {
+      return { error: true, status: 409, message: error.response.data };
     }
     throw error;
   }
