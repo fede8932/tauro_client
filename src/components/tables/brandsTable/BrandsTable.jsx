@@ -142,6 +142,7 @@ function BrandsTable(props) {
     {
       headerName: 'Proveedor',
       field: 'brand',
+      headerComponent: () => <HeaderInput title="Proveedor" name={'supplier'} />,
       valueGetter: ({ data }) => data?.brandSuppliers[0].supplier?.razonSocial,
       width: 300,
       filterParams: {

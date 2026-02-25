@@ -4,6 +4,7 @@ const initialState = {
   brand: null,
   article: null,
   description: null,
+  location: null,
   columnOrder: 'article',
   order: 'asc',
   pageSize: 100,
@@ -34,6 +35,7 @@ const filtersProductsSlice = createSlice({
       state.brand = null;
       state.article = null;
       state.description = null;
+      state.location = null;
       state.columnOrder = 'article';
       state.order = 'asc';
       state.pageSize = 50;

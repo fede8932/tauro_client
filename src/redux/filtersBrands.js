@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   code: null,
   name: null,
+  supplier: null,
   columnOrder: 'name',
   order: 'asc',
   pageSize: 20,
@@ -20,6 +21,7 @@ const filtersBrandsSlice = createSlice({
     resetFilterBrand: (state, action) => {
       state.code = null;
       state.name = null;
+      state.supplier = null;
       state.columnOrder = 'name';
       state.order = 'asc';
       state.pageSize = 20;

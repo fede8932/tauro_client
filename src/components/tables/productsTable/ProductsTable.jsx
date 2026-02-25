@@ -277,6 +277,7 @@ function ProductsTable(props) {
     {
       headerName: 'Ubicación',
       field: 'location',
+      headerComponent: () => <HeaderInput title="Ubicación" name={'location'} />,
       sortable: false,
       filter: false,
       width: 90,
