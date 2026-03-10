@@ -10,6 +10,8 @@ import {
   searchProductsExtraRequest,
   updateProductRequest,
 } from '../redux/product';
+import { updateActiveSupplier, updateProductSupplierPrice } from '../request/productRequest';
+import Swal from 'sweetalert2';
 
 function EditProductContainer(props) {
   const filterProducts = useSelector((state) => state.filterProduct);
@@ -31,20 +33,68 @@ function EditProductContainer(props) {
 
   const productUpdate = (data) => {
     data.stock = data.stock ? Number(data.stock) : null;
-    // Convertir precio con formato '10.574,05' a número
-    data.price = data.price
-      ? parseFloat(String(data.price).replace(/\./g, '').replace(',', '.'))
-      : null;
+    // Price is now managed through supplier pricing (BrandSupplier), not manually
+    data.price = null;
     if (selectedFiles.length > 0) {
       data.images = selectedFiles;
     }
-    // console.log("soy data", data);
-    // return;
     dispatch(updateProductRequest({ productId: id, updateData: data })).then(
       (res) => {
         dispatch(searchProductsExtraRequest(filterProducts));
       }
     );
+  };
+
+  const handleChangeActiveSupplier = async (productId, supplierId) => {
+    try {
+      await updateActiveSupplier(productId, supplierId);
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Proveedor actualizado',
+        text: 'El proveedor activo ha sido cambiado exitosamente',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      // Recargar el producto para obtener los precios actualizados
+      dispatch(getProductIdRequest(id));
+      dispatch(searchProductsExtraRequest(filterProducts));
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo cambiar el proveedor activo',
+        timer: 2500,
+        showConfirmButton: false,
+      });
+    }
+  };
+
+  const handleUpdateSupplierPrice = async (productId, supplierId, purchasePrice) => {
+    try {
+      await updateProductSupplierPrice(productId, supplierId, purchasePrice);
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Precio actualizado',
+        text: 'El precio del proveedor ha sido actualizado exitosamente',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      // Recargar el producto para obtener los precios actualizados
+      dispatch(getProductIdRequest(id));
+      dispatch(searchProductsExtraRequest(filterProducts));
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || 'No se pudo actualizar el precio',
+        timer: 2500,
+        showConfirmButton: false,
+      });
+    }
   };
 
   useEffect(() => {
@@ -78,6 +128,8 @@ function EditProductContainer(props) {
       methods={methods}
       product={selectProduct}
       update={productUpdate}
+      onChangeActiveSupplier={handleChangeActiveSupplier}
+      onUpdateSupplierPrice={handleUpdateSupplierPrice}
     />
   );
 }

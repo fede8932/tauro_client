@@ -317,3 +317,35 @@ export const downloadProductTemplate = async () => {
     throw error;
   }
 };
+
+export const updateActiveSupplier = async (productId, supplierId) => {
+  try {
+    const { data } = await axios.put(
+      `${apiUrl}/api/productos/update/active-supplier?productId=${productId}&supplierId=${supplierId}`,
+      {},
+      { withCredentials: true }
+    );
+    return data;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};
+
+export const updateProductSupplierPrice = async (productId, supplierId, price) => {
+  try {
+    const { data } = await axios.put(
+      `${apiUrl}/api/productos/update/supplier-price?productId=${productId}&supplierId=${supplierId}&price=${price}`,
+      {},
+      { withCredentials: true }
+    );
+    return data;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};

@@ -2,7 +2,7 @@ import axios from 'axios';
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export const createBrand = async (brandData) => {
-  const { supplierName } = brandData; //supplierName es el id
+  const { supplierIds } = brandData;
   try {
     const brandDate = {
       name: brandData.name,
@@ -10,11 +10,26 @@ export const createBrand = async (brandData) => {
       rentabilidad: brandData.renta / 100,
       seFactura: brandData.seFactura == 'true' ? true : false,
     };
+    const firstSupplierId = supplierIds[0];
     await axios.post(
-      `${apiUrl}/api/brand?supplierId=${Number(supplierName)}`,
+      `${apiUrl}/api/brand?supplierId=${Number(firstSupplierId)}`,
       brandDate,
       { withCredentials: true }
     );
+    if (supplierIds.length > 1) {
+      const brands = await axios.get(
+        `${apiUrl}/api/brand/search?data=${brandData.code}`,
+        { withCredentials: true }
+      );
+      const createdBrand = brands.data.find((b) => b.code === brandData.code);
+      if (createdBrand) {
+        await axios.post(
+          `${apiUrl}/api/brand/add/proveedor?brandId=${createdBrand.id}`,
+          { listSupplierId: supplierIds.slice(1).map(Number) },
+          { withCredentials: true }
+        );
+      }
+    }
     return 'Registrado';
   } catch (error) {
     if (error.response?.status == 401) {
@@ -117,6 +132,22 @@ export const deleteSupplierToBrand = async (infoBS) => {
     const { brandId, supplierId } = infoBS;
     const { data } = await axios.delete(
       `${apiUrl}/api/brand/delete/proveedor?brandId=${brandId}&supplierId=${supplierId}`,
+      { withCredentials: true }
+    );
+    return data;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};
+export const updateSupplierPrice = async (priceInfo) => {
+  try {
+    const { brandId, supplierId, purchasePrice } = priceInfo;
+    const { data } = await axios.put(
+      `${apiUrl}/api/brand/update/proveedor/price?brandId=${brandId}&supplierId=${supplierId}`,
+      { purchasePrice },
       { withCredentials: true }
     );
     return data;

@@ -23,7 +23,7 @@ const CustomComp = (props) => {
     <div className={styles.buttonContainer}>
       <CustomModal
         title="Editar marca"
-        size="sm"
+        size="lg"
         actionButton={
           <buton className={`${styles.iconButton} ${styles.blueIcon}`}>
             <i className="fa-regular fa-pen-to-square"></i>
@@ -143,7 +143,7 @@ function BrandsTable(props) {
       headerName: 'Proveedor',
       field: 'brand',
       headerComponent: () => <HeaderInput title="Proveedor" name={'supplier'} />,
-      valueGetter: ({ data }) => data?.brandSuppliers[0].supplier?.razonSocial,
+      valueGetter: ({ data }) => data?.brandSuppliers?.map((bs) => bs.supplier?.razonSocial).filter(Boolean).join(', '),
       width: 300,
       filterParams: {
         filterOptions: ['contains'], // Solo opción 'contains'

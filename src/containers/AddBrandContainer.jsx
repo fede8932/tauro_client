@@ -13,7 +13,7 @@ function AddBrandContainer(props) {
   const dispatch = useDispatch();
   const methods = useForm();
   const addBrand = (data) => {
-    dispatch(brandCreateRequest(data))
+    return dispatch(brandCreateRequest(data))
       .then((res) => {
         if (res.error) {
           Swal.fire({

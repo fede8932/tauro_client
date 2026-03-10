@@ -17,6 +17,10 @@ export const deleteSupplierToBrandRequest = createAsyncThunk(
   'DEL_SUPPLIER_TO_BRAND',
   brandRequest.deleteSupplierToBrand
 );
+export const updateSupplierPriceRequest = createAsyncThunk(
+  'UPDATE_SUPPLIER_PRICE',
+  brandRequest.updateSupplierPrice
+);
 
 const searchBrandSlice = createSlice({
   name: 'searchBrand',
@@ -59,6 +63,24 @@ const searchBrandSlice = createSlice({
       state.error = action.error.message;
     },
     [deleteSupplierToBrandRequest.fulfilled]: (state, action) => {
+      const newState = state.data.map((brand) => {
+        if (brand.id === action.payload.id) {
+          return action.payload;
+        } else {
+          return brand;
+        }
+      });
+      state.data = newState;
+      state.loading = false;
+    },
+    [updateSupplierPriceRequest.pending]: (state, action) => {
+      state.loading = true;
+    },
+    [updateSupplierPriceRequest.rejected]: (state, action) => {
+      state.loading = false;
+      state.error = action.error.message;
+    },
+    [updateSupplierPriceRequest.fulfilled]: (state, action) => {
       const newState = state.data.map((brand) => {
         if (brand.id === action.payload.id) {
           return action.payload;
