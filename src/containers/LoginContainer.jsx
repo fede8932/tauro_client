@@ -1,7 +1,7 @@
 import React from 'react';
 import LoginComponent from '../components/login/LoginComponent';
 import { useDispatch, useSelector } from 'react-redux';
-import { sendLoginRequest } from '../redux/user';
+import { sendLoginRequest, clearError } from '../redux/user';
 
 function LoginContainer() {
   const user = useSelector((state) => state.user);
@@ -9,6 +9,7 @@ function LoginContainer() {
   const fnLogin = (data, event) => {
     const { email, password } = data;
     event.preventDefault();
+    dispatch(clearError());
     dispatch(sendLoginRequest({ email, password }))
       .then((res) => {
         localStorage.setItem('user', JSON.stringify(res.payload));

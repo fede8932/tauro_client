@@ -76,6 +76,11 @@ function LoginComponent(props) {
                 </a>
               </div>
             </div>
+            {user.error && !user.loading && (
+              <span className={styles.spanError}>
+                Credenciales inválidas. Verificá tu email y contraseña.
+              </span>
+            )}
             <Button
               type="submit"
               className={styles.submitButton}

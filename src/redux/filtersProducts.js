@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = {
+const defaultState = {
   brand: null,
   article: null,
   description: null,
@@ -16,7 +16,7 @@ const initialState = {
 
 const filtersProductsSlice = createSlice({
   name: 'filtersProducts',
-  initialState,
+  initialState: defaultState,
   reducers: {
     setFilterProduct: (state, action) => {
       const { name, value } = action.payload;
@@ -32,17 +32,10 @@ const filtersProductsSlice = createSlice({
       state.equivalenceId = null;
     },
     resetFilterProduct: (state, action) => {
-      state.brand = null;
-      state.article = null;
-      state.description = null;
-      state.location = null;
-      state.columnOrder = 'article';
-      state.order = 'asc';
-      state.pageSize = 50;
-      state.page = 1;
-      state.equivalenceId = null;
-      state.supplierId = null;
-      state.esOferta = null;
+      return defaultState;
+    },
+    loadFiltersFromStorage: (state) => {
+      // Ya no es necesario cargar de storage
     },
   },
 });
@@ -52,6 +45,7 @@ export const {
   resetFilterProduct,
   setEquivFilter,
   resetEquivFilter,
+  loadFiltersFromStorage,
 } = filtersProductsSlice.actions;
 
 export default filtersProductsSlice.reducer;

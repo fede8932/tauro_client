@@ -35,6 +35,11 @@ export const persistUserMe = createAsyncThunk(
 const userSlice = createSlice({
   name: 'user',
   initialState: userState,
+  reducers: {
+    clearError: (state) => {
+      state.error = '';
+    },
+  },
   extraReducers: {
     // [sendSignUpRequest.pending]: (state, action) => {
     //   state.loading = true;
@@ -97,4 +102,5 @@ const userSlice = createSlice({
   },
 });
 
+export const { clearError } = userSlice.actions;
 export default userSlice.reducer;

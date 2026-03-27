@@ -205,7 +205,7 @@ function SideBarComponent(props) {
               {
                 textButton: 'Punto de venta',
                 fn: () => {
-                  fnNavigate('/pos');
+                  fnNavigate('/pos/v2');
                 },
               },
               {

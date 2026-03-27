@@ -32,7 +32,7 @@ export const presupHtml = (
 
   const lista = pageItems.map((item) => {
     return `<tr>
-              <td>${item?.product?.article}</td>
+              <td>${/*item?.product?.article*/"-"}</td>
               <td class="descrip">${item?.amount}</td>
               <td class="descrip">${item?.product?.description.substring(
                 0,

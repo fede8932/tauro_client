@@ -12,7 +12,7 @@ import ProtectedComponent from '../../../protected/protectedComponent/ProtectedC
 import CustomModal from '../../../commonds/customModal/CustomModal';
 import EditProductContainer from '../../../containers/EditProductContainer';
 import IconButonUsersTable from '../../../commonds/iconButtonUsersTable/IconButonUsersTable';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import {
   resetEquivFilter,
   setEquivFilter,
@@ -22,9 +22,10 @@ import AddManualPendingContainer from '../../../containers/AddManualPendingConta
 import AddProductToSellContainer from '../../../containers/AddProductToSellContainer';
 
 const CustomComp = ({ data, props }) => {
-  const { deleteProduct, selectClientId /*, addProduct*/ } = props;
+  const { deleteProduct, selectClientId } = props;
   const navigate = useNavigate();
-  // console.log(selectClientId);
+  const filterProducts = useSelector((state) => state.filterProduct);
+  
   return (
     <div className={styles.buttonContainer}>
       <ActionModalContainer
@@ -45,9 +46,9 @@ const CustomComp = ({ data, props }) => {
           title="Editar Producto"
           size="lg"
           actionButton={
-            <buton className={styles.iconB}>
-              <i class="fa-regular fa-pen-to-square"></i>
-            </buton>
+            <button className={styles.iconB}>
+              <i className="fa-regular fa-pen-to-square"></i>
+            </button>
           }
           bodyModal={(props) => (
             <EditProductContainer {...props} id={data.id} />
@@ -72,9 +73,9 @@ const CustomComp = ({ data, props }) => {
           title="Agregar pendientes"
           size="lg"
           actionButton={
-            <buton className={styles.iconC}>
-              <i class="fa-solid fa-clock-rotate-left"></i>
-            </buton>
+            <button className={styles.iconC}>
+              <i className="fa-solid fa-clock-rotate-left"></i>
+            </button>
           }
           bodyModal={(props) => (
             <AddManualPendingContainer {...props} id={data.id} />
@@ -86,13 +87,13 @@ const CustomComp = ({ data, props }) => {
           title="Agregar a pedido"
           size="lg"
           actionButton={
-            <buton
+            <button
               className={
                 !selectClientId ? styles.iconStyleGrey : styles.iconStyleGreen
               }
             >
-              <i class="fa-solid fa-cart-plus"></i>
-            </buton>
+              <i className="fa-solid fa-cart-plus"></i>
+            </button>
           }
           bodyModal={(props) => (
             <AddProductToSellContainer
@@ -130,7 +131,8 @@ const CustomComp = ({ data, props }) => {
 const Equivalences = ({ data, props }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { equivalenceId } = useSelector((state) => state.filterProduct);
+  const filterProducts = useSelector((state) => state.filterProduct);
+  const { equivalenceId } = filterProducts;
   // console.log(equivalenceId);
   return (
     <div className={styles.buttonContainer}>
@@ -170,9 +172,17 @@ const HeaderInput = (props) => {
   const dispatch = useDispatch();
   const filterProducts = useSelector((state) => state.filterProduct);
   const [inp, setInp] = useState(false);
-  const [debouncedValue, setDebouncedValue] = useState(filterProducts[name]);
+  const [debouncedValue, setDebouncedValue] = useState(filterProducts[name] || '');
   const inputRef = useRef(null);
   const debounceTimeoutRef = useRef(null);
+
+  // Sincronizar el valor local cuando cambia el estado global
+  useEffect(() => {
+    setDebouncedValue(filterProducts[name] || '');
+    if (filterProducts[name]) {
+      setInp(true);
+    }
+  }, [filterProducts[name], name]);
 
   const onTitleClick = () => {
     setInp(true);
@@ -221,7 +231,7 @@ const HeaderInput = (props) => {
     <input
       ref={inputRef}
       className={styles.input}
-      value={debouncedValue}
+      value={debouncedValue || ''}
       onChange={onInputChange}
     />
   ) : (
@@ -239,6 +249,12 @@ function ProductsTable(props) {
   const dispatch = useDispatch();
 
   const products = useSelector((state) => state.product);
+
+  // No cargar nada del storage, dejar que Redux maneje el estado en memoria
+  useEffect(() => {
+    // Si queremos que el botón atrás mantenga los resultados, 
+    // simplemente no reseteamos el estado al desmontar.
+  }, [dispatch]);
 
   const [columnDefs, setColumnDefs] = useState([
     {
@@ -323,6 +339,7 @@ function ProductsTable(props) {
             deleteProduct: deleteProduct,
             selectClientId: selectClientId,
             addProduct: addProduct,
+            filterProducts: filterProducts,
           }}
         />
       ),

@@ -10,8 +10,8 @@ function SearchProduct() {
 
   useEffect(() => {
     return () => {
-      dispatch(resetProductSearch());
-      dispatch(resetFilterProduct());
+      // dispatch(resetProductSearch());
+      // dispatch(resetFilterProduct());
     };
   }, []);
   return (

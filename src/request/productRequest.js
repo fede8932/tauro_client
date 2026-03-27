@@ -224,7 +224,10 @@ export const updateProduct = async (update) => {
 
     // Agregar los datos del producto
     for (let prop in rest) {
-      if (rest[prop] !== null && rest[prop] !== undefined) {
+      // Always send stock and location (even if null/empty) to allow clearing values
+      if (prop === 'stock' || prop === 'location') {
+        formData.append(prop, rest[prop] !== null && rest[prop] !== undefined ? rest[prop] : '');
+      } else if (rest[prop] !== null && rest[prop] !== undefined) {
         formData.append(prop, rest[prop]);
       }
     }
@@ -339,6 +342,22 @@ export const updateProductSupplierPrice = async (productId, supplierId, price) =
     const { data } = await axios.put(
       `${apiUrl}/api/productos/update/supplier-price?productId=${productId}&supplierId=${supplierId}&price=${price}`,
       {},
+      { withCredentials: true }
+    );
+    return data;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};
+
+export const searchProductsAndEquivalences = async (searchData) => {
+  try {
+    const { data } = await axios.post(
+      `${apiUrl}/api/productos/search/mixed`,
+      searchData,
       { withCredentials: true }
     );
     return data;

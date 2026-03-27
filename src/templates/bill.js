@@ -21,7 +21,7 @@ export const billHtml = async (
   // console.log('billdata:', billData);
   const lista = list.map((item) => {
     return `<tr>
-              <td>${item?.product?.article}</td>
+              <td>${/*item?.product?.article*/"-"}</td>
               <td class="descrip">${item?.amount}</td>
               <td class="descrip">${item?.product?.description.substring(
                 0,
