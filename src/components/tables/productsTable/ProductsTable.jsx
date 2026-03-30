@@ -291,6 +291,16 @@ function ProductsTable(props) {
       },
     },
     {
+      headerName: 'Proveedor',
+      field: 'supplier',
+      headerComponent: () => <HeaderInput title="Proveedor" name={'supplier'} />,
+      filterParams: {
+        filterOptions: ['contains'],
+        suppressFilterButton: true,
+      },
+      width: 150,
+    },
+    {
       headerName: 'Ubicación',
       field: 'location',
       headerComponent: () => <HeaderInput title="Ubicación" name={'location'} />,

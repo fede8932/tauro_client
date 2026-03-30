@@ -1,7 +1,7 @@
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { searchProductsAndEquivalencesRequest } from '../../../redux/productEquivalence';
 import { discountApplicationV2, numberToString } from '../../../utils';
@@ -135,56 +135,73 @@ const HeaderInput = (props) => {
   );
 };
 
-const ExpandCellRenderer = (props) => {
-  const { data, toggleExpand, isExpanded } = props;
-  if (data.type !== 'EQUIVALENCE') return null;
-  
-  return (
-    <div 
-      onClick={() => toggleExpand(data.id)} 
-      style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}
-    >
-      <i 
-        className={`fa-solid ${isExpanded ? 'fa-minus' : 'fa-plus'}`} 
-        style={{ 
-            color: isExpanded ? 'red' : 'green', 
-            fontSize: '18px',
-            fontWeight: 'bold'
-        }}
-      ></i>
-    </div>
-  );
-};
-
-function PosProductsTableV2(props) {
-  const { selectClientId, customerDiscounts, addProduct } = props;
-  const filterProducts = useSelector((state) => state.filterProduct);
-  const productEquivalence = useSelector((state) => state.productEquivalence);
-  const dispatch = useDispatch();
+// Componente interno memoizado que maneja su propio estado de expansión
+const AgGridWrapper = React.memo(function AgGridWrapper({ 
+  equivalences, 
+  standaloneProducts, 
+  selectClientId, 
+  customerDiscounts, 
+  addProduct 
+}) {
+  const gridRef = useRef(null);
+  const containerRef = useRef(null);
   const [expandedIds, setExpandedIds] = useState([]);
+  const pendingScrollRef = useRef(null);
 
-  const toggleExpand = (id) => {
-    if (expandedIds.includes(id)) {
-      setExpandedIds(expandedIds.filter(e => e !== id));
-    } else {
-      setExpandedIds([...expandedIds, id]);
-    }
-  };
+  const getGridViewport = useCallback(() => {
+    return containerRef.current?.querySelector('.ag-body-viewport');
+  }, []);
 
-  // Build Row Data
+  const toggleExpand = useCallback((eqId) => {
+    // Guardar scroll de TODOS los posibles contenedores ANTES de cambiar el estado
+    const viewport = containerRef.current?.querySelector('.ag-body-viewport');
+    const savedScroll = {
+      viewport: viewport?.scrollTop ?? 0,
+      window: window.scrollY,
+    };
+    pendingScrollRef.current = savedScroll;
+
+    setExpandedIds(prev => {
+      if (prev.includes(eqId)) {
+        return prev.filter(e => e !== eqId);
+      } else {
+        return [...prev, eqId];
+      }
+    });
+  }, []);
+
+  // Restaurar scroll después de que React actualice el DOM
+  useEffect(() => {
+    if (pendingScrollRef.current === null) return;
+    const saved = pendingScrollRef.current;
+    pendingScrollRef.current = null;
+
+    // Restaurar en el próximo frame para que el DOM ya esté actualizado
+    requestAnimationFrame(() => {
+      const viewport = containerRef.current?.querySelector('.ag-body-viewport');
+      if (viewport) viewport.scrollTop = saved.viewport;
+      window.scrollTo(0, saved.window);
+
+      // Doble seguridad: restaurar de nuevo por si Ag-Grid sobreescribe
+      requestAnimationFrame(() => {
+        const vp = containerRef.current?.querySelector('.ag-body-viewport');
+        if (vp) vp.scrollTop = saved.viewport;
+        window.scrollTo(0, saved.window);
+      });
+    });
+  }, [expandedIds]);
+
   const rowData = useMemo(() => {
     const rows = [];
-    const equivalences = productEquivalence.data.list || [];
-    const standalone = productEquivalence.data.standaloneProducts || [];
 
-    // 1. Equivalences
     equivalences.forEach(eq => {
       rows.push({
         ...eq,
         type: 'EQUIVALENCE',
-        brandName: 'Equivalencia', // Display for Brand column
+        brandName: 'Equivalencia',
         stockValue: eq.totalStock,
-        priceValue: null
+        priceValue: null,
+        _isExpanded: expandedIds.includes(eq.id)
       });
       if (expandedIds.includes(eq.id)) {
         eq.products.forEach(prod => {
@@ -192,7 +209,7 @@ function PosProductsTableV2(props) {
             ...prod,
             type: 'EQUIV_PRODUCT',
             parentId: eq.id,
-            brandName: prod.brand, // Note: In DTO it might be string or object, check Service
+            brandName: prod.brand,
             stockValue: prod.stock,
             priceValue: prod.price
           });
@@ -200,32 +217,43 @@ function PosProductsTableV2(props) {
       }
     });
 
-    // 2. Standalone
-    standalone.forEach(prod => {
+    standaloneProducts.forEach(prod => {
       rows.push({
         ...prod,
         type: 'PRODUCT',
-        brandName: prod.brand, 
-        stockValue: prod.stock, // Check DTO: Standalone is ProductItemDto
+        brandName: prod.brand,
+        stockValue: prod.stock,
         priceValue: prod.price
       });
     });
 
     return rows;
-  }, [productEquivalence, expandedIds]);
+  }, [equivalences, standaloneProducts, expandedIds]);
 
-  const [columnDefs, setColumnDefs] = useState([
+  const columnDefs = useMemo(() => [
     {
         headerName: '',
         field: 'expand',
         width: 50,
-        cellRenderer: (params) => (
-            <ExpandCellRenderer 
-                data={params.data} 
-                toggleExpand={toggleExpand} 
-                isExpanded={expandedIds.includes(params.data.id)} 
-            />
-        )
+        cellRenderer: (params) => {
+          if (params.data.type !== 'EQUIVALENCE') return null;
+          const isExpanded = params.data._isExpanded;
+          return (
+            <div 
+              onClick={() => params.context.toggleExpand(params.data.id)} 
+              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}
+            >
+              <i 
+                className={`fa-solid ${isExpanded ? 'fa-minus' : 'fa-plus'}`} 
+                style={{ 
+                    color: isExpanded ? 'red' : 'green', 
+                    fontSize: '18px',
+                    fontWeight: 'bold'
+                }}
+              ></i>
+            </div>
+          );
+        }
     },
     {
         headerName: 'Tipo',
@@ -278,7 +306,7 @@ function PosProductsTableV2(props) {
     },
     {
       headerName: 'Marca',
-      field: 'brandName', // Mapped in rowData
+      field: 'brandName',
       headerComponent: () => <HeaderInput title="Marca" name={'brand'} />,
       width: 150,
       filterParams: {
@@ -288,7 +316,7 @@ function PosProductsTableV2(props) {
     },
     {
       headerName: 'Stock',
-      field: 'stockValue', // Mapped in rowData
+      field: 'stockValue',
       filter: false,
       width: 80,
     },
@@ -306,7 +334,6 @@ function PosProductsTableV2(props) {
       cellRenderer: (params) => {
         if (params.data.type === 'EQUIVALENCE') return null;
 
-        // Mock object for utils function
         const productMock = {
             price: { price: params.data.cost },
             brand: { id: params.data.brandId, rentabilidad: params.data.rentabilidad }
@@ -314,11 +341,11 @@ function PosProductsTableV2(props) {
         
         return (
             <ProtectedComponent listAccesss={[1, 2, 3, 5, 6]}>
-            {selectClientId ? (
+            {params.context.selectClientId ? (
                 <span>
                 {params.data.priceValue
                     ? `$ ${numberToString(
-                        discountApplicationV2(customerDiscounts, productMock, true)
+                        discountApplicationV2(params.context.customerDiscounts, productMock, true)
                         .endPrice
                     )}`
                     : ''}
@@ -342,9 +369,9 @@ function PosProductsTableV2(props) {
         <CustomComp
           data={params.data}
           props={{
-            selectClientId: selectClientId,
-            addProduct: addProduct,
-            customerDiscounts: customerDiscounts,
+            selectClientId: params.context.selectClientId,
+            addProduct: params.context.addProduct,
+            customerDiscounts: params.context.customerDiscounts,
           }}
         />
       ),
@@ -353,16 +380,56 @@ function PosProductsTableV2(props) {
       filter: false,
       width: 130,
     },
-  ]);
+  ], []);
 
-  const defaultColDef = useMemo(() => {
-    return {
-        sortable: false // Disable sorting for now to keep tree structure or handle manually
-    };
-  }, []);
+  const defaultColDef = useMemo(() => ({
+    sortable: false
+  }), []);
+
+  const context = useMemo(() => ({
+    selectClientId,
+    customerDiscounts,
+    addProduct,
+    toggleExpand
+  }), [selectClientId, customerDiscounts, addProduct, toggleExpand]);
+
+  // Refresh cells when selectClientId or customerDiscounts change
+  useEffect(() => {
+    if (gridRef.current && gridRef.current.api) {
+      gridRef.current.api.refreshCells({ force: true });
+    }
+  }, [selectClientId, customerDiscounts]);
+
+  return (
+    <div ref={containerRef} style={{ height: '100%', width: '100%' }}>
+      <AgGridReact
+        ref={gridRef}
+        rowData={rowData}
+        columnDefs={columnDefs}
+        defaultColDef={defaultColDef}
+        context={context}
+        getRowId={(params) => params.data.type === 'EQUIVALENCE' ? `equiv-${params.data.id}` : `prod-${params.data.id}-${params.data.parentId || ''}`}
+        getRowStyle={(params) => {
+            if (params.data.type === 'EQUIVALENCE') {
+                return { background: '#f8f9fa' };
+            }
+            if (params.data.type === 'EQUIV_PRODUCT') {
+                return { background: '#ffffff' };
+            }
+            return null;
+        }}
+      />
+    </div>
+  );
+});
+
+function PosProductsTableV2(props) {
+  const { selectClientId, customerDiscounts, addProduct } = props;
+  const filterProducts = useSelector((state) => state.filterProduct);
+  const productEquivalence = useSelector((state) => state.productEquivalence);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    // Trigger the search when filters change
     dispatch(searchProductsAndEquivalencesRequest(filterProducts));
   }, [filterProducts]);
 
@@ -373,92 +440,18 @@ function PosProductsTableV2(props) {
     dispatch(setFilterProduct({ name: 'page', value: d.activePage }));
   };
 
-  // Re-render columns when dependencies change (like selectClientId)
-  useEffect(() => {
-    setColumnDefs((prevColumnDefs) => {
-      return prevColumnDefs.map((colDef) => {
-        if (colDef.field === 'expand') {
-            return {
-                ...colDef,
-                cellRenderer: (params) => (
-                    <ExpandCellRenderer 
-                        data={params.data} 
-                        toggleExpand={toggleExpand} 
-                        isExpanded={expandedIds.includes(params.data.id)} 
-                    />
-                )
-            };
-        }
-        if (colDef.field === 'sellPriceIva') {
-          return {
-            ...colDef,
-            cellRenderer: (params) => {
-                if (params.data.type === 'EQUIVALENCE') return null;
-
-                // Mock object for utils function
-                const productMock = {
-                    price: { price: params.data.cost },
-                    brand: { id: params.data.brandId, rentabilidad: params.data.rentabilidad }
-                };
-                
-                return (
-                    <ProtectedComponent listAccesss={[1, 2, 3, 5, 6]}>
-                    {selectClientId ? (
-                        <span>
-                        {params.data.priceValue
-                            ? `$ ${numberToString(
-                                discountApplicationV2(customerDiscounts, productMock, true)
-                                .endPrice
-                            )}`
-                            : ''}
-                        </span>
-                    ) : (
-                        <span>
-                        {params.data.priceValue
-                            ? `$ ${numberToString(params.data.priceValue)}`
-                            : ''}
-                        </span>
-                    )}
-                    </ProtectedComponent>
-                );
-            }
-          };
-        }
-        if (colDef.field === 'actions') {
-          return {
-            ...colDef,
-            cellRenderer: (params) => (
-              <CustomComp
-                data={params.data}
-                props={{
-                  selectClientId: selectClientId,
-                  addProduct: addProduct,
-                  customerDiscounts: customerDiscounts,
-                }}
-              />
-            ),
-          };
-        }
-        return colDef;
-      });
-    });
-  }, [selectClientId, customerDiscounts, expandedIds]);
+  // Memoizar los datos para evitar re-renders innecesarios del AgGridWrapper
+  const equivalences = useMemo(() => productEquivalence.data.list || [], [productEquivalence.data.list]);
+  const standaloneProducts = useMemo(() => productEquivalence.data.standaloneProducts || [], [productEquivalence.data.standaloneProducts]);
 
   return (
     <div className={'ag-theme-quartz'} style={{ height: 685, zoom: 0.96 }}>
-      <AgGridReact
-        rowData={rowData}
-        columnDefs={columnDefs}
-        defaultColDef={defaultColDef}
-        getRowStyle={(params) => {
-            if (params.data.type === 'EQUIVALENCE') {
-                return { background: '#f8f9fa' };
-            }
-            if (params.data.type === 'EQUIV_PRODUCT') {
-                return { background: '#ffffff' };
-            }
-            return null;
-        }}
+      <AgGridWrapper
+        equivalences={equivalences}
+        standaloneProducts={standaloneProducts}
+        selectClientId={selectClientId}
+        customerDiscounts={customerDiscounts}
+        addProduct={addProduct}
       />
       <div className={styles.paginationContainer}>
         <span>{`Se encontraron ${productEquivalence.data.totalPages} páginas con ${productEquivalence.data.totalRows} resultados.`}</span>

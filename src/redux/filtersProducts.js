@@ -5,6 +5,7 @@ const defaultState = {
   article: null,
   description: null,
   location: null,
+  supplier: null,
   columnOrder: 'article',
   order: 'asc',
   pageSize: 100,
