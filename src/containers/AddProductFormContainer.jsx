@@ -43,16 +43,15 @@ function AddProductFormContainer(props) {
             text: 'No se pudo guardar tu registro',
             icon: 'error',
             confirmButtonText: 'Cerrar',
-            showConfirmButton: false, // Oculta el botón "OK"
-            timer: 2500,
+            showConfirmButton: true,
           });
           return;
         }
         Swal.fire({
           icon: 'success',
           title: 'Registrado con éxito',
-          showConfirmButton: false,
-          timer: 1000,
+          confirmButtonText: 'Cerrar',
+          showConfirmButton: true,
         });
         methods.reset();
         setSelectedFiles([]);
@@ -63,21 +62,28 @@ function AddProductFormContainer(props) {
           title: 'Error!',
           text: 'No se pudo registrar',
           icon: 'error',
-          showConfirmButton: false, // Oculta el botón "OK"
-          timer: 2500,
+          confirmButtonText: 'Cerrar',
+          showConfirmButton: true,
         });
       });
   };
   const addFileProduct = () => {
+    console.log('Iniciando carga de archivo...');
+    console.log('Archivo:', selectedExcel);
+    console.log('Checks:', checks);
+    
     dispatch(productsFileCreateRequest({ file: selectedExcel, check: checks }))
       .then((res) => {
+        console.log('Respuesta del dispatch:', res);
+        console.log('Payload:', res.payload);
+        
         if (res.error) {
           Swal.fire({
             title: 'Error!',
             text: 'No se pudo guardar tu registro',
             icon: 'error',
-            showConfirmButton: false,
-            timer: 2500,
+            confirmButtonText: 'Cerrar',
+            showConfirmButton: true,
           });
           return;
         }
@@ -142,13 +148,47 @@ function AddProductFormContainer(props) {
       })
       .catch((err) => {
         console.log(err);
+        
+        // Extraer mensaje de error detallado
+        let errorMessage = 'No se pudo procesar el archivo';
+        let errorDetails = '';
+        
+        if (err.response) {
+          // El servidor respondió con un error
+          if (err.response.data) {
+            if (typeof err.response.data === 'string') {
+              errorMessage = err.response.data;
+            } else if (err.response.data.message) {
+              errorMessage = err.response.data.message;
+            } else if (err.response.data.error) {
+              errorMessage = err.response.data.error;
+            }
+          }
+          errorDetails = `Status: ${err.response.status}`;
+        } else if (err.request) {
+          // La solicitud se hizo pero no hubo respuesta
+          errorMessage = 'No se recibió respuesta del servidor';
+          errorDetails = 'Verifique su conexión a internet';
+        } else {
+          // Error en la configuración de la solicitud
+          errorMessage = err.message || 'Error desconocido';
+        }
+        
+        // Construir mensaje HTML con detalles
+        let htmlContent = `
+          <div style="text-align: left;">
+            <p><strong>Error:</strong> ${errorMessage}</p>
+            ${errorDetails ? `<p><strong>Detalles:</strong> ${errorDetails}</p>` : ''}
+            ${err.code ? `<p><strong>Código:</strong> ${err.code}</p>` : ''}
+          </div>
+        `;
+        
         Swal.fire({
-          title: 'Error!',
-          text: 'No se pudo procesar el archivo',
+          title: 'Error al procesar archivo',
+          html: htmlContent,
           icon: 'error',
           confirmButtonText: 'Cerrar',
-          showConfirmButton: true,
-          timer: 2500,
+          width: '500px',
         });
       });
   };

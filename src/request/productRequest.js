@@ -54,8 +54,8 @@ export const addProductsFile = async (sendData) => {
       {
         headers: {
           'Content-Type': 'multipart/form-data',
-          withCredentials: true,
         },
+        withCredentials: true,
       }
     );
     return data;
