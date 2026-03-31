@@ -69,48 +69,85 @@ function AddProductFormContainer(props) {
       });
   };
   const addFileProduct = () => {
-    // console.log(selectedExcel);
-    // console.log(checks);
     dispatch(productsFileCreateRequest({ file: selectedExcel, check: checks }))
       .then((res) => {
-        // console.log(res);
-        const brands = res.payload.blackList.join(' ');
         if (res.error) {
           Swal.fire({
             title: 'Error!',
             text: 'No se pudo guardar tu registro',
             icon: 'error',
-            showConfirmButton: false, // Oculta el botón "OK"
+            showConfirmButton: false,
             timer: 2500,
           });
           return;
         }
+
+        const data = res.payload;
+        const hasWarnings = data.brandsNotFound?.length > 0 || 
+                           data.suppliersNotFound?.length > 0 || 
+                           data.skipped > 0;
+        const hasAssociations = data.brandSupplierAssociated?.length > 0;
+
+        // Construir mensaje HTML detallado
+        let htmlContent = `
+          <div style="text-align: left; font-size: 14px;">
+            <p><strong>Total filas procesadas:</strong> ${data.totalRows}</p>
+            <p><strong>✅ Agregados:</strong> ${data.added}</p>
+            <p><strong>🔄 Actualizados:</strong> ${data.updated}</p>
+            ${data.skipped > 0 ? `<p><strong>⚠️ Omitidos:</strong> ${data.skipped}</p>` : ''}
+        `;
+
+        if (hasAssociations) {
+          htmlContent += `
+            <hr style="margin: 10px 0;">
+            <p><strong>🔗 Proveedores asociados a marcas:</strong></p>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+              ${data.brandSupplierAssociated.map(a => `<li>${a}</li>`).join('')}
+            </ul>
+          `;
+        }
+
+        if (data.brandsNotFound?.length > 0) {
+          htmlContent += `
+            <hr style="margin: 10px 0;">
+            <p><strong>❌ Marcas no encontradas:</strong></p>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+              ${data.brandsNotFound.map(b => `<li>${b}</li>`).join('')}
+            </ul>
+          `;
+        }
+
+        if (data.suppliersNotFound?.length > 0) {
+          htmlContent += `
+            <hr style="margin: 10px 0;">
+            <p><strong>❌ Proveedores no encontrados:</strong></p>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+              ${data.suppliersNotFound.map(s => `<li>${s}</li>`).join('')}
+            </ul>
+          `;
+        }
+
+        htmlContent += '</div>';
+
         Swal.fire({
-          icon: res.payload.blackList.length > 0 ? 'warning' : 'success',
-          title:
-            res.payload.blackList.length > 0
-              ? `Hay marcas no registradas:`
-              : 'Registrado con éxito',
-          text: `${
-            res.payload.blackList.length > 0
-              ? `No registrado: ${brands} - `
-              : ''
-          } Actualizados: ${res.payload.update} - Agregados: ${
-            res.payload.add
-          }`,
-          showConfirmButton: false,
-          // timer: 1950,
+          icon: hasWarnings ? 'warning' : 'success',
+          title: hasWarnings ? 'Proceso completado con advertencias' : 'Proceso completado',
+          html: htmlContent,
+          confirmButtonText: 'Cerrar',
+          width: '500px',
         });
+
         methods.reset();
+        setSelectedExcel(null);
       })
       .catch((err) => {
         console.log(err);
         Swal.fire({
           title: 'Error!',
-          text: 'No se pudo registrar',
+          text: 'No se pudo procesar el archivo',
           icon: 'error',
           confirmButtonText: 'Cerrar',
-          showConfirmButton: false, // Oculta el botón "OK"
+          showConfirmButton: true,
           timer: 2500,
         });
       });
