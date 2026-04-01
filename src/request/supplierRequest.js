@@ -93,6 +93,21 @@ export const getSuppliersByData = async (searchData) => {
   }
 };
 
+export const softDeleteSupplierRequest = async (id) => {
+  try {
+    const { data } = await axios.delete(
+      `${apiUrl}/api/supplier/baja/${id}`,
+      { withCredentials: true }
+    );
+    return { id, data };
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};
+
 export const updateSupplierStatusRequest = async (id) => {
   try {
     const { data } = await axios.put(

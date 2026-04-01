@@ -13,6 +13,7 @@ const VerticalModal = (props) => {
       aria-labelledby="contained-modal-title-vcenter"
       centered
       onHide={onHide}
+      dialogClassName={styles.modalDialog}
     >
       <Modal.Header closeButton>
         <Modal.Title
@@ -22,7 +23,7 @@ const VerticalModal = (props) => {
           {title}
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body>{children}</Modal.Body>
+      <Modal.Body className={styles.modalBody}>{children}</Modal.Body>
       {/* <Modal.Footer>
         <Button onClick={onHide}>Guardar</Button>
       </Modal.Footer> */}

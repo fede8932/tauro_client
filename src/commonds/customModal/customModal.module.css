@@ -1,0 +1,35 @@
+.modalDialog {
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalDialog :global(.modal-content) {
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalBody {
+  max-height: calc(90vh - 120px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.modalBody::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modalBody::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.modalBody::-webkit-scrollbar-thumb {
+  background: #673ab7;
+  border-radius: 10px;
+}
+
+.modalBody::-webkit-scrollbar-thumb:hover {
+  background: #5e35b1;
+}

@@ -21,6 +21,10 @@ export const DeleteRepSupplierRequest = createAsyncThunk(
   'DELETE_REPSUPPLIER',
   supplierRequest.deleteRepSupplierRequest
 );
+export const SoftDeleteSupplierRequest = createAsyncThunk(
+  'SOFT_DELETE_SUPPLIER',
+  supplierRequest.softDeleteSupplierRequest
+);
 export const UpdateRepSupplierRequest = createAsyncThunk(
   'UPDATE_REPSUPPLIER',
   supplierRequest.updateRepSupplierRequest
@@ -105,6 +109,20 @@ const suppliersSlice = createSlice({
       newStateData.suppliers = newSuppliers;
       state.loading = false;
       state.data = newStateData;
+    },
+    [SoftDeleteSupplierRequest.pending]: (state) => {
+      state.loading = true;
+    },
+    [SoftDeleteSupplierRequest.rejected]: (state, action) => {
+      state.loading = false;
+      state.error = action.error.message;
+    },
+    [SoftDeleteSupplierRequest.fulfilled]: (state, action) => {
+      const newSuppliers = state.data.suppliers.filter(
+        (supplier) => supplier.id !== action.payload.id
+      );
+      state.loading = false;
+      state.data = { ...state.data, suppliers: newSuppliers };
     },
     [DeleteRepSupplierRequest.pending]: (state, action) => {
       state.loading = false;

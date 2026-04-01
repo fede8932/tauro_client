@@ -507,6 +507,22 @@ function RoleTableComponent(props) {
                             }
                           />
                         </div>
+                        <div
+                          style={{
+                            margin: '1px 0px 0px 8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <IconButonUsersTable
+                            popupText="Dar de baja"
+                            fn={() => {
+                              statusToogle(obj.id, 'bajaSupplier');
+                            }}
+                            icon="fa-solid fa-trash"
+                            iconInitialStyle="iconStyleRed"
+                          />
+                        </div>
                       </div>
                     </ProtectedComponent>
                   ) : (

@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { getSupplierRequest } from '../redux/supplier';
-import { deleteProductRequest } from '../redux/product';
-import { searchProductsAndEquivalencesRequest } from '../redux/productEquivalence';
+import { deleteProductRequest, resetProductSearch } from '../redux/product';
+import { searchProductsAndEquivalencesRequest, resetProductEquivalenceSearch } from '../redux/productEquivalence';
+import { resetFilterProduct } from '../redux/filtersProducts';
 import Swal from 'sweetalert2';
 import PosComponentV2 from '../components/posComponent/PosComponentV2';
 
@@ -72,7 +73,11 @@ function PosContainerV2(props) {
 
   useEffect(() => {
     dispatch(getSupplierRequest());
-  }, []);
+    // Reset search state when entering POS v2
+    dispatch(resetProductSearch());
+    dispatch(resetProductEquivalenceSearch());
+    dispatch(resetFilterProduct());
+  }, [dispatch]);
 
   return (
     <>

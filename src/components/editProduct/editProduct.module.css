@@ -250,3 +250,222 @@
   font-size: 16px;
   color: #ffc107;
 }
+
+/* Brand Section */
+.brandSection {
+  margin: 20px 0;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+}
+
+.currentBrand {
+  margin-bottom: 12px;
+}
+
+.brandBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(103, 58, 183, 0.1);
+  color: #673ab7;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(103, 58, 183, 0.25);
+}
+
+.brandSearchWrapper {
+  position: relative;
+}
+
+.brandSearchInput {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.brandSearchInput:focus {
+  border-color: #673ab7;
+  box-shadow: 0 0 0 2px rgba(103, 58, 183, 0.15);
+}
+
+.brandSpinner {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.brandDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.brandDropdownItem {
+  padding: 9px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.brandDropdownItem:hover {
+  background: rgba(103, 58, 183, 0.08);
+}
+
+.brandCode {
+  color: #999;
+  font-size: 11px;
+}
+
+/* Brand Section */
+.brandSection {
+  margin: 20px 0;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+}
+
+.currentBrand {
+  margin-bottom: 12px;
+}
+
+.brandBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(103, 58, 183, 0.1);
+  color: #673ab7;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(103, 58, 183, 0.25);
+}
+
+.brandSearchWrapper {
+  position: relative;
+}
+
+.brandSearchInput {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.brandSearchInput:focus {
+  border-color: #673ab7;
+  box-shadow: 0 0 0 2px rgba(103, 58, 183, 0.15);
+}
+
+.brandSpinner {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.brandDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.brandDropdownItem {
+  padding: 9px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.brandDropdownItem:hover {
+  background: rgba(103, 58, 183, 0.08);
+}
+
+.brandCode {
+  color: #999;
+  font-size: 11px;
+}
+
+/* Price edit buttons */
+.setActiveBtn {
+  width: 100%;
+  padding: 6px;
+  background: transparent;
+  border: 1px solid #673ab7;
+  border-radius: 6px;
+  color: #673ab7;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.setActiveBtn:hover {
+  background: #673ab7;
+  color: white;
+}
+
+.priceEditRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.priceInput {
+  width: 80px;
+  padding: 3px 6px;
+  border: 1px solid #673ab7;
+  border-radius: 4px;
+  font-size: 13px;
+  outline: none;
+}
+
+.priceSaveBtn,
+.priceCancelBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.priceSaveBtn { color: #4caf50; }
+.priceSaveBtn:hover { background: rgba(76,175,80,0.1); }
+.priceCancelBtn { color: #f44336; }
+.priceCancelBtn:hover { background: rgba(244,67,54,0.1); }

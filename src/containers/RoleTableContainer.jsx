@@ -6,6 +6,7 @@ import { UpdateStatusClientRequest } from '../redux/searchClient';
 import QRCode from 'qrcode';
 import {
   DeleteRepSupplierRequest,
+  SoftDeleteSupplierRequest,
   UpdateStatusSupplierRequest,
 } from '../redux/searchSupplier';
 import Swal from 'sweetalert2';
@@ -34,7 +35,9 @@ function RoleTableContainer(props) {
   const alert = (id, type) => {
     const text =
       type !== 'repSupplier'
-        ? 'Vas a cambiar el estado de un usuario'
+        ? type === 'bajaSupplier'
+          ? 'Vas a dar de baja a este proveedor. Esta acción lo eliminará de la lista.'
+          : 'Vas a cambiar el estado de un usuario'
         : 'Vas a cambiar el estado de un representante';
     const confirmButtonText =
       type !== 'repSupplier' ? 'Si, actualizar' : 'Si, actualizar';
@@ -77,7 +80,18 @@ function RoleTableContainer(props) {
                 title: 'Actualizado!',
                 text: 'Has cambiado el estado exitosamente',
                 icon: 'success',
-                showConfirmButton: false, // Oculta el botón "OK"
+                showConfirmButton: false,
+                timer: 1000,
+              });
+            });
+            break;
+          case 'bajaSupplier':
+            dispatch(SoftDeleteSupplierRequest(id)).then(() => {
+              Swal.fire({
+                title: 'Dado de baja!',
+                text: 'El proveedor fue dado de baja exitosamente',
+                icon: 'success',
+                showConfirmButton: false,
                 timer: 1000,
               });
             });

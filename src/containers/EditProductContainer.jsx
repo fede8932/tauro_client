@@ -97,6 +97,52 @@ function EditProductContainer(props) {
     }
   };
 
+  const handleUpdateProductBrand = async (productId, brandId) => {
+    try {
+      await updateProductBrand(productId, brandId);
+      Swal.fire({
+        icon: 'success',
+        title: 'Marca actualizada',
+        text: 'La marca del producto fue cambiada exitosamente',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      dispatch(getProductIdRequest(id));
+      dispatch(searchProductsExtraRequest(filterProducts));
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo cambiar la marca',
+        timer: 2500,
+        showConfirmButton: false,
+      });
+    }
+  };
+
+  const handleDeleteProductBrand = async (productId, brandId) => {
+    try {
+      await deleteProductBrand(productId, brandId);
+      Swal.fire({
+        icon: 'success',
+        title: 'Marca eliminada',
+        text: 'La marca fue eliminada del producto',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      dispatch(getProductIdRequest(id));
+      dispatch(searchProductsExtraRequest(filterProducts));
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || 'No se pudo eliminar la marca',
+        timer: 2500,
+        showConfirmButton: false,
+      });
+    }
+  };
+
   useEffect(() => {
     dispatch(getProductIdRequest(id));
     return () => {
