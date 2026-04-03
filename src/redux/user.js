@@ -5,7 +5,7 @@ const userState = {
   loading: false,
   pending: true,
   data: null,
-  error: '',
+  error: null,
 };
 
 // export const sendSignUpRequest = createAsyncThunk(
@@ -37,7 +37,7 @@ const userSlice = createSlice({
   initialState: userState,
   reducers: {
     clearError: (state) => {
-      state.error = '';
+      state.error = null;
     },
   },
   extraReducers: {
@@ -58,6 +58,7 @@ const userSlice = createSlice({
     [sendLoginRequest.fulfilled]: (state, action) => {
       state.data = action.payload;
       state.loading = false;
+      state.error = null;
     },
     [sendLoginRequest.rejected]: (state, action) => {
       state.loading = false;
