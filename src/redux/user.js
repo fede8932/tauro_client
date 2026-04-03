@@ -54,6 +54,7 @@ const userSlice = createSlice({
     // },
     [sendLoginRequest.pending]: (state, action) => {
       state.loading = true;
+      state.error = null;
     },
     [sendLoginRequest.fulfilled]: (state, action) => {
       state.data = action.payload;
@@ -70,6 +71,7 @@ const userSlice = createSlice({
     [sendLogoutRequest.fulfilled]: (state, action) => {
       state.data = null;
       state.loading = false;
+      state.error = null;
     },
     [sendLogoutRequest.rejected]: (state, action) => {
       state.loading = false;
@@ -84,7 +86,7 @@ const userSlice = createSlice({
     },
     [persistUser.rejected]: (state, action) => {
       state.loading = false;
-      state.error = action.error.message;
+      // No establecer error aquí, es solo persistencia
     },
     [persistUserMe.pending]: (state, action) => {
       state.loading = true;
@@ -97,7 +99,7 @@ const userSlice = createSlice({
     [persistUserMe.rejected]: (state, action) => {
       state.data = null;
       state.loading = false;
-      state.error = action.error.message;
+      // No establecer error aquí, es solo persistencia
       state.pending = false;
     },
   },
