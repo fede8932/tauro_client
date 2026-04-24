@@ -15,11 +15,31 @@ function FinishSellComponent(props) {
   const dispatch = useDispatch();
 
   const { loading, billData } = useSelector((state) => state.posSellOrder);
+  const selectClient = useSelector((state) => state.client.selectClient);
 
   const { payMethod, order } = props;
   const [tipoFactura, setTipoFactura] = useState(0);
   const [op, setOp] = useState('');
   const [bank, setBank] = useState('');
+  const [dni, setDni] = useState('');
+
+  const isConsumidorFinal = (order?.razonSocial || '').toLowerCase() === 'consumidor final';
+  const clientIva = selectClient?.iva || '';
+  const isMonotributista = clientIva.toLowerCase() === 'monotributista';
+  const isResponsableInscripto = clientIva.toLowerCase() === 'responsable inscripto';
+  
+  const total = (order?.subTotal || 0) * 1.21;
+  const requiresDni = isConsumidorFinal && tipoFactura === 1 && total >= 10000000;
+
+  // Determinar el tipo de factura oficial según el IVA del cliente
+  // Factura B (6) para Consumidor Final o Monotributista
+  // Factura A (1) para Responsable Inscripto
+  const getBillType = () => {
+    if (tipoFactura === 0) return 0; // Factura X (Presupuesto)
+    if (isConsumidorFinal || isMonotributista) return 6; // Factura B
+    if (isResponsableInscripto) return 1; // Factura A
+    return 6; // Por defecto Factura B
+  };
 
   const selecTipoFactura = (tipo) => {
     setTipoFactura(tipo);
@@ -29,7 +49,7 @@ function FinishSellComponent(props) {
     const sendData = {
       clientId: order.clientId,
       items: order.items,
-      billType: tipoFactura,
+      billType: getBillType(),
       payMethod: Object.entries(payMethod).find(
         ([key, value]) => value.enabled === true
       )?.[1].value,
@@ -46,6 +66,18 @@ function FinishSellComponent(props) {
       }
       sendData.op = op;
       sendData.bank = bank;
+    }
+
+    if (requiresDni) {
+      if (dni === '' || dni.length < 7) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Debe ingresar un DNI válido para factura oficial con importe mayor o igual a $10.000.000',
+        });
+        return;
+      }
+      sendData.dni = dni;
     }
 
     dispatch(finishSellPosAsync(sendData))
@@ -92,7 +124,31 @@ function FinishSellComponent(props) {
           checked={tipoFactura === 0}
           onChange={() => selecTipoFactura(0)}
         />
+        <Radio
+          className={styles.radio}
+          label="Factura Oficial"
+          value={tipoFactura}
+          checked={tipoFactura === 1}
+          onChange={() => selecTipoFactura(1)}
+        />
       </div>
+      {requiresDni && (
+        <div className={styles.billTypeContainer}>
+          <p>
+            <i className="fa-solid fa-id-card"></i>
+            <span>DNI del Cliente</span>
+          </p>
+          <div className={styles.inputCont}>
+            <label>DNI (requerido para factura oficial)</label>
+            <input 
+              type="number"
+              value={dni} 
+              onChange={(e) => setDni(e.target.value)}
+              placeholder="Ingrese DNI sin puntos"
+            />
+          </div>
+        </div>
+      )}
       {payMethod.Transferencia.enabled && (
         <div className={styles.billTypeContainer}>
           <p>
