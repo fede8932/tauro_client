@@ -40,7 +40,19 @@ function EditProductContainer(props) {
     }
     dispatch(updateProductRequest({ productId: id, updateData: data })).then(
       (res) => {
-        dispatch(searchProductsExtraRequest(filterProducts));
+        // Recargar solo el producto actual para reflejar los cambios en el modal
+        dispatch(getProductIdRequest(id));
+        
+        // Mostrar mensaje de éxito sin cerrar el modal
+        Swal.fire({
+          icon: 'success',
+          title: 'Producto actualizado',
+          text: 'Los cambios se guardaron correctamente',
+          timer: 2000,
+          showConfirmButton: false,
+        });
+        // NO recargamos la lista completa para evitar que se cierre el modal
+        // La lista se actualizará automáticamente gracias al reducer de updateProductRequest
       }
     );
   };
@@ -57,9 +69,9 @@ function EditProductContainer(props) {
         showConfirmButton: false,
       });
 
-      // Recargar el producto para obtener los precios actualizados
+      // Recargar solo el producto para obtener los precios actualizados
       dispatch(getProductIdRequest(id));
-      dispatch(searchProductsExtraRequest(filterProducts));
+      // NO recargamos la lista completa para evitar que se cierre el modal
     } catch (error) {
       Swal.fire({
         icon: 'error',
@@ -83,9 +95,9 @@ function EditProductContainer(props) {
         showConfirmButton: false,
       });
 
-      // Recargar el producto para obtener los precios actualizados
+      // Recargar solo el producto para obtener los precios actualizados
       dispatch(getProductIdRequest(id));
-      dispatch(searchProductsExtraRequest(filterProducts));
+      // NO recargamos la lista completa para evitar que se cierre el modal
     } catch (error) {
       Swal.fire({
         icon: 'error',
@@ -108,7 +120,7 @@ function EditProductContainer(props) {
         showConfirmButton: false,
       });
       dispatch(getProductIdRequest(id));
-      dispatch(searchProductsExtraRequest(filterProducts));
+      // NO recargamos la lista completa para evitar que se cierre el modal
     } catch (error) {
       Swal.fire({
         icon: 'error',
@@ -131,7 +143,7 @@ function EditProductContainer(props) {
         showConfirmButton: false,
       });
       dispatch(getProductIdRequest(id));
-      dispatch(searchProductsExtraRequest(filterProducts));
+      // NO recargamos la lista completa para evitar que se cierre el modal
     } catch (error) {
       Swal.fire({
         icon: 'error',
