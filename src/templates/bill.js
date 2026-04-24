@@ -66,11 +66,17 @@ export const billHtml = async (
           display: flex;
           flex-direction: column;
           width: 225px;
-          align-items: center;
+          align-items: flex-start;
           padding-left: 15px;
         }
         .infoEmisTex {
           width: 100%;
+          font-size: 13px;
+        }
+        .razonSocialEmis {
+          font-weight: 600;
+          font-size: 15px;
+          margin-bottom: 3px;
         }
         .tipeFact {
           display: flex;
@@ -250,7 +256,10 @@ export const billHtml = async (
           <div class="dataEmisor">
             <img class="logo" src=${logoBlaseBase64} alt="logo">
             <div class="infoEminContainer">
-              <span class="infoEmisTex">Tel: 11 7619-9643</span>
+              <span class="razonSocialEmis">Tauro Parts</span>
+              <span class="infoEmisTex">Don Bosco 2401 esq. French</span>
+              <span class="infoEmisTex">IVA Responsable Inscripto</span>
+              <span class="infoEmisTex">Tel: 11 7619-9644</span>
               <span class="infoEmisTex">ventas@tauroparts.shop</span>
             </div>
           </div>
@@ -275,11 +284,11 @@ export const billHtml = async (
           )}</div>
           <div class="datFisc">
             <div class="afipInfoDivCont">
-              <p>C.U.I.T:<span>20164364837</span></p>
-              <p>Pto Venta:<span>00013</span></p>
+              <p>C.U.I.T:<span>20-35248398-3</span></p>
+              <p>Pto Venta:<span>00008</span></p>
             </div>
-            <p>IIBB:<span>20164364837</span></p>
-            <p>Inicio de actividades:<span>10/01/1992</span></p>
+            <p>IIBB:<span>20-35248398-3</span></p>
+            <p>Inicio de actividades:<span>16/04/2026</span></p>
           </div>
         </div>
       </div>
