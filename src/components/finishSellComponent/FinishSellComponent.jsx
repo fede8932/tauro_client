@@ -8,6 +8,7 @@ import {
   finishSellPosAsync,
   resetPosSellOrderState,
 } from '../../redux/sellPosOrder';
+import { printPosBill } from '../../utils/printPosBill';
 
 function FinishSellComponent(props) {
   const { closeModal } = props;
@@ -90,13 +91,21 @@ function FinishSellComponent(props) {
           });
           return;
         }
-        
-        Swal.fire({
-          icon: 'success',
-          title: 'Éxito',
-          text: 'Venta registrada correctamente',
-        });
-        
+
+        // Imprimir factura/presupuesto automáticamente
+        try {
+          await printPosBill(res.payload);
+        } catch (printErr) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Venta registrada, pero no se pudo imprimir',
+            text: printErr.message || 'Puede reimprimir desde la cuenta corriente del cliente.',
+          });
+          dispatch(resetPosSellOrderState());
+          closeModal();
+          return;
+        }
+
         dispatch(resetPosSellOrderState());
         closeModal();
       })
