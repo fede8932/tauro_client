@@ -119,6 +119,14 @@ function AddProductFormComponent(props) {
                 validate={{ required: true }}
               />
             </div>
+            <CustomInput
+              name="rentabilidad"
+              type="number"
+              width="large"
+              placeholder="Rentabilidad (%)"
+              icon="fas fa-percent"
+              validate={{ required: false }}
+            />
             <FileInput
               selectedFiles={files.selectedFiles}
               setSelectedFiles={files.setSelectedFiles}

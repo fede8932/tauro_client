@@ -5,12 +5,12 @@ import {
   getProductIdRequest,
   resetSelectProduct,
 } from '../redux/selectProduct';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   searchProductsExtraRequest,
   updateProductRequest,
 } from '../redux/product';
-import { updateActiveSupplier, updateProductSupplierPrice } from '../request/productRequest';
+import { updateActiveSupplier, updateProductSupplierPrice, updateProductBrand } from '../request/productRequest';
 import Swal from 'sweetalert2';
 
 function EditProductContainer(props) {
@@ -24,23 +24,32 @@ function EditProductContainer(props) {
     defaultValues: {
       article: '',
       location: '',
+      rentabilidad: '',
       stock: '',
       price: '',
       description: '',
     },
   });
+  const { reset, clearErrors, getValues } = methods;
   const dispatch = useDispatch();
+  const forceFormResetRef = useRef(false);
+  const pendingFormRestoreRef = useRef(null);
 
   const productUpdate = (data) => {
     data.stock = data.stock ? Number(data.stock) : null;
     // Price is now managed through supplier pricing (BrandSupplier), not manually
     data.price = null;
+    // Rentabilidad is a percentage string in the form, backend expects it too or null
+    if (!data.rentabilidad) {
+      data.rentabilidad = null;
+    }
     if (selectedFiles.length > 0) {
       data.images = selectedFiles;
     }
     dispatch(updateProductRequest({ productId: id, updateData: data })).then(
       (res) => {
         // Recargar solo el producto actual para reflejar los cambios en el modal
+        forceFormResetRef.current = true;
         dispatch(getProductIdRequest(id));
         
         // Mostrar mensaje de éxito sin cerrar el modal
@@ -59,8 +68,9 @@ function EditProductContainer(props) {
 
   const handleChangeActiveSupplier = async (productId, supplierId) => {
     try {
+      pendingFormRestoreRef.current = getValues();
       await updateActiveSupplier(productId, supplierId);
-      
+
       Swal.fire({
         icon: 'success',
         title: 'Proveedor actualizado',
@@ -73,6 +83,7 @@ function EditProductContainer(props) {
       dispatch(getProductIdRequest(id));
       // NO recargamos la lista completa para evitar que se cierre el modal
     } catch (error) {
+      pendingFormRestoreRef.current = null;
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -85,8 +96,9 @@ function EditProductContainer(props) {
 
   const handleUpdateSupplierPrice = async (productId, supplierId, purchasePrice) => {
     try {
+      pendingFormRestoreRef.current = getValues();
       await updateProductSupplierPrice(productId, supplierId, purchasePrice);
-      
+
       Swal.fire({
         icon: 'success',
         title: 'Precio actualizado',
@@ -99,6 +111,7 @@ function EditProductContainer(props) {
       dispatch(getProductIdRequest(id));
       // NO recargamos la lista completa para evitar que se cierre el modal
     } catch (error) {
+      pendingFormRestoreRef.current = null;
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -111,6 +124,7 @@ function EditProductContainer(props) {
 
   const handleUpdateProductBrand = async (productId, brandId) => {
     try {
+      pendingFormRestoreRef.current = getValues();
       await updateProductBrand(productId, brandId);
       Swal.fire({
         icon: 'success',
@@ -122,6 +136,7 @@ function EditProductContainer(props) {
       dispatch(getProductIdRequest(id));
       // NO recargamos la lista completa para evitar que se cierre el modal
     } catch (error) {
+      pendingFormRestoreRef.current = null;
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -132,28 +147,6 @@ function EditProductContainer(props) {
     }
   };
 
-  const handleDeleteProductBrand = async (productId, brandId) => {
-    try {
-      await deleteProductBrand(productId, brandId);
-      Swal.fire({
-        icon: 'success',
-        title: 'Marca eliminada',
-        text: 'La marca fue eliminada del producto',
-        timer: 2000,
-        showConfirmButton: false,
-      });
-      dispatch(getProductIdRequest(id));
-      // NO recargamos la lista completa para evitar que se cierre el modal
-    } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: error.response?.data?.message || 'No se pudo eliminar la marca',
-        timer: 2500,
-        showConfirmButton: false,
-      });
-    }
-  };
 
   useEffect(() => {
     dispatch(getProductIdRequest(id));
@@ -161,19 +154,32 @@ function EditProductContainer(props) {
       dispatch(resetSelectProduct(null));
     };
   }, []);
+  const productData = selectProduct?.data;
 
   useEffect(() => {
-    if (selectProduct?.data) {
-      methods.reset({
-        article: selectProduct.data.article ?? '',
-        location: selectProduct.data.location ?? '',
-        stock: selectProduct.data?.stock?.stock ?? '',
-        price: selectProduct.data?.price?.price ?? '',
-        description: selectProduct.data.description ?? '',
+    if (!productData) return;
+
+    if (pendingFormRestoreRef.current) {
+      // Restore user's form values after a supplier/price/brand update
+      // while still refreshing the product prop data for the UI
+      reset({
+        ...pendingFormRestoreRef.current,
       });
-      methods.clearErrors();
+      clearErrors();
+      pendingFormRestoreRef.current = null;
+    } else {
+      reset({
+        article: productData.article ?? '',
+        location: productData.location ?? '',
+        rentabilidad: productData.rentabilidad ? productData.rentabilidad * 100 : '',
+        stock: productData?.stock?.stock ?? '',
+        price: productData?.price?.price ?? '',
+        description: productData.description ?? '',
+      });
+      clearErrors();
+      forceFormResetRef.current = false;
     }
-  }, [selectProduct?.data, methods]);
+  }, [productData, reset, clearErrors]);
 
   // console.log(selectProduct);
 
@@ -188,6 +194,7 @@ function EditProductContainer(props) {
       update={productUpdate}
       onChangeActiveSupplier={handleChangeActiveSupplier}
       onUpdateSupplierPrice={handleUpdateSupplierPrice}
+      onUpdateProductBrand={handleUpdateProductBrand}
     />
   );
 }

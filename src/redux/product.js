@@ -74,6 +74,9 @@ const productSlice = createSlice({
           prod.location = action.payload.location;
           prod.article = action.payload.article;
           prod.description = action.payload.description;
+          prod.stock = action.payload.stock;
+          prod.rentabilidad = action.payload.rentabilidad;
+          prod.images = action.payload.images;
         }
         return prod;
       });

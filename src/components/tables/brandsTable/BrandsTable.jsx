@@ -15,10 +15,49 @@ import EditBrandContainer from '../../../containers/EditBrandContainer';
 import ProtectedComponent from '../../../protected/protectedComponent/ProtectedComponent';
 import IconButonUsersTable from '../../../commonds/iconButtonUsersTable/IconButonUsersTable';
 import { useNavigate } from 'react-router';
+import { resetBrandRentabilidad } from '../../../request/brandRequest';
+import Swal from 'sweetalert2';
 
 const CustomComp = (props) => {
   const { brand } = props;
+  const dispatch = useDispatch();
+  const filterBrands = useSelector((state) => state.filterBrand);
   const navigate = useNavigate();
+
+  const handleResetRentabilidad = () => {
+    Swal.fire({
+      title: '¿Limpiar rentabilidad de productos?',
+      text: '¿Seguro que desea eliminar la rentabilidad personalizada de todos los productos de esta marca? Se utilizará la rentabilidad de la marca por defecto.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#673ab7',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, limpiar',
+      cancelButtonText: 'Cancelar',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await resetBrandRentabilidad(brand.id);
+          Swal.fire({
+            title: '¡Limpiado!',
+            text: `Se han restablecido ${res.affectedCount} productos.`,
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          // Opcional: recargar la lista si es necesario, aunque esto afecta a productos no a marcas
+          // dispatch(searchBrandsExtraRequest(filterBrands));
+        } catch (error) {
+          Swal.fire({
+            title: 'Error',
+            text: 'No se pudo limpiar la rentabilidad de los productos.',
+            icon: 'error',
+          });
+        }
+      }
+    });
+  };
+
   return (
     <div className={styles.buttonContainer}>
       <CustomModal
@@ -44,6 +83,15 @@ const CustomComp = (props) => {
               ? 'iconStyleTeal'
               : 'iconStyleBlack'
           }
+        />
+      </ProtectedComponent>
+
+      <ProtectedComponent listAccesss={[1, 2]}>
+        <IconButonUsersTable
+          popupText="Limpiar rentabilidad de productos"
+          fn={handleResetRentabilidad}
+          icon="fa-solid fa-broom"
+          iconInitialStyle="iconStyleOrange"
         />
       </ProtectedComponent>
     </div>

@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import CustomInput from '../../commonds/putInput/CustomInput';
 import { FormProvider } from 'react-hook-form';
 import styles from './editProduct.module.css';
 import { Button, Spinner } from 'react-bootstrap';
 import FileInput from '../../commonds/inputFile/InputFile';
 import ProtectedComponent from '../../protected/protectedComponent/ProtectedComponent';
+import { getBrandsByData } from '../../request/brandRequest';
 
 function EditProduct(props) {
-  const { methods, product, update, files, onChangeActiveSupplier, onUpdateSupplierPrice } = props;
+  const { methods, product, update, files, onChangeActiveSupplier, onUpdateSupplierPrice, onUpdateProductBrand } = props;
   const [changingSupplier, setChangingSupplier] = useState(false);
   const [editingPriceId, setEditingPriceId] = useState(null);
   const [priceInput, setPriceInput] = useState('');
+  const [brandSearch, setBrandSearch] = useState('');
+  const [brandResults, setBrandResults] = useState([]);
+  const [brandSearching, setBrandSearching] = useState(false);
+  const [showBrandDropdown, setShowBrandDropdown] = useState(false);
+  const [changingBrand, setChangingBrand] = useState(false);
+  const brandSearchTimeout = useRef(null);
 
   const brandSuppliers = product?.data?.brand?.brandSuppliers || [];
   const supplierPrices = product?.data?.supplierPrices || [];
@@ -18,9 +25,6 @@ function EditProduct(props) {
   const purchasePrice = product?.data?.purchasePrice;
   const calculatedSalePrice = product?.data?.calculatedSalePrice;
 
-  console.log('EditProduct - product.data:', product?.data);
-  console.log('EditProduct - brandSuppliers:', brandSuppliers);
-  console.log('EditProduct - supplierPrices:', supplierPrices);
 
   const handleSupplierChange = async (supplierId) => {
     if (supplierId === activeSupplierId) return;
@@ -47,6 +51,49 @@ function EditProduct(props) {
     setPriceInput('');
   };
 
+  const handleBrandSearchChange = useCallback((e) => {
+    const value = e.target.value;
+    setBrandSearch(value);
+    if (brandSearchTimeout.current) clearTimeout(brandSearchTimeout.current);
+    if (!value || value.length < 2) {
+      setBrandResults([]);
+      setShowBrandDropdown(false);
+      return;
+    }
+    setBrandSearching(true);
+    brandSearchTimeout.current = setTimeout(async () => {
+      try {
+        const results = await getBrandsByData(value);
+        // Filter brands to only show those with matching suppliers
+        const currentSupplierIds = brandSuppliers.map(bs => bs.supplierId);
+        const filteredResults = (results || []).filter(brand => {
+          if (!brand.brandSuppliers || brand.brandSuppliers.length === 0) return false;
+          const brandSupplierIds = brand.brandSuppliers.map(bs => bs.supplierId);
+          return brandSupplierIds.some(id => currentSupplierIds.includes(id));
+        });
+        setBrandResults(filteredResults);
+        setShowBrandDropdown(true);
+      } catch {
+        setBrandResults([]);
+      } finally {
+        setBrandSearching(false);
+      }
+    }, 350);
+  }, [brandSuppliers]);
+
+  const handleSelectBrand = async (brand) => {
+    if (brand.id === product?.data?.brand?.id) {
+      setShowBrandDropdown(false);
+      setBrandSearch('');
+      return;
+    }
+    setChangingBrand(true);
+    setShowBrandDropdown(false);
+    setBrandSearch('');
+    await onUpdateProductBrand(product.data.id, brand.id);
+    setChangingBrand(false);
+  };
+
   return (
     <FormProvider {...methods}>
       <form>
@@ -61,7 +108,6 @@ function EditProduct(props) {
               placeholder="Artículo"
               icon="fa-solid fa-id-card"
               validate={{ required: true }}
-              defaultValue={product?.data?.article}
             />
           </div>
           <div className={styles.medium}>
@@ -74,7 +120,18 @@ function EditProduct(props) {
               placeholder="Localización"
               icon="fa-solid fa-id-card"
               validate={{ required: false }}
-              defaultValue={product?.data?.location}
+            />
+          </div>
+          <div className={styles.medium}>
+            <label>Rentabilidad (%)</label>
+            <CustomInput
+              readOnly={false}
+              name="rentabilidad"
+              type="text"
+              width="large"
+              placeholder="Ej: 30"
+              icon="fa-solid fa-percent"
+              validate={{ required: false }}
             />
           </div>
         </div>
@@ -89,10 +146,53 @@ function EditProduct(props) {
               placeholder="Stock"
               icon="fa-solid fa-id-card"
               validate={{ required: true }}
-              defaultValue={product?.data?.stock?.stock}
             />
           </div>
         </ProtectedComponent>
+        <div className={styles.brandSection}>
+          <div className={styles.sectionHeader}>
+            <i className="fa-solid fa-tag"></i>
+            <span>Marca</span>
+          </div>
+          <div className={styles.currentBrand}>
+            {product?.data?.brand ? (
+              <span className={styles.brandBadge}>
+                <i className="fa-solid fa-tag"></i>
+                {product.data.brand.name}
+                {changingBrand && <Spinner animation="border" size="sm" style={{ marginLeft: 8 }} />}
+              </span>
+            ) : (
+              <span style={{ color: '#999', fontSize: 13 }}>Sin marca asignada</span>
+            )}
+          </div>
+          <div className={styles.brandSearchWrapper}>
+            <input
+              type="text"
+              className={styles.brandSearchInput}
+              placeholder="Buscar marca para cambiar..."
+              value={brandSearch}
+              onChange={handleBrandSearchChange}
+              onBlur={() => setTimeout(() => setShowBrandDropdown(false), 200)}
+              onFocus={() => { if (brandResults.length > 0) setShowBrandDropdown(true); }}
+            />
+            {brandSearching && (
+              <Spinner animation="border" size="sm" className={styles.brandSpinner} />
+            )}
+            {showBrandDropdown && brandResults.length > 0 && (
+              <ul className={styles.brandDropdown}>
+                {brandResults.map((b) => (
+                  <li
+                    key={b.id}
+                    className={styles.brandDropdownItem}
+                    onMouseDown={() => handleSelectBrand(b)}
+                  >
+                    {b.name} <span className={styles.brandCode}>{b.code}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
         {brandSuppliers.length > 0 ? (
           <div className={styles.supplierPricingSection}>
             <div className={styles.sectionHeader}>
@@ -240,7 +340,6 @@ function EditProduct(props) {
             placeholder="Artículo"
             icon="fa-solid fa-id-card"
             validate={{ required: true }}
-            defaultValue={product?.data?.description}
           />
         </div>
         <div style={{ marginBottom: '10px' }}>

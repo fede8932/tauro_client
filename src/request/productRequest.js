@@ -12,6 +12,9 @@ export const createProduct = async (productData) => {
     formData.append('article', productData.code);
     formData.append('description', productData.name);
     formData.append('price', productData.listPrice);
+    if (productData.rentabilidad !== undefined && productData.rentabilidad !== null && productData.rentabilidad !== '') {
+      formData.append('rentabilidad', productData.rentabilidad);
+    }
 
     // Agregar las imágenes al FormData
     console.log(formData)
@@ -22,8 +25,10 @@ export const createProduct = async (productData) => {
     }
 
     // Enviar la solicitud POST con los datos del producto y las imágenes
+    const locationParam = productData.location ? encodeURIComponent(productData.location) : '';
+    const brandParam = productData.brandId ?? '';
     await axios.post(
-      `${apiUrl}/api/productos?brandId=${productData.brandId}&location=${productData.location}`,
+      `${apiUrl}/api/productos?brandId=${brandParam}&location=${locationParam}`,
       formData,
       {
         headers: {
@@ -358,6 +363,22 @@ export const searchProductsAndEquivalences = async (searchData) => {
     const { data } = await axios.post(
       `${apiUrl}/api/productos/search/mixed`,
       searchData,
+      { withCredentials: true }
+    );
+    return data;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};
+
+export const updateProductBrand = async (productId, brandId) => {
+  try {
+    const { data } = await axios.put(
+      `${apiUrl}/api/productos/update/brand?productId=${productId}&brandId=${brandId}`,
+      {},
       { withCredentials: true }
     );
     return data;

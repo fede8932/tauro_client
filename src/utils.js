@@ -83,7 +83,8 @@ export function ajustOrderString(num) {
 
 //Funcion que recibe un array de descuentos/recargos y el objeto brandProduct. Retorna un obj con el precio y precio + iva a renderizar con el descuento/recargo correspondiente (redondeado a 2 decimales)
 export function discountApplication(discountArray, product, noRound) {
-  let initPrice = product.price.price * (1 + product.brand.rentabilidad);
+  const rentab = product.rentabilidad != null ? product.rentabilidad : product.brand?.rentabilidad ?? 0;
+  let initPrice = product.price.price * (1 + rentab);
   discountArray?.map((discount) => {
     if (product.brand.brandId == discount.brandId) {
       initPrice *= 1 + discount.porcentaje;
@@ -97,7 +98,8 @@ export function discountApplication(discountArray, product, noRound) {
 }
 //Funcion que recibe un array de descuentos/recargos y el objeto brandProduct. Retorna un obj con el precio y precio + iva a renderizar con el descuento/recargo correspondiente (redondeado a 2 decimales)
 export function discountApplicationV2(discountArray, product, noRound) {
-  let initPrice = product.price.price * (1 + product.brand.rentabilidad);
+  const rentab = product.rentabilidad != null ? product.rentabilidad : product.brand?.rentabilidad ?? 0;
+  let initPrice = product.price.price * (1 + rentab);
   discountArray?.map((discount) => {
     if (product.brand.id == discount.brandId) {
       initPrice *= 1 + discount.porcentaje;
@@ -142,6 +144,7 @@ export function tabProducts(products, rol) {
   };
   ans.list = products.list
     ? products.list.map((item) => {
+        const rentab = item.rentabilidad != null ? item.rentabilidad : item.brand?.rentabilidad ?? 0;
         let ansItem = {
           code: item.article,
           description: recortString(item.description.toUpperCase(), 120),
@@ -151,13 +154,13 @@ export function tabProducts(products, rol) {
             rol == 7
               ? ''
               : `$ ${redondearADosDecimales(
-                  item.price.price * (1 + item.brand.rentabilidad)
+                  item.price.price * (1 + rentab)
                 )}`,
           priceCIva:
             rol == 7
               ? ''
               : `$ ${redondearADosDecimales(
-                  item.price.price * (1 + item.brand.rentabilidad) * 1.21
+                  item.price.price * (1 + rentab) * 1.21
                 )}`,
           stock: item.stock.stock,
           location: item.location,

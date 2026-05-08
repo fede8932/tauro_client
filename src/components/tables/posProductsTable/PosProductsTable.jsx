@@ -183,7 +183,7 @@ function PosProductsTable(props) {
               {params.data.price && params.data.brand
                 ? `$ ${numberToString(
                     params.data.price.price *
-                      (1 + params.data.brand.rentabilidad) *
+                      (1 + (params.data.rentabilidad != null ? params.data.rentabilidad : params.data.brand?.rentabilidad ?? 0)) *
                       1.21
                   )}`
                 : ''}
@@ -248,7 +248,7 @@ function PosProductsTable(props) {
                     {params.data.price && params.data.brand
                       ? `$ ${numberToString(
                           params.data.price.price *
-                            (1 + params.data.brand.rentabilidad) *
+                            (1 + (params.data.rentabilidad != null ? params.data.rentabilidad : params.data.brand?.rentabilidad ?? 0)) *
                             1.21
                         )}`
                       : ''}

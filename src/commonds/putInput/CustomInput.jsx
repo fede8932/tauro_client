@@ -42,6 +42,7 @@ function CustomInput(props) {
     readOnly,
     defaultValue,
     formatNum,
+    value,
     ...rest
   } = props;
   const [classDivContainer, setClassDivContainer] = useState('inputContainer');
@@ -105,12 +106,12 @@ function CustomInput(props) {
     });
   };
 
-  // Mantener sincronizado el valor cuando se pasa via props.value
+  // Mantener sincronizado el valor cuando se pasa via props.value (solo como valor inicial controlado externamente)
   useEffect(() => {
-    if (rest.value !== undefined) {
-      setValue(name, rest.value); // Actualiza el valor en react-hook-form
+    if (value !== undefined) {
+      setValue(name, value); // Actualiza el valor en react-hook-form
     }
-  }, [rest.value, name, setValue]);
+  }, [value, name, setValue]);
 
   // Si se habilita formatNum, formatear el defaultValue inicial
   useEffect(() => {

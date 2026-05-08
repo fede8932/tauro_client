@@ -34,26 +34,69 @@ function EquivalencesContainer(props) {
     dispatch(toggleMarcRec(id));
   };
 
+  const generateEquivalenceCode = () => {
+    const letters = () => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      let res = '';
+      for (let i = 0; i < 3; i++) {
+        res += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return res;
+    };
+    const numbers = () => {
+      let res = '';
+      for (let i = 0; i < 5; i++) {
+        res += Math.floor(Math.random() * 10);
+      }
+      return res;
+    };
+    return letters() + numbers() + letters();
+  };
+
   // -------CREAR EQUIVALENCIA------------
   const createEquiv = () => {
     Swal.fire({
-      title: 'Descripción de equivalencia',
-      input: 'text',
-      inputValue: equivalences.product?.description ?? '',
-      inputAttributes: {
-        autocapitalize: 'off',
-      },
+      title: 'Crear equivalencia',
+      html: `
+        <div style="margin-bottom:12px;">
+          <label style="display:block;margin-bottom:4px;font-size:14px;">Descripción</label>
+          <input id="swal-desc" class="swal2-input" style="margin:0;width:80%;" placeholder="Descripción" value="${
+            equivalences.product?.description ?? ''
+          }">
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;justify-content:center;">
+          <input id="swal-code" class="swal2-input" style="margin:0;width:50%;" placeholder="Código (AAA12345BBB)">
+          <button type="button" id="swal-gen-code" class="swal2-confirm swal2-styled" style="margin:0;padding:8px 16px;font-size:14px;">Generar</button>
+        </div>
+      `,
       showCancelButton: true,
       confirmButtonText: 'Confirmar',
       showLoaderOnConfirm: true,
+      didOpen: () => {
+        const genBtn = document.getElementById('swal-gen-code');
+        genBtn.addEventListener('click', () => {
+          const code = generateEquivalenceCode();
+          document.getElementById('swal-code').value = code;
+        });
+      },
+      preConfirm: () => {
+        const description = document.getElementById('swal-desc').value;
+        const code = document.getElementById('swal-code').value;
+        if (!description) {
+          Swal.showValidationMessage('La descripción es obligatoria');
+          return false;
+        }
+        return { description, code: code || null };
+      },
     }).then((result) => {
       if (result.isConfirmed) {
-        const description = result.value;
+        const { description, code } = result.value;
         const productIds = equivalences.selects.map((sp) => sp.id);
         dispatch(
           createEquivalenceRequest({
             description: description,
             productIds: productIds,
+            code: code,
           })
         ).then((res) => {
           console.log('res:', res);

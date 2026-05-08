@@ -155,7 +155,8 @@ function EquivalencesComponent(props) {
                 }}
               >
                 <TableRow>
-                  <TableHeaderCell width={9}>Description</TableHeaderCell>
+                  <TableHeaderCell width={2}>Código</TableHeaderCell>
+                  <TableHeaderCell width={7}>Description</TableHeaderCell>
                   <TableHeaderCell width={1}>Actions</TableHeaderCell>
                 </TableRow>
               </TableHeader>
@@ -163,6 +164,9 @@ function EquivalencesComponent(props) {
               <TableBody>
                 {equivalences?.equivalence ? (
                   <TableRow>
+                    <TableCell style={{ fontSize: '10px', fontWeight: 'bold' }}>
+                      {equivalences?.equivalence?.code ?? '-'}
+                    </TableCell>
                     <TableCell style={{ fontSize: '9px' }}>
                       {equivalences?.equivalence?.description}
                     </TableCell>
