@@ -11,7 +11,11 @@ function AddBrandContainer(props) {
   const suppliers = useSelector((state) => state.supplier);
   const { loading } = useSelector((state) => state.brand);
   const dispatch = useDispatch();
-  const methods = useForm();
+  const methods = useForm({
+    defaultValues: {
+      seFactura: false,
+    },
+  });
   const addBrand = (data) => {
     return dispatch(brandCreateRequest(data))
       .then((res) => {

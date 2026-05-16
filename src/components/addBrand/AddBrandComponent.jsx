@@ -97,16 +97,6 @@ function AddBrandComponent(props) {
                     </span>
                   )}
                 </div>
-                <CustomSelect
-                  width="medium"
-                  text="Factura"
-                  name="seFactura"
-                  validate={{ required: true }}
-                  arrayOptions={[
-                    { value: true, text: 'Facturar' },
-                    { value: false, text: 'No facturar' },
-                  ]}
-                />
               </>
             )}
           </div>
