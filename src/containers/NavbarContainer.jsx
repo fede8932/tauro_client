@@ -6,6 +6,7 @@ import { logOutCookiesRequest } from '../request/userRequest';
 import { useNavigate, useNavigationType } from 'react-router';
 
 function NavbarContainer() {
+  const isPosMode = window.location.search.includes('pos=true');
   const navigate = useNavigate()
   const navigationType = useNavigationType();
   const dispatch = useDispatch();
@@ -50,6 +51,7 @@ function NavbarContainer() {
       fnSidebar={handleToggleSidebar}
       atrasFn={atrasFn}
       arrayButtons={arrayButtons}
+      isPosMode={isPosMode}
     />
   );
 }

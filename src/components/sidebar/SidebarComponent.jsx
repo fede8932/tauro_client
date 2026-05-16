@@ -221,6 +221,12 @@ function SideBarComponent(props) {
                   fnNavigate('/report/sell');
                 },
               },
+              {
+                textButton: 'POS',
+                fn: () => {
+                  window.open('/pos/ecommerce?pos=true', '_blank');
+                },
+              },
             ],
           }}
         />

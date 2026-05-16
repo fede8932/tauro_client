@@ -9,7 +9,7 @@ import { sendLogoutRequest } from '../../redux/user';
 import { logOutCookiesRequest } from '../../request/userRequest';
 
 function NavbarComponent(props) {
-  const { fnSidebar, atrasFn } = props;
+  const { fnSidebar, atrasFn, isPosMode } = props;
   const Rol = {
     1: 'System',
     2: 'Admin',
@@ -31,32 +31,38 @@ function NavbarComponent(props) {
             {`<${Rol[user.rolId]}> ${user.name.toUpperCase()} ${user.lastName.toUpperCase()}`.substring(0, 32)}
           </span>
         </div>
-        <CustomButton
-          props={{
-            buttonStyle: 'menuButton',
-            icon: 'fa-solid fa-bars',
-            iconStyle: 'menuIconVio',
-            iconHoverStyle: 'menuIconBla',
-            fnSidebar: fnSidebar,
-          }}
-        />
+        {!isPosMode && (
+          <CustomButton
+            props={{
+              buttonStyle: 'menuButton',
+              icon: 'fa-solid fa-bars',
+              iconStyle: 'menuIconVio',
+              iconHoverStyle: 'menuIconBla',
+              fnSidebar: fnSidebar,
+            }}
+          />
+        )}
       </div>
-      <div style={{marginLeft: "10px"}}>
-        <CustomButton
-          props={{
-            buttonStyle: 'menuButton',
-            icon: 'fa-solid fa-arrow-left',
-            iconStyle: 'menuIconVio',
-            iconHoverStyle: 'menuIconBla',
-            fnSidebar: atrasFn,
-          }}
-        />
-      </div>
-      <div className={styles.barContainer}>
-        <div style={{ display: 'flex', width: '950px', alignItems: 'center' }}>
-          <CustomSearch />
+      {!isPosMode && (
+        <div style={{marginLeft: "10px"}}>
+          <CustomButton
+            props={{
+              buttonStyle: 'menuButton',
+              icon: 'fa-solid fa-arrow-left',
+              iconStyle: 'menuIconVio',
+              iconHoverStyle: 'menuIconBla',
+              fnSidebar: atrasFn,
+            }}
+          />
         </div>
-        <div className={styles.perfilContainer}>
+      )}
+      <div className={styles.barContainer}>
+        {!isPosMode && (
+          <div style={{ display: 'flex', width: '950px', alignItems: 'center' }}>
+            <CustomSearch />
+          </div>
+        )}
+        <div className={styles.perfilContainer} style={isPosMode ? { marginLeft: 'auto' } : {}}>
           <CustomButton
             props={{
               buttonStyle: 'menuButton',

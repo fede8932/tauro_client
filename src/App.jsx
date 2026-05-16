@@ -47,6 +47,7 @@ import ListPaymentOrderSupplier from './components/listPaymentOrderSupplier/List
 import WhatsAppView from './views/whatsapp/WhatsAppView';
 import Pos from './views/pos/Pos';
 import PosV2 from './views/pos/PosV2';
+import PosEcommerce from './views/pos/PosEcommerce';
 
 function App() {
   const signalHub = `${import.meta.env.VITE_API_URL}/${
@@ -457,6 +458,14 @@ function App() {
                       element={
                         <ProtectedView listAccesss={[1, 2, 5, 6]}>
                           <PosV2 />
+                        </ProtectedView>
+                      }
+                    />
+                    <Route
+                      path="pos/ecommerce"
+                      element={
+                        <ProtectedView listAccesss={[1, 2, 5, 6]}>
+                          <PosEcommerce />
                         </ProtectedView>
                       }
                     />
