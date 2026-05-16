@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styles from './posEcommerce.module.css';
+import CustomPagination from '../../commonds/pagination/CustomPagination';
+import LoadingSpinner from '../../commonds/loading/LoadingSpinner';
+import { searchProductsAndEquivalences } from '../../request/productRequest';
 
 const VEHICLE_BRANDS = [
   'ALFA ROMEO', 'AUDI', 'BMW', 'CHEVROLET', 'CITROEN', 'FIAT', 'FORD',
@@ -20,6 +23,78 @@ function PosEcommerce() {
   const [productBrand, setProductBrand] = useState('');
   const [showSaleOnly, setShowSaleOnly] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [products, setProducts] = useState([]);
+  const [paginatorInfo, setPaginatorInfo] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const [debouncedSearchText, setDebouncedSearchText] = useState('');
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchText(searchText.trim());
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchText]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearchText, vehicleBrand, productBrand, showSaleOnly]);
+
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const body = {
+        page: currentPage,
+        pageSize: viewMode === 'grid' ? 36 : 50,
+      };
+      if (debouncedSearchText) body.article = debouncedSearchText;
+      if (vehicleBrand) body.description = vehicleBrand;
+      if (productBrand) body.brand = productBrand;
+      if (showSaleOnly) body.esOferta = true;
+
+      const data = await searchProductsAndEquivalences(body);
+      const allItems = [
+        ...(data.list || []).map((eq) => ({
+          id: eq.id,
+          isEquivalence: true,
+          article: eq.article,
+          description: eq.description,
+          brand: eq.brand,
+          stock: eq.totalStock,
+          location: eq.location,
+          price: eq.price,
+          image: eq.image,
+          products: eq.products,
+        })),
+        ...(data.standaloneProducts || []).map((p) => ({
+          id: p.id,
+          isEquivalence: false,
+          article: p.article,
+          description: p.description,
+          brand: p.brand,
+          stock: p.stock,
+          location: p.location,
+          price: p.price,
+          cost: p.cost,
+          images: p.images,
+        })),
+      ];
+      setProducts(allItems);
+      setPaginatorInfo({
+        totalPages: data.totalPages,
+        totalRows: data.totalRows,
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, debouncedSearchText, vehicleBrand, productBrand, showSaleOnly, viewMode]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleReset = () => {
     setSearchText('');
@@ -104,6 +179,106 @@ function PosEcommerce() {
           </button>
         </div>
       </div>
+
+      {paginatorInfo && (
+        <div className={styles.resultInfo}>
+          <span className={styles.resultText}>
+            Se encontraron <strong>{paginatorInfo.totalRows}</strong> resultados en{' '}
+            <strong>{paginatorInfo.totalPages}</strong> páginas
+          </span>
+        </div>
+      )}
+
+      {loading && <LoadingSpinner loading={loading} />}
+
+      {!loading && products.length > 0 && (
+        <>
+          {viewMode === 'grid' ? (
+            <div className={styles.productGrid}>
+              {products.map((product) => (
+                <div key={`${product.isEquivalence ? 'eq' : 'prod'}-${product.id}`} className={styles.productCard}>
+                  <div className={styles.cardImage}>
+                    {product.image || (product.images && product.images[0]) ? (
+                      <img
+                        src={product.image?.url || product.images?.[0]?.url}
+                        alt={product.article}
+                      />
+                    ) : (
+                      <div className={styles.cardImagePlaceholder}>
+                        <i className="fa-solid fa-box" />
+                      </div>
+                    )}
+                  </div>
+                  <div className={styles.cardBody}>
+                    <span className={styles.cardArticle}>{product.article}</span>
+                    <p className={styles.cardDescription}>{product.description}</p>
+                    <span className={styles.cardBrand}>{product.brand}</span>
+                    <div className={styles.cardFooter}>
+                      <span className={styles.cardStock}>
+                        Stock: {product.stock ?? 0}
+                      </span>
+                      {product.price && (
+                        <span className={styles.cardPrice}>
+                          ${product.price.toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.productList}>
+              {products.map((product) => (
+                <div key={`${product.isEquivalence ? 'eq' : 'prod'}-${product.id}`} className={styles.productRow}>
+                  <div className={styles.rowImage}>
+                    {product.image || (product.images && product.images[0]) ? (
+                      <img
+                        src={product.image?.url || product.images?.[0]?.url}
+                        alt={product.article}
+                      />
+                    ) : (
+                      <div className={styles.rowImagePlaceholder}>
+                        <i className="fa-solid fa-box" />
+                      </div>
+                    )}
+                  </div>
+                  <div className={styles.rowInfo}>
+                    <span className={styles.rowArticle}>{product.article}</span>
+                    <p className={styles.rowDescription}>{product.description}</p>
+                    <span className={styles.rowBrand}>{product.brand}</span>
+                  </div>
+                  <div className={styles.rowMeta}>
+                    <span className={styles.rowStock}>Stock: {product.stock ?? 0}</span>
+                    {product.price && (
+                      <span className={styles.rowPrice}>${product.price.toFixed(2)}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {paginatorInfo && paginatorInfo.totalPages > 1 && (
+            <div className={styles.paginationWrapper}>
+              <CustomPagination
+                pages={paginatorInfo.totalPages}
+                initPage={currentPage}
+                changeFn={(page) => {
+                  setCurrentPage(page);
+                }}
+              />
+            </div>
+          )}
+        </>
+      )}
+
+      {!loading && products.length === 0 && (
+        <div className={styles.emptyState}>
+          <i className="fa-solid fa-search" />
+          <p>No se encontraron productos</p>
+        </div>
+      )}
     </div>
   );
 }
