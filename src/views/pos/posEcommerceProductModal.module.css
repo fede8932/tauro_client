@@ -1,0 +1,378 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 16px 16px 0 0;
+  z-index: 10;
+}
+
+.headerTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.closeBtn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  color: #848484;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  font-size: 16px;
+}
+
+.closeBtn:hover {
+  background: #f3edff;
+  color: #673ab7;
+}
+
+.content {
+  padding: 24px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.imageColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.imageContainer {
+  position: relative;
+  background: #fafafa;
+  border: 2px solid #e8e8e8;
+  border-radius: 12px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 16px;
+}
+
+.imagePlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #d0d0d0;
+  font-size: 56px;
+  gap: 8px;
+}
+
+.zoomBtn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  background: #ffffff;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #5c6470;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  font-size: 16px;
+}
+
+.zoomBtn:hover {
+  background: #f3edff;
+  color: #673ab7;
+}
+
+.stockBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.stockDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.detailsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.article {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.brandAndDesc {
+  font-size: 15px;
+  color: #5c6470;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.divider {
+  height: 1px;
+  background: #e8e8e8;
+}
+
+.priceSection {
+  background: #f8f4ff;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.priceSectionTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 12px;
+}
+
+.priceGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.priceBox {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.priceLabel {
+  font-size: 12px;
+  color: #999;
+}
+
+.priceValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: #5c6470;
+}
+
+.priceMain {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2e7d32;
+}
+
+.sellPriceBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #e8f5e9;
+  border: 2px solid #2e7d32;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.quantitySection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quantityLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.quantityControl {
+  display: flex;
+  align-items: center;
+  border: 1px solid #d8d8d8;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.qtyBtn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: #f5f5f5;
+  color: #333;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qtyBtn:hover:not(:disabled) {
+  background: #e8e8e8;
+}
+
+.qtyBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.qtyInput {
+  width: 60px;
+  height: 40px;
+  text-align: center;
+  border: none;
+  border-left: 1px solid #e8e8e8;
+  border-right: 1px solid #e8e8e8;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  outline: none;
+}
+
+.qtyInput::-webkit-inner-spin-button,
+.qtyInput::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  background: #673ab7;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  opacity: 0.6;
+}
+
+.addBtn:hover {
+  background: #5a2ea6;
+}
+
+.comingSoon {
+  text-align: center;
+  font-size: 12px;
+  color: #999;
+  margin: 0;
+}
+
+/* Image Zoom Overlay */
+.zoomOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.zoomContainer {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zoomImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.zoomCloseBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.zoomCloseBtn:hover {
+  background: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .modal {
+    max-height: 95vh;
+    border-radius: 12px;
+  }
+}

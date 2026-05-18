@@ -358,6 +358,18 @@ export const updateProductSupplierPrice = async (productId, supplierId, price) =
   }
 };
 
+export const getBrands = async () => {
+  try {
+    const { data } = await axios.get(`${apiUrl}/api/brand`, { withCredentials: true });
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};
+
 export const searchProductsAndEquivalences = async (searchData) => {
   try {
     const { data } = await axios.post(

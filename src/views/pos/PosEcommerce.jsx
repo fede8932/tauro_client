@@ -2,7 +2,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styles from './posEcommerce.module.css';
 import CustomPagination from '../../commonds/pagination/CustomPagination';
 import LoadingSpinner from '../../commonds/loading/LoadingSpinner';
-import { searchProductsAndEquivalences } from '../../request/productRequest';
+import { searchProductsAndEquivalences, getBrands } from '../../request/productRequest';
+import PosEcommerceProductModal from './PosEcommerceProductModal';
+import PosEcommerceEquivalenceModal from './PosEcommerceEquivalenceModal';
+import PosEcommerceOrderSidebar from './PosEcommerceOrderSidebar';
+import { useDispatch, useSelector } from 'react-redux';
+import { addLocalOrderItem } from '../../redux/sellPosOrder';
 
 const VEHICLE_BRANDS = [
   'ALFA ROMEO', 'AUDI', 'BMW', 'CHEVROLET', 'CITROEN', 'FIAT', 'FORD',
@@ -11,13 +16,9 @@ const VEHICLE_BRANDS = [
   'RENAULT', 'SUBARU', 'SUZUKI', 'TOYOTA', 'VOLKSWAGEN', 'VOLVO',
 ];
 
-const PRODUCT_BRANDS = [
-  'ACDelco', 'Bosch', 'Continental', 'Denso', 'Febi', 'Gates',
-  'Hella', 'Lemforder', 'Mann-Filter', 'NGK', 'SKF', 'Valeo',
-  'ATE', 'Brembo', 'Textar', 'Sachs', 'ZF', 'DINN', 'Meyle', 'TRW',
-];
-
 function PosEcommerce() {
+  const dispatch = useDispatch();
+  const customerDiscounts = useSelector((state) => state.client)?.selectClient?.customerDiscounts;
   const [searchText, setSearchText] = useState('');
   const [vehicleBrand, setVehicleBrand] = useState('');
   const [productBrand, setProductBrand] = useState('');
@@ -27,6 +28,9 @@ function PosEcommerce() {
   const [products, setProducts] = useState([]);
   const [paginatorInfo, setPaginatorInfo] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [productBrands, setProductBrands] = useState([]);
+  const [brandsLoading, setBrandsLoading] = useState(false);
 
   const [debouncedSearchText, setDebouncedSearchText] = useState('');
 
@@ -73,6 +77,7 @@ function PosEcommerce() {
           article: p.article,
           description: p.description,
           brand: p.brand,
+          brandId: p.brandId,
           stock: p.stock,
           location: p.location,
           price: p.price,
@@ -96,6 +101,26 @@ function PosEcommerce() {
     fetchProducts();
   }, [fetchProducts]);
 
+  useEffect(() => {
+    setBrandsLoading(true);
+    getBrands()
+      .then((brands) => {
+        const filtered = (brands || [])
+          .filter((b) => b.ecommerce === true && b.name && b.name.trim())
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((b) => b.name);
+        setProductBrands(filtered);
+      })
+      .catch(() => {})
+      .finally(() => setBrandsLoading(false));
+  }, []);
+
+  const addProduct = (productId, brandId, article, sellPrice, description) => {
+    const discount = customerDiscounts?.find((cd) => cd.brandId == brandId);
+    const sellWithDiscount = discount ? sellPrice * (1 + discount.porcentaje) : sellPrice;
+    dispatch(addLocalOrderItem({ productId, brandId, article, sellPrice: sellWithDiscount, description }));
+  };
+
   const handleReset = () => {
     setSearchText('');
     setVehicleBrand('');
@@ -104,8 +129,10 @@ function PosEcommerce() {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.filterCard}>
+    <div className={styles.layout}>
+      <div className={styles.mainContent}>
+      <div className={styles.container}>
+        <div className={styles.filterCard}>
         <div className={styles.filterGrid}>
           <div className={styles.filterGroup}>
             <label className={styles.label}>Buscar producto</label>
@@ -136,9 +163,10 @@ function PosEcommerce() {
               value={productBrand}
               onChange={(e) => setProductBrand(e.target.value)}
               className={styles.select}
+              disabled={brandsLoading}
             >
-              <option value="">Todas las marcas</option>
-              {PRODUCT_BRANDS.map((brand) => (
+              <option value="">{brandsLoading ? 'Cargando...' : 'Todas las marcas'}</option>
+              {productBrands.map((brand) => (
                 <option key={brand} value={brand}>{brand}</option>
               ))}
             </select>
@@ -155,30 +183,29 @@ function PosEcommerce() {
               <span>Solo ofertas</span>
             </label>
           </div>
-        </div>
-        <div className={styles.filterActions}>
-          <div className={styles.viewToggle}>
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`${styles.viewBtn} ${viewMode === 'grid' ? styles.viewBtnActive : ''}`}
-              title="Vista de cuadrícula"
-            >
-              <i className="fa-solid fa-th" />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`${styles.viewBtn} ${viewMode === 'list' ? styles.viewBtnActive : ''}`}
-              title="Vista de lista"
-            >
-              <i className="fa-solid fa-list" />
+          <div className={styles.filterActions}>
+            <div className={styles.viewToggle}>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`${styles.viewBtn} ${viewMode === 'grid' ? styles.viewBtnActive : ''}`}
+                title="Vista de cuadrícula"
+              >
+                <i className="fa-solid fa-th" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`${styles.viewBtn} ${viewMode === 'list' ? styles.viewBtnActive : ''}`}
+                title="Vista de lista"
+              >
+                <i className="fa-solid fa-list" />
+              </button>
+            </div>
+            <button onClick={handleReset} className={styles.resetButton}>
+              <i className="fa-solid fa-times" />
+              <span>Limpiar filtros</span>
             </button>
           </div>
-          <button onClick={handleReset} className={styles.resetButton}>
-            <i className="fa-solid fa-times" />
-            <span>Limpiar filtros</span>
-          </button>
         </div>
-      </div>
 
       {paginatorInfo && (
         <div className={styles.resultInfo}>
@@ -210,8 +237,18 @@ function PosEcommerce() {
                     )}
                   </div>
                   <div className={styles.cardBody}>
-                    <span className={styles.cardArticle}>{product.article}</span>
-                    <p className={styles.cardDescription}>{product.description}</p>
+                    <span
+                      className={styles.cardArticle}
+                      onClick={() => setSelectedProduct(product)}
+                    >
+                      {product.isEquivalence ? 'GRUPO' : product.article}
+                    </span>
+                    <p
+                      className={styles.cardDescription}
+                      onClick={() => setSelectedProduct(product)}
+                    >
+                      {product.description}
+                    </p>
                     <span className={styles.cardBrand}>{product.brand}</span>
                     <div className={styles.cardFooter}>
                       <span className={styles.cardStock}>
@@ -244,8 +281,18 @@ function PosEcommerce() {
                     )}
                   </div>
                   <div className={styles.rowInfo}>
-                    <span className={styles.rowArticle}>{product.article}</span>
-                    <p className={styles.rowDescription}>{product.description}</p>
+                    <span
+                      className={styles.rowArticle}
+                      onClick={() => setSelectedProduct(product)}
+                    >
+                      {product.isEquivalence ? 'GRUPO' : product.article}
+                    </span>
+                    <p
+                      className={styles.rowDescription}
+                      onClick={() => setSelectedProduct(product)}
+                    >
+                      {product.description}
+                    </p>
                     <span className={styles.rowBrand}>{product.brand}</span>
                   </div>
                   <div className={styles.rowMeta}>
@@ -279,6 +326,26 @@ function PosEcommerce() {
           <p>No se encontraron productos</p>
         </div>
       )}
+
+      {selectedProduct && (
+        selectedProduct.isEquivalence ? (
+          <PosEcommerceEquivalenceModal
+            equivalence={selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+            addProduct={addProduct}
+          />
+        ) : (
+          <PosEcommerceProductModal
+            product={selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+            addProduct={addProduct}
+          />
+        )
+      )}
+        </div>
+      </div>
+    </div>
+      <PosEcommerceOrderSidebar addProduct={addProduct} />
     </div>
   );
 }
