@@ -142,7 +142,7 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
                           onClick={(e) => {
                             e.stopPropagation();
                             if (addProduct) {
-                              addProduct(product.id, product.brandId || product.id, product.article, basePrice, product.description);
+                              addProduct(product.id, product.brandId || product.id, product.article, basePrice, product.description, qty);
                             }
                           }}
                           disabled={isAdding || !pSellPrice || pSellPrice <= 0}

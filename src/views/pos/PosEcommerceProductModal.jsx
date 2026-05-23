@@ -116,7 +116,7 @@ function PosEcommerceProductModal({ product, onClose, addProduct }) {
                 <button
                   onClick={() => {
                     if (addProduct) {
-                      addProduct(product.id, product.brandId || product.id, product.article, basePrice, product.description);
+                      addProduct(product.id, product.brandId || product.id, product.article, basePrice, product.description, quantity);
                       onClose();
                     }
                   }}

@@ -115,11 +115,11 @@ function PosEcommerce() {
       .finally(() => setBrandsLoading(false));
   }, []);
 
-  const addProduct = (productId, brandId, article, sellPrice, description) => {
+  const addProduct = (productId, brandId, article, sellPrice, description, amount = 1) => {
     if (!sellPrice || sellPrice <= 0) return;
     const discount = customerDiscounts?.find((cd) => cd.brandId == brandId);
     const sellWithDiscount = discount ? sellPrice * (1 + discount.porcentaje) : sellPrice;
-    dispatch(addLocalOrderItem({ productId, brandId, article, sellPrice: sellWithDiscount, description }));
+    dispatch(addLocalOrderItem({ productId, brandId, article, sellPrice: sellWithDiscount, description, amount }));
   };
 
   const handleReset = () => {

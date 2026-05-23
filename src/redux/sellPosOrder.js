@@ -42,17 +42,16 @@ const posSellOrderSlice = createSlice({
     },
     addLocalOrderItem: (state, action) => {
       const newStateOrder = { ...state.order };
+      const { productId, brandId, amount, sellPrice } = action.payload;
       const index = newStateOrder.items.findIndex(
-        (item) =>
-          item.productId == action.payload.productId &&
-          item.brandId == action.payload.brandId
+        (item) => item.productId == productId && item.brandId == brandId
       );
       if (index > -1) {
-        newStateOrder.items[index].amount += 1;
+        newStateOrder.items[index].amount += amount;
       } else {
-        newStateOrder.items.push({ ...action.payload, amount: 1 });
+        newStateOrder.items.push({ ...action.payload, amount });
       }
-      newStateOrder.subTotal += action.payload.sellPrice;
+      newStateOrder.subTotal += sellPrice * amount;
       state.order = newStateOrder;
       sessionStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
     },
