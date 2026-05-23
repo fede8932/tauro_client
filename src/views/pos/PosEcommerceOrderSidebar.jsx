@@ -84,8 +84,9 @@ function PosEcommerceOrderSidebar({ addProduct }) {
   };
 
   const changeAmount = (productId, brandId, amount) => {
-    if (amount < 1) return;
-    dispatch(changeAmountOrderItem({ productId, brandId, amount }));
+    const parsedAmount = parseInt(amount, 10);
+    if (isNaN(parsedAmount) || parsedAmount < 1) return;
+    dispatch(changeAmountOrderItem({ productId, brandId, amount: parsedAmount }));
   };
 
   const printPresupuesto = async () => {
@@ -371,7 +372,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
 
         <div className={styles.actions}>
           <Button
-            disabled={finishMode.presup && order.subTotal <= 0}
+            disabled={finishMode.presup && (order.subTotal <= 0 || !order.clientId)}
             style={{ width: '48%', fontSize: '13px' }}
             variant="outline-primary"
             onClick={printPresupuesto}
@@ -389,7 +390,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
             size="sm"
             actionButton={
               <Button
-                disabled={!finishMode.venta || order.subTotal <= 0}
+                disabled={!finishMode.venta || order.subTotal <= 0 || !order.clientId}
                 style={{ width: '48%', fontSize: '13px' }}
                 variant="success"
               >

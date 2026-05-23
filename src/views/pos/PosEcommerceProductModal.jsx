@@ -16,7 +16,8 @@ function PosEcommerceProductModal({ product, onClose, addProduct }) {
 
   const stockInfo = getStockInfo(product.stock ?? 0);
   const sellPrice = product.price ? Number(product.price) : 0;
-  const subtotal = sellPrice * quantity;
+  const basePrice = sellPrice / 1.21;
+  const subtotal = basePrice * quantity;
 
   return (
     <>
@@ -73,7 +74,11 @@ function PosEcommerceProductModal({ product, onClose, addProduct }) {
                       <span className={styles.priceValue}>{product.location || 'N/A'}</span>
                     </div>
                     <div className={styles.priceBox}>
-                      <span className={styles.priceLabel}>Precio de venta</span>
+                      <span className={styles.priceLabel}>Precio lista</span>
+                      <span className={styles.priceMain}>${basePrice.toFixed(2)}</span>
+                    </div>
+                    <div className={styles.priceBox}>
+                      <span className={styles.priceLabel}>Precio con IVA</span>
                       <span className={styles.priceMain}>${sellPrice.toFixed(2)}</span>
                     </div>
                   </div>
@@ -111,11 +116,11 @@ function PosEcommerceProductModal({ product, onClose, addProduct }) {
                 <button
                   onClick={() => {
                     if (addProduct) {
-                      addProduct(product.id, product.brandId || product.id, product.article, sellPrice, product.description);
+                      addProduct(product.id, product.brandId || product.id, product.article, basePrice, product.description);
                       onClose();
                     }
                   }}
-                  disabled={!addProduct}
+                  disabled={!addProduct || !sellPrice || sellPrice <= 0}
                   className={styles.addBtn}
                 >
                   <i className="fa-solid fa-cart-plus" />

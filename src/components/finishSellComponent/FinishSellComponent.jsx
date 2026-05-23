@@ -47,9 +47,31 @@ function FinishSellComponent(props) {
   };
 
   const facturar = async () => {
+    if (!order.clientId) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Debe seleccionar un cliente antes de facturar.',
+      });
+      return;
+    }
+
+    if (!order.items || order.items.length === 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Debe agregar al menos un producto a la orden antes de facturar.',
+      });
+      return;
+    }
+
     const sendData = {
       clientId: order.clientId,
-      items: order.items,
+      items: order.items.map((item) => ({
+        ...item,
+        amount: Number(item.amount),
+        sellPrice: Number(item.sellPrice),
+      })),
       billType: getBillType(),
       payMethod: Object.entries(payMethod).find(
         ([key, value]) => value.enabled === true
@@ -84,10 +106,11 @@ function FinishSellComponent(props) {
     dispatch(finishSellPosAsync(sendData))
       .then(async (res) => {
         if (res.error) {
+          const serverMsg = res.error?.response?.data?.message || res.error?.response?.data?.title || '';
           Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: `Error al facturar: ${res.error.message}`,
+            text: `Error al facturar: ${res.error.message}${serverMsg ? ' - ' + serverMsg : ''}`,
           });
           return;
         }

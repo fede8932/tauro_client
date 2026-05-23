@@ -55,6 +55,7 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
             <div className={styles.productsGrid}>
               {products.map((product) => {
                 const pSellPrice = product.price ? Number(product.price) : 0;
+                const basePrice = pSellPrice / 1.21;
                 const stockBadge = getStockBadge(product.stock ?? 0);
                 const hasImage = product.images && product.images.length > 0;
                 const imageUrl = hasImage ? product.images[0].url : equivImageUrl;
@@ -82,6 +83,7 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
                         <h4 className={styles.productArticle}>{product.article}</h4>
                         <p className={styles.productBrand}>{product.brand}</p>
                         <p className={styles.productDesc}>{product.description}</p>
+                        <p className={styles.productLocation}>{product.location || 'N/A'}</p>
                       </div>
                     </div>
 
@@ -89,10 +91,10 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
                       <div className={styles.priceRow}>
                         <div>
                           <p className={styles.priceLabel}>Precio lista</p>
-                          <p className={styles.listPrice}>${pSellPrice.toFixed(2)}</p>
+                          <p className={styles.listPrice}>${basePrice.toFixed(2)}</p>
                         </div>
                         <div className={styles.priceRight}>
-                          <p className={styles.priceLabel}>Tu precio</p>
+                          <p className={styles.priceLabel}>Precio con IVA</p>
                           <p className={styles.sellPrice}>${pSellPrice.toFixed(2)}</p>
                         </div>
                       </div>
@@ -140,11 +142,11 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
                           onClick={(e) => {
                             e.stopPropagation();
                             if (addProduct) {
-                              addProduct(product.id, product.brandId || product.id, product.article, pSellPrice, product.description);
+                              addProduct(product.id, product.brandId || product.id, product.article, basePrice, product.description);
                             }
                           }}
-                          disabled={isAdding || product.stock === 0}
-                          className={`${styles.addBtn} ${product.stock === 0 ? styles.addBtnDisabled : ''}`}
+                          disabled={isAdding || !pSellPrice || pSellPrice <= 0}
+                          className={styles.addBtn}
                         >
                           <i className="fa-solid fa-cart-plus" />
                           Agregar
