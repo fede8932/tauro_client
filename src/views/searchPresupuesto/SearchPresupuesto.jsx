@@ -9,7 +9,6 @@ import { getCotizacionById } from '../../request/cotizacionRequest';
 import { getProductId } from '../../request/productRequest';
 import { numberToString } from '../../utils';
 import Swal from 'sweetalert2';
-import { useNavigate } from 'react-router-dom';
 
 
 const DAYS_TO_EXPIRE = 10;
@@ -27,7 +26,6 @@ function getStatusInfo(fechaCreacion) {
 
 function SearchPresupuesto() {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const filters = useSelector((state) => state.filtersCotizacion);
   const { loading, data, error } = useSelector((state) => state.searchCotizacion);
   const [textClient, setTextClient] = useState('');
@@ -83,23 +81,30 @@ function SearchPresupuesto() {
   };
 
   const loadIntoPos = async (item) => {
+    let hasExistingItems = false;
     const existingOrder = localStorage.getItem('pos-order');
     if (existingOrder) {
-      const parsed = JSON.parse(existingOrder);
-      if (parsed.items && parsed.items.length > 0) {
-        const result = await Swal.fire({
-          title: '¿Desea descartar la venta actual?',
-          text: 'Ya hay una venta en curso en el POS. Si carga este presupuesto, se perderán los datos de la venta actual.',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Descartar y cargar presupuesto',
-          cancelButtonText: 'Cancelar',
-        });
-        if (!result.isConfirmed) return;
+      try {
+        const parsed = JSON.parse(existingOrder);
+        hasExistingItems = !!(parsed.items && parsed.items.length > 0);
+      } catch {
+        hasExistingItems = false;
       }
     }
+
+    const confirmResult = await Swal.fire({
+      title: hasExistingItems ? '¿Desea descartar la venta actual?' : '¿Cargar presupuesto en POS?',
+      text: hasExistingItems
+        ? 'Ya hay una venta en curso en el POS. Si carga este presupuesto, se perderán los datos de la venta actual. El POS se abrirá en una nueva pestaña.'
+        : 'El presupuesto se cargará en el POS en una nueva pestaña.',
+      icon: hasExistingItems ? 'warning' : 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: hasExistingItems ? 'Descartar y cargar presupuesto' : 'Cargar en POS',
+      cancelButtonText: 'Cancelar',
+    });
+    if (!confirmResult.isConfirmed) return;
 
     try {
       const cotizacion = await getCotizacionById(item.id);
@@ -126,11 +131,13 @@ function SearchPresupuesto() {
       });
 
       let items = rawItems.map((ci) => {
-        const detail = detailMap[`${ci.productId}-${ci.brandId}`] || {};
+        const detail = detailMap[`${ci.productId}-${ci.brandId}`];
         const currentPrice = Number(detail?.price?.price || 0);
         const rentabilidad = detail?.brand?.rentabilidad || detail?.rentabilidad || 0;
         const currentSellPrice = currentPrice * (1 + Number(rentabilidad));
-        const currentStock = detail?.stock?.stock ?? 0;
+        // If we couldn't fetch product detail, treat stock as unknown (use requested amount) so we
+        // don't accidentally wipe items in the stock-insufficient flow below.
+        const currentStock = detail?.stock?.stock ?? ci.amount;
         return {
           productId: ci.productId,
           brandId: ci.brandId,
@@ -156,25 +163,48 @@ function SearchPresupuesto() {
         const lowStockMsg = lowStockItems
           .map((item) => `${item.article}: solicitado ${item.amount}, disponible ${item.availableStock}`)
           .join('<br>');
-        const result = await Swal.fire({
+        await Swal.fire({
           icon: 'warning',
           title: 'Stock insuficiente',
-          html: `Los siguientes productos no tienen stock suficiente:<br><br>${lowStockMsg}<br><br>¿Desea cargar el stock disponible?`,
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Cargar stock disponible',
-          cancelButtonText: 'Cancelar',
+          html: `Los siguientes productos no tienen stock suficiente:<br><br>${lowStockMsg}<br><br>Se cargarán igualmente con la cantidad solicitada.`,
+          confirmButtonText: 'Continuar',
         });
-        if (!result.isConfirmed) return;
-        items = items.map((item) => {
-          if (item.availableStock < item.amount) {
-            return { ...item, amount: Math.max(item.availableStock, 0) };
-          }
-          return item;
-        });
-        items = items.filter((item) => item.amount > 0);
       }
+      // Validación de stock deshabilitada temporalmente: el stock real aún no está
+      // completamente cargado al sistema. Por ahora solo se avisa al usuario y se
+      // cargan los items con la cantidad solicitada del presupuesto.
+      // const lowStockItems = items.filter((item) => item.availableStock < item.amount);
+      // if (lowStockItems.length > 0) {
+      //   const lowStockMsg = lowStockItems
+      //     .map((item) => `${item.article}: solicitado ${item.amount}, disponible ${item.availableStock}`)
+      //     .join('<br>');
+      //   const result = await Swal.fire({
+      //     icon: 'warning',
+      //     title: 'Stock insuficiente',
+      //     html: `Los siguientes productos no tienen stock suficiente:<br><br>${lowStockMsg}<br><br>¿Desea cargar el stock disponible?`,
+      //     showCancelButton: true,
+      //     confirmButtonColor: '#3085d6',
+      //     cancelButtonColor: '#d33',
+      //     confirmButtonText: 'Cargar stock disponible',
+      //     cancelButtonText: 'Cancelar',
+      //   });
+      //   if (!result.isConfirmed) return;
+      //   items = items.map((item) => {
+      //     if (item.availableStock < item.amount) {
+      //       return { ...item, amount: Math.max(item.availableStock, 0) };
+      //     }
+      //     return item;
+      //   });
+      //   items = items.filter((item) => item.amount > 0);
+      // }
+      // if (items.length === 0) {
+      //   await Swal.fire({
+      //     icon: 'error',
+      //     title: 'No se puede cargar el presupuesto',
+      //     text: 'Ningún producto tiene stock disponible para cargar en el POS.',
+      //   });
+      //   return;
+      // }
 
       const subTotal = items.reduce((sum, item) => sum + item.sellPrice * item.amount, 0);
 
@@ -186,10 +216,7 @@ function SearchPresupuesto() {
       };
       localStorage.setItem('pos-order', JSON.stringify(orderData));
 
-      const posWin = window.open('/pos/ecommerce?pos=true', '_blank');
-      if (!posWin) {
-        navigate('/pos/ecommerce?pos=true');
-      }
+      window.open('/pos/ecommerce?pos=true', '_blank', 'noopener');
     } catch (err) {
       Swal.fire({
         icon: 'error',

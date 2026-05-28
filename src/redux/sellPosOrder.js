@@ -29,10 +29,21 @@ const posSellOrderSlice = createSlice({
       localStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
     },
     getInitialOrderStorage: (state) => {
-      const posSellOrderString = localStorage.getItem('pos-order');
-      const posSellOrder = JSON.parse(posSellOrderString);
-      if (posSellOrder) {
-        state.order = posSellOrder;
+      try {
+        const posSellOrderString = localStorage.getItem('pos-order');
+        if (posSellOrderString) {
+          const posSellOrder = JSON.parse(posSellOrderString);
+          if (posSellOrder && posSellOrder.items) {
+            state.order = {
+              subTotal: posSellOrder.subTotal || 0,
+              clientId: posSellOrder.clientId || null,
+              razonSocial: posSellOrder.razonSocial || null,
+              items: posSellOrder.items,
+            };
+          }
+        }
+      } catch (e) {
+        // ignore
       }
     },
     selectClientForOrder: (state, action) => {
