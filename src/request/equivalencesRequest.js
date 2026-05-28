@@ -69,6 +69,40 @@ export const editDescriptionEquivalence = async (sendData) => {
   }
 };
 
+export const addProductToEquivalence = async (equivalenceId, productId) => {
+  try {
+    const { data } = await axios.post(
+      `${apiUrl}/api/equivalences/${equivalenceId}/products`,
+      { productId },
+      { withCredentials: true }
+    );
+    return data;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    if (error.response?.status == 409) {
+      return { error: true, status: 409, message: error.response.data };
+    }
+    throw error;
+  }
+};
+
+export const searchEquivalencesByText = async (text) => {
+  try {
+    const { data } = await axios.get(
+      `${apiUrl}/api/equivalences/equiv`,
+      { params: { text }, withCredentials: true }
+    );
+    return data;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};
+
 export const editEquivalence = async (sendData) => {
   try {
     const { id, listId } = sendData;

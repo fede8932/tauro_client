@@ -26,10 +26,10 @@ const posSellOrderSlice = createSlice({
       state.error = '';
       state.order = initialState.order;
       state.billData = { oficial: null, numComprobante: null, ptoVenta: null };
-      sessionStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
+      localStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
     },
     getInitialOrderStorage: (state) => {
-      const posSellOrderString = sessionStorage.getItem('pos-order');
+      const posSellOrderString = localStorage.getItem('pos-order');
       const posSellOrder = JSON.parse(posSellOrderString);
       if (posSellOrder) {
         state.order = posSellOrder;
@@ -38,7 +38,7 @@ const posSellOrderSlice = createSlice({
     selectClientForOrder: (state, action) => {
       state.order.clientId = action.payload.id;
       state.order.razonSocial = action.payload.razonSocial;
-      sessionStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
+      localStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
     },
     addLocalOrderItem: (state, action) => {
       const newStateOrder = { ...state.order };
@@ -53,7 +53,7 @@ const posSellOrderSlice = createSlice({
       }
       newStateOrder.subTotal += sellPrice * amount;
       state.order = newStateOrder;
-      sessionStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
+      localStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
     },
     delLocalOrderItem: (state, action) => {
       let newTotal = 0;
@@ -71,7 +71,7 @@ const posSellOrderSlice = createSlice({
       newStateOrder.subTotal = newTotal;
       newStateOrder.items = items;
       state.order = newStateOrder;
-      sessionStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
+      localStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
     },
     changeAmountOrderItem: (state, action) => {
       const { productId, brandId, amount } = action.payload;
@@ -87,7 +87,7 @@ const posSellOrderSlice = createSlice({
       newStateOrder.subTotal = newTotal;
       newStateOrder.items = items;
       state.order = newStateOrder;
-      sessionStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
+      localStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
     },
   },
   extraReducers: {

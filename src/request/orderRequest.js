@@ -641,6 +641,22 @@ export const printPresRequest = async (orderId) => {
     throw error;
   }
 };
+export const searchPresupuestoRequest = async (filter) => {
+  try {
+    const { data } = await axios.post(
+      `${apiUrl}/api/movement/pres/search`,
+      filter,
+      { withCredentials: true }
+    );
+    return data;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};
+
 export const rePrintPresRequest = async (id) => {
   try {
     const { data } = await axios.get(

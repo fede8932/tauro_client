@@ -227,6 +227,12 @@ function SideBarComponent(props) {
                   window.open('/pos/ecommerce?pos=true', '_blank');
                 },
               },
+              {
+                textButton: 'Buscar presupuestos',
+                fn: () => {
+                  fnNavigate('/search/presupuesto');
+                },
+              },
             ],
           }}
         />

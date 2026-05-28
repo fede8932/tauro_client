@@ -1,0 +1,293 @@
+.container {
+  height: calc(100% - 25px);
+  width: 100%;
+  border-radius: 12px;
+  background-color: #fbfbfb;
+  padding: 20px 35px;
+  overflow-y: auto;
+}
+
+.container::-webkit-scrollbar {
+  width: 4px;
+  border-radius: 2px;
+}
+
+.container::-webkit-scrollbar-track {
+  background-color: #f8f4ff;
+}
+
+.container::-webkit-scrollbar-thumb {
+  background-color: #e7e5ec;
+}
+
+.container::-webkit-scrollbar-thumb:hover {
+  background-color: #e7e5ec;
+}
+
+.formTitle {
+  font-size: 28px;
+  font-weight: 400;
+  margin-bottom: 25px;
+  color: #367ff6;
+}
+
+.filterCard {
+  background: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  flex: 1;
+}
+
+.filterLabel {
+  font-size: 12px;
+  color: #575757;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.filterInput {
+  padding: 8px 12px;
+  border: 1px solid #d4d4d4;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.filterInput:focus {
+  border-color: #367ff6;
+}
+
+.filterSelect {
+  padding: 8px 12px;
+  border: 1px solid #d4d4d4;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+  background: #fff;
+  cursor: pointer;
+}
+
+.filterSelect:focus {
+  border-color: #367ff6;
+}
+
+.searchInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.clearBtn {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 14px;
+}
+
+.clearBtn:hover {
+  color: #e74c3c;
+}
+
+.filterActions {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  padding-bottom: 2px;
+}
+
+.searchBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: #367ff6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.searchBtn:hover {
+  background: #2a6cd4;
+}
+
+.searchBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.resetBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: #f0f0f0;
+  color: #555;
+  border: 1px solid #d4d4d4;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.resetBtn:hover {
+  background: #e0e0e0;
+}
+
+.resultInfo {
+  font-size: 14px;
+  color: #575757;
+  margin-bottom: 16px;
+  padding: 0 4px;
+}
+
+.tableWrapper {
+  width: 100%;
+  border: 1px solid #eaeaea;
+  border-radius: 14px;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table thead {
+  background: #f5f5f5;
+}
+
+.table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #eaeaea;
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #444;
+}
+
+.tableRow:hover {
+  background: #f8f9ff;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.badgeSuccess {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badgeDanger {
+  background: #fbe9e7;
+  color: #c62828;
+}
+
+.badgeSecondary {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.loadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #367ff6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.loadBtn:hover {
+  background: #2a6cd4;
+}
+
+.convertedLabel {
+  font-size: 13px;
+  color: #999;
+  font-style: italic;
+}
+
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fbe9e7;
+  border: 1px solid #ffcdd2;
+  border-radius: 8px;
+  color: #c62828;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #999;
+  gap: 12px;
+}
+
+.emptyState i {
+  font-size: 48px;
+}
+
+.emptyState p {
+  font-size: 16px;
+}
+
+.paginationWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 12px 0;
+}

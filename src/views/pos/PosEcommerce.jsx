@@ -6,6 +6,7 @@ import { searchProductsAndEquivalences, getBrands } from '../../request/productR
 import PosEcommerceProductModal from './PosEcommerceProductModal';
 import PosEcommerceEquivalenceModal from './PosEcommerceEquivalenceModal';
 import PosEcommerceOrderSidebar from './PosEcommerceOrderSidebar';
+import LinkEquivalenceModal from '../../components/posComponent/LinkEquivalenceModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { addLocalOrderItem } from '../../redux/sellPosOrder';
 
@@ -29,6 +30,7 @@ function PosEcommerce() {
   const [paginatorInfo, setPaginatorInfo] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [productToLink, setProductToLink] = useState(null);
   const [productBrands, setProductBrands] = useState([]);
   const [brandsLoading, setBrandsLoading] = useState(false);
 
@@ -120,6 +122,10 @@ function PosEcommerce() {
     const discount = customerDiscounts?.find((cd) => cd.brandId == brandId);
     const sellWithDiscount = discount ? sellPrice * (1 + discount.porcentaje) : sellPrice;
     dispatch(addLocalOrderItem({ productId, brandId, article, sellPrice: sellWithDiscount, description, amount }));
+  };
+
+  const handleLinked = () => {
+    fetchProducts();
   };
 
   const handleReset = () => {
@@ -255,11 +261,25 @@ function PosEcommerce() {
                       <span className={styles.cardStock}>
                         Stock: {product.stock ?? 0}
                       </span>
-                      {product.price && (
-                        <span className={styles.cardPrice}>
-                          ${product.price.toFixed(2)}
-                        </span>
-                      )}
+                      <div className={styles.cardActions}>
+                        {!product.isEquivalence && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setProductToLink(product);
+                            }}
+                            className={styles.linkEquivBtn}
+                            title="Vincular a grupo de equivalencias"
+                          >
+                            <i className="fa-solid fa-layer-group" />
+                          </button>
+                        )}
+                        {product.price && (
+                          <span className={styles.cardPrice}>
+                            ${product.price.toFixed(2)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -297,6 +317,18 @@ function PosEcommerce() {
                     <span className={styles.rowBrand}>{product.brand}</span>
                   </div>
                   <div className={styles.rowMeta}>
+                    {!product.isEquivalence && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setProductToLink(product);
+                        }}
+                        className={styles.linkEquivRowBtn}
+                        title="Vincular a grupo de equivalencias"
+                      >
+                        <i className="fa-solid fa-layer-group" />
+                      </button>
+                    )}
                     <span className={styles.rowStock}>Stock: {product.stock ?? 0}</span>
                     {product.price && (
                       <span className={styles.rowPrice}>${product.price.toFixed(2)}</span>
@@ -342,6 +374,14 @@ function PosEcommerce() {
             addProduct={addProduct}
           />
         )
+      )}
+
+      {productToLink && (
+        <LinkEquivalenceModal
+          product={productToLink}
+          onClose={() => setProductToLink(null)}
+          onLinked={handleLinked}
+        />
       )}
         </div>
       </div>

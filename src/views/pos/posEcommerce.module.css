@@ -301,6 +301,33 @@
   border-top: 1px solid #f0f0f0;
 }
 
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.linkEquivBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e0d6f2;
+  border-radius: 8px;
+  background: #f8f4ff;
+  color: #673ab7;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.linkEquivBtn:hover {
+  background: #673ab7;
+  color: #ffffff;
+  border-color: #673ab7;
+}
+
 .cardStock {
   font-size: 12px;
   color: #5c6470;
@@ -410,6 +437,27 @@
   align-items: flex-end;
   gap: 4px;
   flex-shrink: 0;
+}
+
+.linkEquivRowBtn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e0d6f2;
+  border-radius: 6px;
+  background: #f8f4ff;
+  color: #673ab7;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+}
+
+.linkEquivRowBtn:hover {
+  background: #673ab7;
+  color: #ffffff;
+  border-color: #673ab7;
 }
 
 .rowStock {

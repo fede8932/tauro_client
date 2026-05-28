@@ -17,14 +17,11 @@ import {
   getInitialOrderStorage,
   selectClientForOrder,
 } from '../../redux/sellPosOrder';
-import { numberToString, convertImageToBase64 } from '../../utils';
+import { numberToString } from '../../utils';
 import CustomModal from '../../commonds/customModal/CustomModal';
 import FinishSellComponent from '../../components/finishSellComponent/FinishSellComponent';
-import { rePrintPresRequest } from '../../request/orderRequest';
+import { createCotizacion } from '../../request/cotizacionRequest';
 import Swal from 'sweetalert2';
-import logoBlase from '../../assets/logo/logoBlase.png';
-import { presupHtml } from '../../templates/presupBlase';
-import { remitHtml } from '../../templates/RemBlase';
 
 import efectIcon from '../../assets/auxIcon/efect.png';
 import transfIcon from '../../assets/auxIcon/tranf.png';
@@ -89,71 +86,119 @@ function PosEcommerceOrderSidebar({ addProduct }) {
     dispatch(changeAmountOrderItem({ productId, brandId, amount: parsedAmount }));
   };
 
-  const printPresupuesto = async () => {
+  const printPresupuesto = (cotizacion, items) => {
+    const itemsHtml = items
+      .map(
+        (item) => `
+      <tr>
+        <td>${item.article || '-'}</td>
+        <td>${item.amount}</td>
+        <td>${item.description || ''}</td>
+        <td>$${numberToString(Number(item.sellPrice))}</td>
+        <td>$${numberToString(Number(item.sellPrice) * item.amount)}</td>
+      </tr>`
+      )
+      .join('');
+
+    const printWindow = window.open('', '', 'width=800,height=1100');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Presupuesto</title>
+          <style>
+            body { font-family: Arial, sans-serif; width: 794px; margin: 0 auto; padding: 20px; }
+            .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
+            .title { font-size: 24px; font-weight: bold; }
+            .client-info { border: 1px solid #000; padding: 10px; margin: 10px 0; }
+            .client-info p { margin: 3px 0; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { border: 1px solid #000; padding: 6px; text-align: center; font-size: 12px; }
+            th { background: #f0f0f0; }
+            .total-row { display: flex; justify-content: flex-end; margin-top: 10px; font-size: 18px; font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="title">PRESUPUESTO</div>
+            <div>Fecha: ${new Date(cotizacion.fechaCreacion).toLocaleDateString('es-AR')}</div>
+          </div>
+          <div class="client-info">
+            <p><strong>Cliente:</strong> ${cotizacion.razonSocial}</p>
+            <p><strong>CUIT:</strong> ${cotizacion.cuit || '-'}</p>
+          </div>
+          <table>
+            <tr>
+              <th>Artículo</th>
+              <th>Cant.</th>
+              <th>Descripción</th>
+              <th>Precio Unit.</th>
+              <th>Importe</th>
+            </tr>
+            ${itemsHtml}
+          </table>
+          <div class="total-row">Total: $${numberToString(cotizacion.total)}</div>
+          <script>window.print();window.close();</script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
+  const guardarPresupuesto = async () => {
     try {
       if (!order.clientId || (order.items || []).length === 0) {
         Swal.fire({
           icon: 'warning',
           title: 'Datos incompletos',
-          text: 'Selecciona un cliente y agrega productos antes de imprimir.',
+          text: 'Selecciona un cliente y agrega productos antes de guardar.',
         });
         return;
       }
 
+      const items = order.items.map((item) => ({
+        productId: item.productId,
+        brandId: item.brandId,
+        article: item.article || '',
+        sellPrice: Number(item.sellPrice) || 0,
+        description: item.description || '',
+        amount: item.amount,
+      }));
+
+      const itemsJson = JSON.stringify(items);
+
+      const subTotal = items.reduce(
+        (sum, item) => sum + item.sellPrice * item.amount,
+        0
+      );
+
       const sendData = {
-        clientId: order.clientId,
-        items: order.items,
-        billType: 0,
-        payMethod: 0,
+        clienteId: order.clientId,
+        razonSocial: order.razonSocial || '',
+        cuit: null,
+        subTotal,
+        iva: 0,
+        total: subTotal,
+        itemsJson,
       };
 
-      const res = await dispatch(finishSellPosAsync(sendData));
-      if (res.error) {
-        Swal.fire({ icon: 'error', title: 'Error', text: res.error.message });
-        return;
-      }
+      const cotizacion = await createCotizacion(sendData);
 
-      const infoFacturaX = await rePrintPresRequest(res.payload.id);
-      const purchaseOrder = infoFacturaX.purchaseOrder;
-      const factPresItems = purchaseOrder.purchaseOrderItems.filter((poi) => !poi.fact);
-      const itemsPerPage = 10;
-      const totalPresPages = Math.ceil(factPresItems.length / itemsPerPage) || 1;
-      const logoBase64 = await convertImageToBase64(logoBlase);
+      const result = await Swal.fire({
+        icon: 'success',
+        title: 'Presupuesto guardado',
+        text: '¿Desea imprimir el presupuesto?',
+        showCancelButton: true,
+        confirmButtonText: 'Imprimir',
+        cancelButtonText: 'No',
+      });
 
-      let nuevaVentana = window.open('', '', 'width=900,height=1250');
-
-      for (let i = 0; i < factPresItems.length; i += itemsPerPage) {
-        const pagePresNumber = Math.floor(i / itemsPerPage) + 1;
-        const pagePresItems = factPresItems.slice(i, i + itemsPerPage);
-        const render = presupHtml(infoFacturaX, purchaseOrder, logoBase64, pagePresItems, pagePresNumber, totalPresPages);
-        const containerPres = nuevaVentana.document.createElement('div');
-        containerPres.innerHTML = render;
-        nuevaVentana.document.body.appendChild(containerPres);
-        if (pagePresNumber < totalPresPages) {
-          const pageBreak = nuevaVentana.document.createElement('div');
-          pageBreak.style.pageBreakAfter = 'always';
-          nuevaVentana.document.body.appendChild(pageBreak);
-        }
-      }
-
-      const itemsRemPage = 14;
-      const totalRemPages = Math.ceil(purchaseOrder.purchaseOrderItems.length / itemsRemPage) || 1;
-      for (let i = 0; i < purchaseOrder.purchaseOrderItems.length; i += itemsRemPage) {
-        const pageNumber = Math.floor(i / itemsRemPage) + 1;
-        const pageItems = purchaseOrder.purchaseOrderItems.slice(i, i + itemsRemPage);
-        const containerRem = nuevaVentana.document.createElement('div');
-        containerRem.innerHTML = remitHtml(purchaseOrder, purchaseOrder.id, pageItems, pageNumber, totalRemPages, logoBase64, null);
-        nuevaVentana.document.body.appendChild(containerRem);
-        if (pageNumber < totalRemPages) {
-          const pageBreak = nuevaVentana.document.createElement('div');
-          pageBreak.style.pageBreakAfter = 'always';
-          nuevaVentana.document.body.appendChild(pageBreak);
-        }
+      if (result.isConfirmed) {
+        printPresupuesto(cotizacion, items);
       }
 
       dispatch(resetPosSellOrderState());
     } catch (err) {
-      Swal.fire({ icon: 'error', title: 'Error', text: `No se pudo imprimir el presupuesto: ${err.message}` });
+      Swal.fire({ icon: 'error', title: 'Error', text: `No se pudo guardar el presupuesto: ${err.message}` });
     }
   };
 
@@ -372,10 +417,10 @@ function PosEcommerceOrderSidebar({ addProduct }) {
 
         <div className={styles.actions}>
           <Button
-            disabled={finishMode.presup && (order.subTotal <= 0 || !order.clientId)}
+            disabled={!finishMode.presup || order.subTotal <= 0 || !order.clientId}
             style={{ width: '48%', fontSize: '13px' }}
             variant="outline-primary"
-            onClick={printPresupuesto}
+            onClick={guardarPresupuesto}
           >
             Imprimir presupuesto
           </Button>
