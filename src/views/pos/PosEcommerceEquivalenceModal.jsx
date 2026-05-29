@@ -90,12 +90,12 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
                     <div className={styles.productBody}>
                       <div className={styles.priceRow}>
                         <div>
-                          <p className={styles.priceLabel}>Precio lista</p>
-                          <p className={styles.listPrice}>${basePrice.toFixed(2)}</p>
-                        </div>
-                        <div className={styles.priceRight}>
                           <p className={styles.priceLabel}>Precio con IVA</p>
                           <p className={styles.sellPrice}>${pSellPrice.toFixed(2)}</p>
+                        </div>
+                        <div className={styles.priceRight}>
+                          <p className={styles.priceLabel}>Precio sin IVA</p>
+                          <p className={styles.listPrice}>${basePrice.toFixed(2)}</p>
                         </div>
                       </div>
 

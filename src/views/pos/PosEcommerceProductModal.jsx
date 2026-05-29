@@ -74,12 +74,12 @@ function PosEcommerceProductModal({ product, onClose, addProduct }) {
                       <span className={styles.priceValue}>{product.location || 'N/A'}</span>
                     </div>
                     <div className={styles.priceBox}>
-                      <span className={styles.priceLabel}>Precio lista</span>
-                      <span className={styles.priceMain}>${basePrice.toFixed(2)}</span>
-                    </div>
-                    <div className={styles.priceBox}>
                       <span className={styles.priceLabel}>Precio con IVA</span>
                       <span className={styles.priceMain}>${sellPrice.toFixed(2)}</span>
+                    </div>
+                    <div className={styles.priceBox}>
+                      <span className={styles.priceLabel}>Precio sin IVA</span>
+                      <span className={styles.priceMain}>${basePrice.toFixed(2)}</span>
                     </div>
                   </div>
                   <div className={styles.sellPriceBox}>
