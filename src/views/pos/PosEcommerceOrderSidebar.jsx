@@ -29,6 +29,15 @@ import currAcountIcon from '../../assets/auxIcon/currAcount.png';
 import qrIcon from '../../assets/auxIcon/qr.png';
 import creditCardIcon from '../../assets/auxIcon/creditcard.png';
 
+function normalizeText(value) {
+  return (value || '')
+    .toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+}
+
 function numberToStringV2(numero) {
   if (!numero && numero !== 0) return '0,00';
   return numberToString(numero);
@@ -52,6 +61,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
   const clients = useSelector((state) => state.client).data;
   const { order } = useSelector((state) => state.posSellOrder);
   const isConsumidorFinal = (order?.razonSocial || '').toLowerCase() === 'consumidor final';
+  const isEmpresaAnonima = normalizeText(order?.razonSocial) === 'empresa anonima';
   const customerDiscounts = useSelector((state) => state.client)?.selectClient?.customerDiscounts;
 
   const handleSelectPayMethod = (method) => {
@@ -426,7 +436,9 @@ function PosEcommerceOrderSidebar({ addProduct }) {
           </Button>
           <CustomModal
             title={
-              payMethod.CuentaCorriente.enabled
+              isEmpresaAnonima
+                ? 'Datos de facturación'
+                : payMethod.CuentaCorriente.enabled
                 ? 'Cuenta corriente'
                 : payMethod.Transferencia.enabled
                   ? 'Pago con transferencia'
@@ -443,7 +455,12 @@ function PosEcommerceOrderSidebar({ addProduct }) {
               </Button>
             }
             bodyModal={(props) => (
-              <FinishSellComponent payMethod={payMethod} order={order} {...props} />
+              <FinishSellComponent
+                payMethod={payMethod}
+                order={order}
+                isEmpresaAnonima={isEmpresaAnonima}
+                {...props}
+              />
             )}
           />
         </div>

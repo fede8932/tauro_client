@@ -29,6 +29,12 @@
   font-size: 18px;
 }
 
+.helperText {
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: #4b5563;
+}
+
 .radio {
   margin-left: 10px;
 }
@@ -52,7 +58,20 @@
   font-size: 14px;
 }
 
+.selectInput {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #fff;
+}
+
 .inputCont input:focus {
+  outline: none;
+  border-color: #367ff6;
+}
+
+.selectInput:focus {
   outline: none;
   border-color: #367ff6;
 }

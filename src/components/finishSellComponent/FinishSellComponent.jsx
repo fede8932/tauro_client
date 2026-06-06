@@ -1,6 +1,6 @@
 import { Radio } from 'semantic-ui-react';
 import styles from './finishSell.module.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import Swal from 'sweetalert2';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,27 +10,72 @@ import {
 } from '../../redux/sellPosOrder';
 import { printPosBill } from '../../utils/printPosBill';
 
+const IVA_OPTIONS = [
+  { value: 'ResponsableInscripto', label: 'Responsable inscripto' },
+  { value: 'Monotributista', label: 'Monotributista' },
+  { value: 'Final', label: 'Consumidor final' },
+];
+
+const IVA_OPTIONS_ANONIMA = [
+  { value: 'ResponsableInscripto', label: 'Responsable inscripto' },
+  { value: 'Monotributista', label: 'Monotributista' },
+];
+
+function normalizeText(value) {
+  return (value || '')
+    .toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+}
+
+function isIvaResponsableInscripto(value) {
+  const normalized = normalizeText(value);
+  return normalized === 'responsable inscripto' || normalized === 'responsableinscripto';
+}
+
+function isIvaMonotributista(value) {
+  return normalizeText(value) === 'monotributista';
+}
+
+function isIvaConsumidorFinal(value) {
+  const normalized = normalizeText(value);
+  return normalized === 'consumidor final' || normalized === 'final';
+}
+
 function FinishSellComponent(props) {
   const { closeModal } = props;
 
   const dispatch = useDispatch();
 
-  const { loading, billData } = useSelector((state) => state.posSellOrder);
+  const { loading } = useSelector((state) => state.posSellOrder);
   const selectClient = useSelector((state) => state.client.selectClient);
 
-  const { payMethod, order } = props;
-  const [tipoFactura, setTipoFactura] = useState(0);
+  const { payMethod, order, isEmpresaAnonima = false } = props;
+  const [tipoFactura, setTipoFactura] = useState(isEmpresaAnonima ? 1 : 0);
   const [op, setOp] = useState('');
   const [bank, setBank] = useState('');
   const [dni, setDni] = useState('');
+  const [billingIva, setBillingIva] = useState('ResponsableInscripto');
+  const [billingCuit, setBillingCuit] = useState('');
 
-  const isConsumidorFinal = (order?.razonSocial || '').toLowerCase() === 'consumidor final';
-  const clientIva = selectClient?.iva || '';
-  const isMonotributista = clientIva.toLowerCase() === 'monotributista';
-  const isResponsableInscripto = clientIva.toLowerCase() === 'responsable inscripto';
-  
+  useEffect(() => {
+    if (isEmpresaAnonima) {
+      setTipoFactura(1);
+    }
+  }, [isEmpresaAnonima]);
+
+  const clientIva = isEmpresaAnonima ? billingIva : selectClient?.iva || '';
+  const isConsumidorFinal = isEmpresaAnonima
+    ? false
+    : normalizeText(order?.razonSocial) === 'consumidor final';
+  const isMonotributista = isIvaMonotributista(clientIva);
+  const isResponsableInscripto = isIvaResponsableInscripto(clientIva);
+
   const total = (order?.subTotal || 0) * 1.21;
   const requiresDni = isConsumidorFinal && tipoFactura === 1 && total >= 10000000;
+  const requiresCuit = isEmpresaAnonima && tipoFactura === 1;
 
   // Determinar el tipo de factura oficial según el IVA del cliente
   // Factura B (6) para Consumidor Final o Monotributista
@@ -63,6 +108,18 @@ function FinishSellComponent(props) {
         text: 'Debe agregar al menos un producto a la orden antes de facturar.',
       });
       return;
+    }
+
+    if (isEmpresaAnonima) {
+      const cuitLimpio = billingCuit.replace(/\D/g, '');
+      if (cuitLimpio.length !== 11) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Debe ingresar un CUIT válido (11 dígitos).',
+        });
+        return;
+      }
     }
 
     const sendData = {
@@ -149,20 +206,52 @@ function FinishSellComponent(props) {
           <i className="fa-solid fa-file-invoice"></i>
           <span>Tipo de Factura</span>
         </p>
-        <Radio
-          className={styles.radio}
-          label="Factura X"
-          value={tipoFactura}
-          checked={tipoFactura === 0}
-          onChange={() => selecTipoFactura(0)}
-        />
-        <Radio
-          className={styles.radio}
-          label="Factura Oficial"
-          value={tipoFactura}
-          checked={tipoFactura === 1}
-          onChange={() => selecTipoFactura(1)}
-        />
+        {isEmpresaAnonima ? (
+          <>
+            <span className={styles.helperText}>
+              Este cliente siempre se factura de forma oficial (A o B).
+            </span>
+            <div className={styles.inputCont}>
+              <label>CUIT</label>
+              <input
+                value={billingCuit}
+                onChange={(e) => setBillingCuit(e.target.value)}
+                placeholder="Ingrese CUIT"
+              />
+            </div>
+            <div className={styles.inputCont}>
+              <label>Condición frente al IVA</label>
+              <select
+                value={billingIva}
+                onChange={(e) => setBillingIva(e.target.value)}
+                className={styles.selectInput}
+              >
+                {IVA_OPTIONS_ANONIMA.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        ) : (
+          <>
+            <Radio
+              className={styles.radio}
+              label="Factura X"
+              value={tipoFactura}
+              checked={tipoFactura === 0}
+              onChange={() => selecTipoFactura(0)}
+            />
+            <Radio
+              className={styles.radio}
+              label="Factura Oficial"
+              value={tipoFactura}
+              checked={tipoFactura === 1}
+              onChange={() => selecTipoFactura(1)}
+            />
+          </>
+        )}
       </div>
       {requiresDni && (
         <div className={styles.billTypeContainer}>
