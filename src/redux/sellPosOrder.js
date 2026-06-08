@@ -1,5 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as billRequest from '../request/billRequest';
+const calcRounding = (subTotal) => {
+  const rawTotal = subTotal * 1.21;
+  const roundedTotal = Math.floor(rawTotal / 10) * 10;
+  return +((roundedTotal - rawTotal).toFixed(2));
+};
+
 const initialState = {
   loading: false,
   error: '',
@@ -8,6 +14,7 @@ const initialState = {
     clientId: null,
     razonSocial: null,
     items: [],
+    rounding: 0,
   },
   billData: { oficial: null, numComprobante: null, ptoVenta: null, id: null, billType: null },
 };
@@ -39,6 +46,7 @@ const posSellOrderSlice = createSlice({
               clientId: posSellOrder.clientId || null,
               razonSocial: posSellOrder.razonSocial || null,
               items: posSellOrder.items,
+              rounding: calcRounding(posSellOrder.subTotal || 0),
             };
           }
         }
@@ -63,6 +71,7 @@ const posSellOrderSlice = createSlice({
         newStateOrder.items.push({ ...action.payload, amount });
       }
       newStateOrder.subTotal += sellPrice * amount;
+      newStateOrder.rounding = calcRounding(newStateOrder.subTotal);
       state.order = newStateOrder;
       localStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
     },
@@ -80,6 +89,7 @@ const posSellOrderSlice = createSlice({
         return true;
       });
       newStateOrder.subTotal = newTotal;
+      newStateOrder.rounding = calcRounding(newTotal);
       newStateOrder.items = items;
       state.order = newStateOrder;
       localStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
@@ -96,6 +106,7 @@ const posSellOrderSlice = createSlice({
         return item;
       });
       newStateOrder.subTotal = newTotal;
+      newStateOrder.rounding = calcRounding(newTotal);
       newStateOrder.items = items;
       state.order = newStateOrder;
       localStorage.setItem('pos-order', JSON.stringify({ ...state.order }));

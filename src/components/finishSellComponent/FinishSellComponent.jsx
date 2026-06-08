@@ -133,6 +133,7 @@ function FinishSellComponent(props) {
       payMethod: Object.entries(payMethod).find(
         ([key, value]) => value.enabled === true
       )?.[1].value,
+      rounding: order.rounding,
     };
 
     if (sendData.payMethod === 2) {

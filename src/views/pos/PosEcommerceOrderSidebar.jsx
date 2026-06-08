@@ -174,20 +174,36 @@ function PosEcommerceOrderSidebar({ addProduct }) {
         amount: item.amount,
       }));
 
-      const itemsJson = JSON.stringify(items);
-
       const subTotal = items.reduce(
         (sum, item) => sum + item.sellPrice * item.amount,
         0
       );
 
+      const rawTotalPres = subTotal;
+      const roundedTotalPres = Math.floor(rawTotalPres / 10) * 10;
+      const roundingPres = +((roundedTotalPres - rawTotalPres).toFixed(2));
+
+      if (roundingPres !== 0) {
+        items.push({
+          productId: null,
+          brandId: null,
+          article: 'Redondeo',
+          sellPrice: roundingPres,
+          description: 'Ajuste de redondeo',
+          amount: 1,
+        });
+      }
+
+      const totalPres = subTotal + roundingPres;
+      const itemsJson = JSON.stringify(items);
+
       const sendData = {
         clienteId: order.clientId,
         razonSocial: order.razonSocial || '',
         cuit: null,
-        subTotal,
+        subTotal: totalPres,
         iva: 0,
-        total: subTotal,
+        total: totalPres,
         itemsJson,
       };
 
@@ -372,12 +388,12 @@ function PosEcommerceOrderSidebar({ addProduct }) {
             <span>$ {numberToStringV2(order?.subTotal * 0.21)}</span>
           </div>
           <div className={styles.resumeRow}>
-            <span>Descuentos</span>
-            <span>$ 0.00</span>
+            <span>Redondeo</span>
+            <span>$ {numberToStringV2(order?.rounding)}</span>
           </div>
           <div className={styles.resumeTotal}>
             <span>Total</span>
-            <span>$ {numberToStringV2(order?.subTotal * 1.21)}</span>
+            <span>$ {numberToStringV2((order?.subTotal * 1.21) + (order?.rounding || 0))}</span>
           </div>
         </div>
 

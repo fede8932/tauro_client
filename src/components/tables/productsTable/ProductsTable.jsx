@@ -82,7 +82,7 @@ const CustomComp = ({ data, props }) => {
           )}
         />
       </ProtectedComponent>
-      <ProtectedComponent listAccesss={[1, 2, 5, 6]}>
+      {/* <ProtectedComponent listAccesss={[1, 2, 5, 6]}>
         <CustomModal
           title="Agregar a pedido"
           size="lg"
@@ -104,7 +104,7 @@ const CustomComp = ({ data, props }) => {
             />
           )}
         />
-      </ProtectedComponent>
+      </ProtectedComponent> */}
       {/* <ProtectedComponent listAccesss={[1, 2, 5, 6]}>
         <IconButonUsersTable
           disabled={!selectClientId}
@@ -356,7 +356,7 @@ function ProductsTable(props) {
       field: 'actions',
       sortable: false,
       filter: false,
-      width: 165,
+      width: 230,
     },
     {
       headerName: 'Precio',
