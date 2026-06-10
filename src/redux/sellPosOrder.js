@@ -11,8 +11,8 @@ const initialState = {
   error: '',
   order: {
     subTotal: 0,
-    clientId: null,
-    razonSocial: null,
+    clientId: 1,
+    razonSocial: 'Consumidor Final',
     items: [],
     rounding: 0,
   },
@@ -43,8 +43,8 @@ const posSellOrderSlice = createSlice({
           if (posSellOrder && posSellOrder.items) {
             state.order = {
               subTotal: posSellOrder.subTotal || 0,
-              clientId: posSellOrder.clientId || null,
-              razonSocial: posSellOrder.razonSocial || null,
+              clientId: posSellOrder.clientId || 1,
+              razonSocial: posSellOrder.razonSocial || 'Consumidor Final',
               items: posSellOrder.items,
               rounding: calcRounding(posSellOrder.subTotal || 0),
             };

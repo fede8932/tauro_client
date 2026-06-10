@@ -65,6 +65,7 @@ function PosEcommerce() {
           id: eq.id,
           isEquivalence: true,
           article: eq.article,
+          code: eq.code,
           description: eq.description,
           brand: eq.brand,
           stock: eq.totalStock,
@@ -231,7 +232,10 @@ function PosEcommerce() {
             <div className={styles.productGrid}>
               {products.map((product) => (
                 <div key={`${product.isEquivalence ? 'eq' : 'prod'}-${product.id}`} className={styles.productCard}>
-                  <div className={styles.cardImage}>
+                  <div
+                    className={styles.cardImage}
+                    onClick={() => setSelectedProduct(product)}
+                  >
                     {product.image || (product.images && product.images[0]) ? (
                       <img
                         src={product.image?.url || product.images?.[0]?.url}
@@ -248,7 +252,7 @@ function PosEcommerce() {
                       className={styles.cardArticle}
                       onClick={() => setSelectedProduct(product)}
                     >
-                      {product.isEquivalence ? 'GRUPO' : product.article}
+                      {product.isEquivalence ? (product.code || 'GRUPO S/C') : product.article}
                     </span>
                     <p
                       className={styles.cardDescription}
@@ -289,7 +293,10 @@ function PosEcommerce() {
             <div className={styles.productList}>
               {products.map((product) => (
                 <div key={`${product.isEquivalence ? 'eq' : 'prod'}-${product.id}`} className={styles.productRow}>
-                  <div className={styles.rowImage}>
+                  <div
+                    className={styles.rowImage}
+                    onClick={() => setSelectedProduct(product)}
+                  >
                     {product.image || (product.images && product.images[0]) ? (
                       <img
                         src={product.image?.url || product.images?.[0]?.url}
@@ -306,7 +313,7 @@ function PosEcommerce() {
                       className={styles.rowArticle}
                       onClick={() => setSelectedProduct(product)}
                     >
-                      {product.isEquivalence ? 'GRUPO' : product.article}
+                      {product.isEquivalence ? (product.code || 'GRUPO S/C') : product.article}
                     </span>
                     <p
                       className={styles.rowDescription}

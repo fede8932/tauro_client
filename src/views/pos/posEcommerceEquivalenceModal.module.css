@@ -60,6 +60,18 @@
   margin: 2px 0 0;
 }
 
+.codeBadge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
 .closeBtn {
   width: 36px;
   height: 36px;
@@ -191,34 +203,25 @@
 .productBody {
   padding: 14px;
   background: #fafafa;
-}
-
-.priceRow {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bodyTopRow {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  gap: 8px;
 }
 
-.priceLabel {
-  font-size: 11px;
-  color: #999;
-  margin: 0 0 2px;
-}
-
-.listPrice {
-  font-size: 14px;
-  font-weight: 600;
-  color: #5c6470;
-  margin: 0;
-}
-
-.priceRight {
-  text-align: right;
+.priceBlock {
+  display: flex;
+  align-items: center;
 }
 
 .sellPrice {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #2e7d32;
   margin: 0;
@@ -232,7 +235,7 @@
   border-radius: 12px;
   font-size: 12px;
   font-weight: 600;
-  margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
 .stockDot {

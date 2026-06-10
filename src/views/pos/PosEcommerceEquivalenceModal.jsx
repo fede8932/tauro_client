@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './posEcommerceEquivalenceModal.module.css';
 
 const getStockBadge = (stock) => {
@@ -27,6 +27,16 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
   const hasEquivImage = !!equivalence.image?.url;
   const equivImageUrl = equivalence.image?.url || null;
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
@@ -38,6 +48,9 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
             <div>
               <h2 className={styles.headerTitle}>Grupo de Equivalencias</h2>
               <p className={styles.headerSubtitle}>{products.length} producto(s) disponible(s)</p>
+              {equivalence.code && (
+                <span className={styles.codeBadge}>{equivalence.code}</span>
+              )}
             </div>
           </div>
           <button onClick={onClose} className={styles.closeBtn}>
@@ -88,23 +101,17 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
                     </div>
 
                     <div className={styles.productBody}>
-                      <div className={styles.priceRow}>
-                        <div>
-                          <p className={styles.priceLabel}>Precio con IVA</p>
+                      <div className={styles.bodyTopRow}>
+                        <div className={styles.priceBlock}>
                           <p className={styles.sellPrice}>${pSellPrice.toFixed(2)}</p>
                         </div>
-                        <div className={styles.priceRight}>
-                          <p className={styles.priceLabel}>Precio sin IVA</p>
-                          <p className={styles.listPrice}>${basePrice.toFixed(2)}</p>
+                        <div
+                          className={styles.stockPill}
+                          style={{ background: stockBadge.bg, color: stockBadge.text }}
+                        >
+                          <span className={styles.stockDot} style={{ background: stockBadge.dot }} />
+                          {stockBadge.label}
                         </div>
-                      </div>
-
-                      <div
-                        className={styles.stockPill}
-                        style={{ background: stockBadge.bg, color: stockBadge.text }}
-                      >
-                        <span className={styles.stockDot} style={{ background: stockBadge.dot }} />
-                        {stockBadge.label}
                       </div>
 
                       <div className={styles.actionsRow}>
