@@ -1,14 +1,158 @@
-.slickDots li.slick-active button {
-  background-color: #ff6347; /* Cambia este color a tu preferencia */
+.carouselWrapper {
+  position: relative;
+  width: 100%;
+  background: #1a1a2e;
+  border-radius: 12px;
+  overflow: hidden;
+  user-select: none;
 }
 
-/* Cambia el color de los puntos de navegación inactivos */
-.slickDots li button {
-  background-color: #d3d3d3; /* Cambia este color a tu preferencia */
+.slide {
+  position: relative;
+  height: 520px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a2e;
 }
 
-/* Ajusta el tamaño de los puntos de navegación si es necesario */
-.slickDots li button {
-  width: 10px;
-  height: 10px;
+.slideImg {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.counter {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 14px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(4px);
+}
+
+.deleteBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  background: rgba(211, 47, 47, 0.85);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  font-size: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.deleteBtn:hover {
+  background: #d32f2f;
+  transform: scale(1.08);
+}
+
+.closeBtn {
+  position: absolute;
+  top: 12px;
+  right: 58px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.closeBtn:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* Override Ant Design carousel arrows to match theme */
+:global(.ant-carousel .slick-prev),
+:global(.ant-carousel .slick-next) {
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.45) !important;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+:global(.ant-carousel .slick-prev:hover),
+:global(.ant-carousel .slick-next:hover) {
+  background: rgba(103, 58, 183, 0.8) !important;
+}
+
+:global(.ant-carousel .slick-prev) {
+  left: 12px;
+}
+
+:global(.ant-carousel .slick-next) {
+  right: 12px;
+}
+
+:global(.ant-carousel .slick-prev::before),
+:global(.ant-carousel .slick-next::before) {
+  font-size: 18px;
+  color: #fff;
+  opacity: 1;
+}
+
+:global(.ant-carousel .slick-dots) {
+  bottom: 10px;
+}
+
+:global(.ant-carousel .slick-dots li button) {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+:global(.ant-carousel .slick-dots li.slick-active button) {
+  background: #673ab7;
+  width: 24px;
+  border-radius: 4px;
+}
+
+.emptyState {
+  height: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a2e;
+  color: #fff;
+  gap: 12px;
+}
+
+.emptyState i {
+  font-size: 48px;
+  color: rgba(255,255,255,0.25);
+}
+
+.emptyState p {
+  font-size: 15px;
+  color: rgba(255,255,255,0.5);
+  margin: 0;
 }

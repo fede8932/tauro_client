@@ -127,10 +127,15 @@ function AddProductFormComponent(props) {
               icon="fas fa-percent"
               validate={{ required: false }}
             />
-            <FileInput
-              selectedFiles={files.selectedFiles}
-              setSelectedFiles={files.setSelectedFiles}
-            />
+            <div style={{ marginTop: '12px' }}>
+              <span style={{ fontSize: '13px', color: '#575757', marginBottom: '8px', display: 'block' }}>
+                Imágenes del producto
+              </span>
+              <FileInput
+                selectedFiles={files.selectedFiles}
+                setSelectedFiles={files.setSelectedFiles}
+              />
+            </div>
           </div>
         </div>
         <Button

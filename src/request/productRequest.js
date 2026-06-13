@@ -17,7 +17,6 @@ export const createProduct = async (productData) => {
     }
 
     // Agregar las imágenes al FormData
-    console.log(formData)
     if (productData.images && productData.images.length > 0) {
       productData.images.forEach((file, index) => {
         formData.append(`images`, file);
@@ -27,8 +26,9 @@ export const createProduct = async (productData) => {
     // Enviar la solicitud POST con los datos del producto y las imágenes
     const locationParam = productData.location ? encodeURIComponent(productData.location) : '';
     const brandParam = productData.brandId ?? '';
+    const supplierParam = productData.supplierName ?? '';
     await axios.post(
-      `${apiUrl}/api/productos?brandId=${brandParam}&location=${locationParam}`,
+      `${apiUrl}/api/productos?brandId=${brandParam}&supplierId=${supplierParam}&location=${locationParam}`,
       formData,
       {
         headers: {
@@ -78,13 +78,21 @@ export const searchProduct = async (productData) => {
       `${apiUrl}/api/productos/search?data=${productData.dataSearch}&supplierId=${productData.supplierId}`,
       { withCredentials: true }
     );
-    return products.data;
+    return data;
   } catch (error) {
     if (error.response?.status == 401) {
       window.location.href = '/';
     }
     throw error;
   }
+};
+
+export const deleteProductImage = async (imageId) => {
+  const { data } = await axios.delete(
+    `${apiUrl}/api/productos/images/${imageId}`,
+    { withCredentials: true }
+  );
+  return data;
 };
 export const searchProducts = async (productData) => {
   try {

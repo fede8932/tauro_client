@@ -1,51 +1,134 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import styles from './inputFile.module.css';
-import { Icon, Label } from 'semantic-ui-react';
+
+const MAX_IMAGES = 10;
+
+const formatFileSize = (bytes) => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
 
 const FileInput = (props) => {
   const { selectedFiles, setSelectedFiles } = props;
+  const inputRef = useRef(null);
+  const [dragActive, setDragActive] = useState(false);
 
-  const handleFileChange = (event) => {
-    const files = Array.from(event.target.files);
-    // Limitar la cantidad de archivos seleccionados a 3
-    if (files.length > 1) {
-      alert('Solo puedes seleccionar hasta 1 archivo.');
+  const handleFiles = useCallback((files) => {
+    const validFiles = Array.from(files).filter((f) =>
+      ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(f.type)
+    );
+    if (validFiles.length !== Array.from(files).length) {
       return;
     }
-    setSelectedFiles(files);
+    setSelectedFiles((prev) => {
+      const combined = [...prev, ...validFiles];
+      return combined.slice(0, MAX_IMAGES);
+    });
+  }, [setSelectedFiles]);
+
+  const handleFileChange = (event) => {
+    handleFiles(event.target.files);
+    event.target.value = '';
   };
 
+  const removeFile = (index) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFiles(e.dataTransfer.files);
+    }
+  };
+
+  const canAddMore = selectedFiles.length < MAX_IMAGES;
+
   return (
-    <div className={styles.fileInputContainer}>
-      <label htmlFor="file-upload" className={styles.customFileUpload}>
-        Seleccionar imágenes
-      </label>
+    <div className={styles.uploadContainer}>
+      <div
+        className={`${styles.dropZone} ${dragActive ? styles.dropZoneActive : ''}`}
+        onClick={() => canAddMore && inputRef.current?.click()}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        style={{ cursor: canAddMore ? 'pointer' : 'default' }}
+      >
+        <div className={styles.dropZoneIcon}>
+          <i className="fa-regular fa-images"></i>
+        </div>
+        <p className={styles.dropZoneText}>
+          {canAddMore
+            ? 'Arrastrá imágenes o hacé click para subir'
+            : `Máximo ${MAX_IMAGES} imágenes`}
+        </p>
+        <p className={styles.dropZoneHint}>
+          JPG, PNG o WebP &middot; {selectedFiles.length}/{MAX_IMAGES}
+        </p>
+      </div>
+
       <input
+        ref={inputRef}
         type="file"
-        accept=".jpg, .jpeg"
-        id="file-upload"
+        accept="image/jpeg,image/jpg,image/png,image/webp"
         multiple
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
-      {/* Mostrar los nombres de los archivos seleccionados */}
-      <div className={styles.fileList}>
-        {selectedFiles.map((file, index) => (
-          <div key={index} className={styles.labelContainer}>
-            <Label as="a">
-              {file.name}
-              <Icon
-                name="delete"
-                onClick={() => {
-                  setSelectedFiles(
-                    selectedFiles.filter((file, i) => index != i)
-                  );
-                }}
+
+      {selectedFiles.length > 0 && (
+        <div className={styles.thumbnailGrid}>
+          {selectedFiles.map((file, index) => (
+            <div key={index} className={styles.thumbnailCard}>
+              <img
+                src={URL.createObjectURL(file)}
+                alt={file.name}
+                className={styles.thumbnailImg}
               />
-            </Label>
-          </div>
-        ))}
-      </div>
+              <div className={styles.thumbnailOverlay}>
+                <button
+                  type="button"
+                  className={styles.thumbnailRemoveBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeFile(index);
+                  }}
+                  title="Eliminar imagen"
+                >
+                  <i className="fas fa-trash-alt"></i>
+                </button>
+              </div>
+              <span className={styles.thumbnailFileName}>{file.name}</span>
+              <span className={styles.thumbnailFileSize}>{formatFileSize(file.size)}</span>
+            </div>
+          ))}
+          {canAddMore && (
+            <button
+              type="button"
+              className={styles.addMoreBtn}
+              onClick={() => inputRef.current?.click()}
+            >
+              <i className="fa-solid fa-plus"></i>
+              <span>Agregar</span>
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 };

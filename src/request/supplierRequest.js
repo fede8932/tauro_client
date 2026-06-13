@@ -3,11 +3,11 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 export const suplierRegister = async (datos) => {
   try {
-    const { repComent, repPhone, repEmail, lastName, name, ...dataSup } = datos;
+    const { repComent, repPhone, repEmail, lastName, name, brandIds, ...dataSup } = datos;
     dataSup.altura = Number(dataSup.altura);
     dataSup.codigoPostal = Number(dataSup.codigoPostal);
-    dataSup.codigoPostal = Number(dataSup.codigoPostal);
     dataSup.descuento = parseFloat(dataSup.descuento);
+    dataSup.brandIds = brandIds;
     const { data } = await axios.post(`${apiUrl}/api/supplier`, dataSup, {
       withCredentials: true,
     });

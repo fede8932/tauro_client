@@ -32,8 +32,8 @@ const MyVerticallyCenteredModal = (props) => {
       ) : (
         <></>
       )}
-      <Modal.Body style={type === 'infoProduct' ? { padding: '4px' } : {}}>
-        {type == 'infoProduct' ? <CustomCarrousel images={images} /> : null}
+      <Modal.Body style={type === 'infoProduct' ? { padding: 0 } : {}}>
+        {type == 'infoProduct' ? <CustomCarrousel images={images} onDeleteImage={props.onDeleteImage} onClose={props.onHide} /> : null}
         {type == 'add' ? <AddProductViewModalContainer /> : null}
         {type == 'brand' ? (
           <AddSupplierToBrandContainer brand={data} close={props.onHide} />

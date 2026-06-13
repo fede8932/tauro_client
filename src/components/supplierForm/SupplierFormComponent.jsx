@@ -5,9 +5,10 @@ import CustomInput from '../../commonds/input/CustomInput';
 import Button from 'react-bootstrap/Button';
 import CustomTextArea from '../../commonds/textarea/CustomTextArea';
 import Spinner from 'react-bootstrap/Spinner';
+import BrandSelector from '../../commonds/brandSelector/BrandSelector';
 
 function SupplierFormCmponent(props) {
-  const { onSubmit, status, methods } = props;
+  const { onSubmit, status, methods, brands, selectedBrands, setSelectedBrands } = props;
   return (
     <FormProvider {...methods}>
       <form
@@ -138,6 +139,14 @@ function SupplierFormCmponent(props) {
               />
             </div>
           </div>
+        </div>
+        <div className={styles.inputContainerLong}>
+          <span className={styles.subTitle}>Marcas asociadas</span>
+          <BrandSelector
+            brands={brands}
+            selectedBrands={selectedBrands}
+            onChange={setSelectedBrands}
+          />
         </div>
         <div className={styles.inputContainerLong}>
           <span className={styles.subTitle}>Representantes</span>
