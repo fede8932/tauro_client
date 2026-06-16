@@ -49,6 +49,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
   const [textClient, setTextClient] = useState('');
   const [listClient, setListClient] = useState([]);
   const [selectClientId, setSelectClientId] = useState(null);
+  const isMountedRef = React.useRef(false);
   const [finishMode, setFinishMode] = useState({ presup: true, venta: false });
   const [payMethod, setPayMethod] = useState({
     Efectivo: { enabled: false, value: 0 },
@@ -257,6 +258,18 @@ function PosEcommerceOrderSidebar({ addProduct }) {
   useEffect(() => {
     dispatch(getInitialOrderStorage());
     dispatch(getClientRequest(true));
+    try {
+      const stored = localStorage.getItem('pos-order');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.clientId && parsed.clientId !== 1) {
+          setSelectClientId(parsed.clientId);
+          setTextClient(parsed.razonSocial ?? '');
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
   }, []);
 
   useEffect(() => {
@@ -289,11 +302,13 @@ function PosEcommerceOrderSidebar({ addProduct }) {
         return [first, ...clientArray.slice(0, idx), ...clientArray.slice(idx + 1)];
       })();
       setListClient(reordered);
-      setSelectClientId(null);
-      dispatch(resetSelectClientState());
+      if (isMountedRef.current) {
+        setSelectClientId(null);
+        dispatch(resetSelectClientState());
+      }
       return;
     }
-    setSelectClientId(order.clientId);
+    isMountedRef.current = true;
     let filtered = [...(clientArray || [])].filter(
       (c) => c.label && c.label.toLowerCase().includes(textClient.toLowerCase())
     );
@@ -305,10 +320,6 @@ function PosEcommerceOrderSidebar({ addProduct }) {
     setListClient(filtered);
   }, [textClient, clients]);
 
-  useEffect(() => {
-    setSelectClientId(order.clientId);
-    setTextClient(order.razonSocial ?? '');
-  }, [order]);
 
   return (
     <div className={styles.sidebar}>
