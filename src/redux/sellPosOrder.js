@@ -11,7 +11,7 @@ const initialState = {
   error: '',
   order: {
     subTotal: 0,
-    clientId: 1,
+    clientId: 540,
     razonSocial: 'Consumidor Final',
     items: [],
     rounding: 0,
