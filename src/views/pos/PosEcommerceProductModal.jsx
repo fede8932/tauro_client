@@ -10,14 +10,26 @@ const getStockInfo = (stock) => {
 function PosEcommerceProductModal({ product, onClose, addProduct }) {
   const [quantity, setQuantity] = useState(1);
   const [showImageZoom, setShowImageZoom] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const hasImage = product.images && product.images.length > 0;
-  const imageUrl = hasImage ? product.images[0].url : null;
+  const images = product.images || [];
+  const hasImage = images.length > 0;
+  const imageCount = images.length;
 
   const stockInfo = getStockInfo(product.stock ?? 0);
   const sellPrice = product.price ? Number(product.price) : 0;
   const basePrice = sellPrice / 1.21;
   const subtotal = basePrice * quantity;
+
+  const goToPrev = (e) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === 0 ? imageCount - 1 : prev - 1));
+  };
+
+  const goToNext = (e) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === imageCount - 1 ? 0 : prev + 1));
+  };
 
   return (
     <>
@@ -35,11 +47,21 @@ function PosEcommerceProductModal({ product, onClose, addProduct }) {
               <div className={styles.imageColumn}>
                 <div className={styles.imageContainer}>
                   {hasImage ? (
-                    <img src={imageUrl} alt={product.article} className={styles.image} />
+                    <img src={images[currentImageIndex].url} alt={product.article} className={styles.image} />
                   ) : (
                     <div className={styles.imagePlaceholder}>
                       <i className="fa-solid fa-box" />
                     </div>
+                  )}
+                  {imageCount > 1 && (
+                    <>
+                      <button onClick={goToPrev} className={styles.galleryPrev}>
+                        <i className="fa-solid fa-chevron-left" />
+                      </button>
+                      <button onClick={goToNext} className={styles.galleryNext}>
+                        <i className="fa-solid fa-chevron-right" />
+                      </button>
+                    </>
                   )}
                   {hasImage && (
                     <button
@@ -51,6 +73,20 @@ function PosEcommerceProductModal({ product, onClose, addProduct }) {
                     </button>
                   )}
                 </div>
+
+                {imageCount > 1 && (
+                  <div className={styles.thumbnails}>
+                    {images.map((img, idx) => (
+                      <button
+                        key={idx}
+                        className={`${styles.thumb} ${idx === currentImageIndex ? styles.thumbActive : ''}`}
+                        onClick={() => setCurrentImageIndex(idx)}
+                      >
+                        <img src={img.url} alt={`${product.article} ${idx + 1}`} />
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 <div className={styles.stockBadge} style={{ background: stockInfo.bg, color: stockInfo.text }}>
                   <span className={styles.stockDot} style={{ background: stockInfo.dot }} />
@@ -135,7 +171,7 @@ function PosEcommerceProductModal({ product, onClose, addProduct }) {
       {showImageZoom && hasImage && (
         <div className={styles.zoomOverlay} onClick={() => setShowImageZoom(false)}>
           <div className={styles.zoomContainer}>
-            <img src={imageUrl} alt={product.article} className={styles.zoomImage} />
+            <img src={images[currentImageIndex].url} alt={product.article} className={styles.zoomImage} />
             <button onClick={() => setShowImageZoom(false)} className={styles.zoomCloseBtn}>
               <i className="fa-solid fa-times" />
             </button>

@@ -225,6 +225,7 @@
 }
 
 .cardImage {
+  position: relative;
   height: 160px;
   display: flex;
   align-items: center;
@@ -239,6 +240,81 @@
   height: 100%;
   object-fit: contain;
   padding: 8px;
+}
+
+.rowImageDots {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 1px 4px;
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+.rowDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.rowDotActive {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.rowDotMore {
+  font-size: 7px;
+  color: #ffffff;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.cardThumbGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  width: 100%;
+  height: 100%;
+  gap: 2px;
+  padding: 2px;
+  background: #f0f0f0;
+}
+
+.cardThumbCell {
+  position: relative;
+  overflow: hidden;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.cardThumbCell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cardThumbMore {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  backdrop-filter: blur(2px);
 }
 
 .cardImagePlaceholder {
@@ -363,6 +439,7 @@
 }
 
 .rowImage {
+  position: relative;
   width: 56px;
   height: 56px;
   border-radius: 8px;

@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import SearchProductComponent from '../components/searchProduct/SearchProductComponent';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { getSupplierRequest } from '../redux/supplier';
-import { deleteProductRequest, searchProductsRequest } from '../redux/product';
+import { deleteProductRequest, searchProductsExtraRequest, searchProductsRequest } from '../redux/product';
 import Swal from 'sweetalert2';
 
 function SearchProductContainer(props) {
   const [text, setText] = useState(null);
   const { data } = useSelector((state) => state.supplier);
   const products = useSelector((state) => state.product);
+  const filterProducts = useSelector((state) => state.filterProduct);
   // console.log(products);
   const methods = useForm();
   const dispatch = useDispatch();
@@ -67,6 +68,10 @@ function SearchProductContainer(props) {
       }
     });
   };
+  const onBulkAssignSuccess = useCallback(() => {
+    dispatch(searchProductsExtraRequest(filterProducts));
+  }, [dispatch, filterProducts]);
+
   useEffect(() => {
     dispatch(getSupplierRequest());
     // dispatch(searchProductsRequest({ page: 1, text: null }));
@@ -81,6 +86,7 @@ function SearchProductContainer(props) {
       changePage={changePage}
       resetSearch={resetSearch}
       deleteProduct={deleteProduct}
+      onBulkAssignSuccess={onBulkAssignSuccess}
     />
   );
 }

@@ -409,3 +409,19 @@ export const updateProductBrand = async (productId, brandId) => {
     throw error;
   }
 };
+
+export const bulkAssignActiveSupplier = async (brandId, supplierId) => {
+  try {
+    const { data } = await axios.put(
+      `${apiUrl}/api/productos/update/bulk/assign-active-supplier`,
+      { brandId, supplierId },
+      { withCredentials: true }
+    );
+    return data;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};

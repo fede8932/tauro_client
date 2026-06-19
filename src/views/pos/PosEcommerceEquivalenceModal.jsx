@@ -13,6 +13,7 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
   );
   const [quantities, setQuantities] = useState({});
   const [addingProductId, setAddingProductId] = useState(null);
+  const [imageIndex, setImageIndex] = useState({});
 
   const products = equivalence.products ?? [];
 
@@ -22,6 +23,16 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
     if (value >= 1) {
       setQuantities((prev) => ({ ...prev, [productId]: value }));
     }
+  };
+
+  const getImageIndex = (productId) => imageIndex[productId] ?? 0;
+
+  const prevImage = (productId, total) => {
+    setImageIndex((prev) => ({ ...prev, [productId]: (prev[productId] ?? 0) <= 0 ? total - 1 : (prev[productId] ?? 0) - 1 }));
+  };
+
+  const nextImage = (productId, total) => {
+    setImageIndex((prev) => ({ ...prev, [productId]: (prev[productId] ?? 0) >= total - 1 ? 0 : (prev[productId] ?? 0) + 1 }));
   };
 
   const hasEquivImage = !!equivalence.image?.url;
@@ -84,13 +95,42 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
                   >
                     <div className={styles.productHeader}>
                       <div className={styles.productImage}>
-                        {imageUrl ? (
-                          <img src={imageUrl} alt={product.article} />
-                        ) : (
-                          <div className={styles.productImagePlaceholder}>
-                            <i className="fa-solid fa-box" />
-                          </div>
-                        )}
+                        {(() => {
+                          const allImages = product.images || [];
+                          const currentIdx = getImageIndex(product.id);
+                          const currentUrl = allImages.length > 0
+                            ? allImages[currentIdx]?.url
+                            : equivImageUrl;
+
+                          return currentUrl ? (
+                            <div className={styles.productImageInner}>
+                              <img src={currentUrl} alt={product.article} />
+                              {allImages.length > 1 && (
+                                <>
+                                  <button
+                                    className={styles.imgArrowLeft}
+                                    onClick={(e) => { e.stopPropagation(); prevImage(product.id, allImages.length); }}
+                                  >
+                                    <i className="fa-solid fa-chevron-left" />
+                                  </button>
+                                  <button
+                                    className={styles.imgArrowRight}
+                                    onClick={(e) => { e.stopPropagation(); nextImage(product.id, allImages.length); }}
+                                  >
+                                    <i className="fa-solid fa-chevron-right" />
+                                  </button>
+                                  <span className={styles.imgCounter}>
+                                    {currentIdx + 1}/{allImages.length}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                          ) : (
+                            <div className={styles.productImagePlaceholder}>
+                              <i className="fa-solid fa-box" />
+                            </div>
+                          );
+                        })()}
                       </div>
                       <div className={styles.productInfo}>
                         <h4 className={styles.productArticle}>{product.article}</h4>

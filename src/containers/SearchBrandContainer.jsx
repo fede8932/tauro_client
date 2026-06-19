@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   getBrandByDataRequest,
 } from '../redux/searchBrands';
+import { getSupplierRequest } from '../redux/supplier';
 
 function SearchBrandContainer(props) {
   const filterBrand = useSelector((state) => state.searchBrand);
@@ -19,6 +20,7 @@ function SearchBrandContainer(props) {
 
   useEffect(() => {
     dispatch(getBrandByDataRequest(null));
+    dispatch(getSupplierRequest());
   }, []);
   return (
     <SearchBrandComponent

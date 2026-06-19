@@ -17,9 +17,11 @@ import IconButonUsersTable from '../../../commonds/iconButtonUsersTable/IconButo
 import { useNavigate } from 'react-router';
 import { resetBrandRentabilidad } from '../../../request/brandRequest';
 import Swal from 'sweetalert2';
+import BulkAssignSupplierModal from '../../searchProduct/BulkAssignSupplierModal';
 
 const CustomComp = (props) => {
   const { brand } = props;
+  const [showBulkModal, setShowBulkModal] = useState(false);
   const dispatch = useDispatch();
   const filterBrands = useSelector((state) => state.filterBrand);
   const navigate = useNavigate();
@@ -94,6 +96,22 @@ const CustomComp = (props) => {
           iconInitialStyle="iconStyleOrange"
         />
       </ProtectedComponent>
+
+      <ProtectedComponent listAccesss={[1, 2]}>
+        <IconButonUsersTable
+          popupText="Asignar proveedor por defecto a productos"
+          fn={() => setShowBulkModal(true)}
+          icon="fa-solid fa-truck"
+          iconInitialStyle="iconStyleGreen"
+        />
+      </ProtectedComponent>
+
+      <BulkAssignSupplierModal
+        show={showBulkModal}
+        onHide={() => setShowBulkModal(false)}
+        onSuccess={() => dispatch(searchBrandsExtraRequest(filterBrands))}
+        initialBrand={brand}
+      />
     </div>
   );
 };
@@ -225,7 +243,7 @@ function BrandsTable(props) {
       field: 'stock',
       cellRenderer: ({ data }) => <CustomComp brand={data} />,
       filter: false,
-      width: 150,
+      width: 240,
     },
   ]);
 

@@ -72,6 +72,7 @@ function PosEcommerce() {
           location: eq.location,
           price: eq.price,
           image: eq.image,
+          images: eq.images,
           products: eq.products,
         })),
         ...(data.standaloneProducts || []).map((p) => ({
@@ -237,10 +238,25 @@ function PosEcommerce() {
                     onClick={() => setSelectedProduct(product)}
                   >
                     {product.image || (product.images && product.images[0]) ? (
-                      <img
-                        src={product.image?.url || product.images?.[0]?.url}
-                        alt={product.article}
-                      />
+                      <>
+                        {product.images && product.images.length > 1 ? (
+                          <div className={styles.cardThumbGrid}>
+                            {product.images.slice(0, 4).map((img, i) => (
+                              <div key={img.id || i} className={styles.cardThumbCell}>
+                                <img src={img.url} alt="" />
+                                {i === 3 && product.images.length > 4 && (
+                                  <span className={styles.cardThumbMore}>+{product.images.length - 4}</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <img
+                            src={product.image?.url || product.images[0].url}
+                            alt={product.article}
+                          />
+                        )}
+                      </>
                     ) : (
                       <div className={styles.cardImagePlaceholder}>
                         <i className="fa-solid fa-box" />
@@ -305,6 +321,16 @@ function PosEcommerce() {
                     ) : (
                       <div className={styles.rowImagePlaceholder}>
                         <i className="fa-solid fa-box" />
+                      </div>
+                    )}
+                    {product.images && product.images.length > 1 && (
+                      <div className={styles.rowImageDots}>
+                        {product.images.slice(0, 5).map((_, i) => (
+                          <span key={i} className={i === 0 ? styles.rowDotActive : styles.rowDot} />
+                        ))}
+                        {product.images.length > 5 && (
+                          <span className={styles.rowDotMore}>+{product.images.length - 5}</span>
+                        )}
                       </div>
                     )}
                   </div>

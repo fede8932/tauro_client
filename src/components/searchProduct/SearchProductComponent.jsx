@@ -15,9 +15,11 @@ import {
 } from '../../redux/client';
 import Swal from 'sweetalert2';
 import { addOrderItemSearchProd } from '../../request/orderRequest';
+import BulkAssignSupplierModal from './BulkAssignSupplierModal';
 
 function SearchProductComponent(props) {
-  const { deleteProduct } = props;
+  const { deleteProduct, onBulkAssignSuccess } = props;
+  const [showBulkModal, setShowBulkModal] = useState(false);
   const [textClient, setTextClient] = useState('');
   const [listClient, setListClient] = useState([]);
   const [selectClientId, setSelectClientId] = useState(null);
@@ -186,6 +188,19 @@ function SearchProductComponent(props) {
         >
           {listDownloadPending ? <Spinner /> : 'Exportar'}
         </Button>
+        <Button
+          type="button"
+          style={{
+            backgroundColor: '#00897b',
+            border: '1px solid #00897b',
+            height: '47px',
+            marginLeft: '10px',
+          }}
+          onClick={() => setShowBulkModal(true)}
+        >
+          <i className="fa-solid fa-truck" style={{ marginRight: 6 }}></i>
+          Asig. Proveedor
+        </Button>
       </div>
       <div className={styles.table}>
         <ProductsTable
@@ -195,6 +210,11 @@ function SearchProductComponent(props) {
           addProduct={addProduct}
         />
       </div>
+      <BulkAssignSupplierModal
+        show={showBulkModal}
+        onHide={() => setShowBulkModal(false)}
+        onSuccess={onBulkAssignSuccess}
+      />
     </div>
   );
 }
