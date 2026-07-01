@@ -285,7 +285,7 @@ export const billHtml = async (
           <div class="datFisc">
             <div class="afipInfoDivCont">
               <p>C.U.I.T:<span>20-35248398-3</span></p>
-              <p>Pto Venta:<span>00008</span></p>
+              <p>Pto Venta:<span>${formatNumberWithLeadingZeros(billData.PtoVta, 5)}</span></p>
             </div>
             <p>IIBB:<span>20-35248398-3</span></p>
             <p>Inicio de actividades:<span>16/04/2026</span></p>
