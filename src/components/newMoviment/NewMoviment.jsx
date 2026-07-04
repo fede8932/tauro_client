@@ -7,7 +7,6 @@ import CustomSelect from '../../commonds/select/CustomSelect';
 import Button from 'react-bootstrap/esm/Button';
 import {
   compareNCListFactList,
-  filterOrders,
   numberToString,
 } from '../../utils';
 import { Checkbox, Divider } from 'semantic-ui-react';
@@ -331,12 +330,12 @@ function NewMoviment(props) {
               <Button
                 disabled={
                   inactive ||
-                  filterOrders(listMov)?.reduce(
-                    (acum, order) => acum + order.outstandingBalance,
+                  listMov?.reduce(
+                    (acum, mov) => acum + mov.saldoPend,
                     0
                   ) < 1 ||
-                  filterOrders(listMov)?.reduce(
-                    (acum, order) => acum + order.outstandingBalance,
+                  listMov?.reduce(
+                    (acum, mov) => acum + mov.saldoPend,
                     0
                   ) -
                     listNcNoApply.montoTotal <
