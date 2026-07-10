@@ -216,7 +216,7 @@ function SearchPresupuesto() {
       };
       localStorage.setItem('pos-order', JSON.stringify(orderData));
 
-      window.open('/pos/ecommerce?pos=true', '_blank', 'noopener');
+      window.open('/pos/ecommerce?pos=true', 'pos_window', 'width=1400,height=900,scrollbars=yes,resizable=yes');
     } catch (err) {
       Swal.fire({
         icon: 'error',

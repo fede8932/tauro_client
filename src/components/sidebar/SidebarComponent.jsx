@@ -224,7 +224,7 @@ function SideBarComponent(props) {
               {
                 textButton: 'POS',
                 fn: () => {
-                  window.open('/pos/ecommerce?pos=true', '_blank');
+                  window.open('/pos/ecommerce?pos=true', 'pos_window', 'width=1400,height=900,scrollbars=yes,resizable=yes');
                 },
               },
               {
