@@ -44,19 +44,24 @@
   border: 1px solid #e8e8e8;
   border-radius: 14px;
   padding: 22px 24px;
+  margin-bottom: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .filterGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
   gap: 16px;
+  margin-bottom: 24px;
 }
 
 .filterGroup {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  flex: 1;
+  min-width: 140px;
 }
 
 .label {
@@ -125,11 +130,9 @@
 
 .filterActions {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #f0f0f0;
+  align-items: flex-end;
+  gap: 14px;
+  margin-left: auto;
 }
 
 .viewToggle {
@@ -215,7 +218,6 @@
   background: #ffffff;
   border: 1px solid #e8e8e8;
   border-radius: 12px;
-  overflow: hidden;
   transition: box-shadow 0.2s, border-color 0.2s;
 }
 
@@ -232,6 +234,7 @@
   justify-content: center;
   background: #fafafa;
   overflow: hidden;
+  border-radius: 12px 12px 0 0;
   cursor: pointer;
 }
 
@@ -349,7 +352,7 @@
 .cardDescription {
   font-size: 13px;
   color: #333;
-  margin: 0 0 6px;
+  margin: 0;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -361,6 +364,47 @@
 
 .cardDescription:hover {
   color: #673ab7;
+}
+
+.cardDescriptionWrap {
+  position: relative;
+  margin: 0 0 6px;
+}
+
+.cardDescriptionTip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2d2d2d;
+  color: #f0f0f0;
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 8px 12px;
+  border-radius: 8px;
+  white-space: normal;
+  word-break: break-word;
+  max-width: 300px;
+  width: max-content;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  z-index: 20;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.cardDescriptionTip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #2d2d2d;
+}
+
+.cardDescriptionWrap:hover .cardDescriptionTip {
+  opacity: 1;
 }
 
 .cardBrand {

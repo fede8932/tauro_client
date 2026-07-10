@@ -71,7 +71,10 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
 
         <div className={styles.descriptionBar}>
           <i className="fa-solid fa-tag" />
-          <span>{equivalence.description}</span>
+          <div className={styles.descBarWrap}>
+            <span>{equivalence.description}</span>
+            <span className={styles.descBarTip}>{equivalence.description}</span>
+          </div>
         </div>
 
         <div className={styles.content}>
@@ -135,7 +138,10 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
                       <div className={styles.productInfo}>
                         <h4 className={styles.productArticle}>{product.article}</h4>
                         <p className={styles.productBrand}>{product.brand}</p>
-                        <p className={styles.productDesc}>{product.description}</p>
+                        <div className={styles.productDescWrap}>
+                          <p className={styles.productDesc}>{product.description}</p>
+                          <span className={styles.productDescTip}>{product.description}</span>
+                        </div>
                         <p className={styles.productLocation}>{product.location || 'N/A'}</p>
                       </div>
                     </div>

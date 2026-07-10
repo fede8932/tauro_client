@@ -46,6 +46,7 @@ function numberToStringV2(numero) {
 function PosEcommerceOrderSidebar({ addProduct }) {
   const dispatch = useDispatch();
 
+  const [showResume, setShowResume] = useState(false);
   const [textClient, setTextClient] = useState('');
   const [listClient, setListClient] = useState([]);
   const [selectClientId, setSelectClientId] = useState(null);
@@ -390,20 +391,29 @@ function PosEcommerceOrderSidebar({ addProduct }) {
         </div>
 
         <div className={styles.resumeSection}>
-          <div className={styles.resumeRow}>
-            <span>Subtotal</span>
-            <span>$ {numberToStringV2(order?.subTotal)}</span>
-          </div>
-          <div className={styles.resumeRow}>
-            <span>IVA (21%)</span>
-            <span>$ {numberToStringV2(order?.subTotal * 0.21)}</span>
-          </div>
-          <div className={styles.resumeRow}>
-            <span>Redondeo</span>
-            <span>$ {numberToStringV2(order?.rounding)}</span>
-          </div>
+          {showResume && (
+            <>
+              <div className={styles.resumeRow}>
+                <span>Subtotal</span>
+                <span>$ {numberToStringV2(order?.subTotal)}</span>
+              </div>
+              <div className={styles.resumeRow}>
+                <span>IVA (21%)</span>
+                <span>$ {numberToStringV2(order?.subTotal * 0.21)}</span>
+              </div>
+              <div className={styles.resumeRow}>
+                <span>Redondeo</span>
+                <span>$ {numberToStringV2(order?.rounding)}</span>
+              </div>
+            </>
+          )}
           <div className={styles.resumeTotal}>
-            <span>Total</span>
+            <span>
+              <button onClick={() => setShowResume(!showResume)} className={styles.toggleResumeBtn}>
+                <i className={`fa-solid fa-chevron-${showResume ? 'up' : 'down'}`} />
+              </button>
+              Total
+            </span>
             <span>$ {numberToStringV2((order?.subTotal * 1.21) + (order?.rounding || 0))}</span>
           </div>
         </div>

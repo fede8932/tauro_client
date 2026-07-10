@@ -180,19 +180,19 @@ function PosEcommerce() {
               ))}
             </select>
           </div>
-          <div className={styles.filterGroup}>
-            <label className={styles.label}>Ofertas</label>
-            <label className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={showSaleOnly}
-                onChange={(e) => setShowSaleOnly(e.target.checked)}
-                className={styles.checkbox}
-              />
-              <span>Solo ofertas</span>
-            </label>
-          </div>
           <div className={styles.filterActions}>
+            <div className={styles.filterGroup}>
+              <label className={styles.label}>Ofertas</label>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={showSaleOnly}
+                  onChange={(e) => setShowSaleOnly(e.target.checked)}
+                  className={styles.checkbox}
+                />
+                <span>Solo ofertas</span>
+              </label>
+            </div>
             <div className={styles.viewToggle}>
               <button
                 onClick={() => setViewMode('grid')}
@@ -215,15 +215,6 @@ function PosEcommerce() {
             </button>
           </div>
         </div>
-
-      {paginatorInfo && (
-        <div className={styles.resultInfo}>
-          <span className={styles.resultText}>
-            Se encontraron <strong>{paginatorInfo.totalRows}</strong> resultados en{' '}
-            <strong>{paginatorInfo.totalPages}</strong> páginas
-          </span>
-        </div>
-      )}
 
       {loading && <LoadingSpinner loading={loading} />}
 
@@ -270,12 +261,15 @@ function PosEcommerce() {
                     >
                       {product.isEquivalence ? (product.code || 'GRUPO S/C') : product.article}
                     </span>
-                    <p
-                      className={styles.cardDescription}
-                      onClick={() => setSelectedProduct(product)}
-                    >
-                      {product.description}
-                    </p>
+                    <div className={styles.cardDescriptionWrap}>
+                      <p
+                        className={styles.cardDescription}
+                        onClick={() => setSelectedProduct(product)}
+                      >
+                        {product.description}
+                      </p>
+                      <span className={styles.cardDescriptionTip}>{product.description}</span>
+                    </div>
                     <span className={styles.cardBrand}>{product.brand}</span>
                     <div className={styles.cardFooter}>
                       <span className={styles.cardStock}>
@@ -384,6 +378,15 @@ function PosEcommerce() {
             </div>
           )}
         </>
+      )}
+
+      {paginatorInfo && (
+        <div className={styles.resultInfo}>
+          <span className={styles.resultText}>
+            Se encontraron <strong>{paginatorInfo.totalRows}</strong> resultados en{' '}
+            <strong>{paginatorInfo.totalPages}</strong> páginas
+          </span>
+        </div>
       )}
 
       {!loading && products.length === 0 && (

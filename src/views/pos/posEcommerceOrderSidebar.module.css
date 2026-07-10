@@ -229,6 +229,32 @@
   border-top: 1px solid #d8d8d8;
 }
 
+.resumeTotal > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.toggleResumeBtn {
+  background: none;
+  border: none;
+  color: #673ab7;
+  cursor: pointer;
+  padding: 0;
+  font-size: 11px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.toggleResumeBtn:hover {
+  background: #ede7f6;
+}
+
 .paySection {
   background: #f8f8f8;
   border-radius: 10px;
