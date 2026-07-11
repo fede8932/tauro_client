@@ -14,13 +14,14 @@ import {
   resetPosSellOrderState,
   changeAmountOrderItem,
   delLocalOrderItem,
+  addLocalOrderItem,
   getInitialOrderStorage,
   selectClientForOrder,
 } from '../../redux/sellPosOrder';
 import { numberToString } from '../../utils';
 import CustomModal from '../../commonds/customModal/CustomModal';
 import FinishSellComponent from '../../components/finishSellComponent/FinishSellComponent';
-import { createCotizacion } from '../../request/cotizacionRequest';
+import { createCotizacion, searchCotizacionRequest, getCotizacionById } from '../../request/cotizacionRequest';
 import Swal from 'sweetalert2';
 
 import efectIcon from '../../assets/auxIcon/efect.png';
@@ -59,6 +60,11 @@ function PosEcommerceOrderSidebar({ addProduct }) {
     Tarjeta: { enabled: false, value: 3 },
     CuentaCorriente: { enabled: false, value: 4 },
   });
+  const [presupOpen, setPresupOpen] = useState(false);
+  const [presupSearchText, setPresupSearchText] = useState('');
+  const [debouncedPresupSearch, setDebouncedPresupSearch] = useState('');
+  const [presupResults, setPresupResults] = useState([]);
+  const [presupLoading, setPresupLoading] = useState(false);
 
   const clients = useSelector((state) => state.client).data;
   const { order } = useSelector((state) => state.posSellOrder);
@@ -199,9 +205,36 @@ function PosEcommerceOrderSidebar({ addProduct }) {
       const totalPres = subTotal + roundingPres;
       const itemsJson = JSON.stringify(items);
 
+      let razonSocial = order.razonSocial || '';
+
+      if (isConsumidorFinal) {
+        const { value: formValues, isDismissed } = await Swal.fire({
+          title: 'Datos del cliente',
+          html: `
+            <input id="swal-nombre" class="swal2-input" placeholder="Nombre y apellido" required autofocus>
+            <input id="swal-telefono" class="swal2-input" placeholder="Teléfono" type="tel">
+          `,
+          focusConfirm: false,
+          showCancelButton: true,
+          cancelButtonText: 'Cancelar',
+          confirmButtonText: 'Guardar',
+          preConfirm: () => {
+            const nombre = document.getElementById('swal-nombre').value.trim();
+            if (!nombre) {
+              Swal.showValidationMessage('El nombre es obligatorio');
+              return false;
+            }
+            return { nombre, telefono: document.getElementById('swal-telefono').value.trim() };
+          }
+        });
+        if (isDismissed) return;
+        if (!formValues) return;
+        razonSocial = `${formValues.nombre}${formValues.telefono ? ` - ${formValues.telefono}` : ''}`;
+      }
+
       const sendData = {
         clienteId: order.clientId,
-        razonSocial: order.razonSocial || '',
+        razonSocial,
         cuit: null,
         subTotal: totalPres,
         iva: 0,
@@ -240,6 +273,57 @@ function PosEcommerceOrderSidebar({ addProduct }) {
       CuentaCorriente: { enabled: false, value: 4 },
     });
   };
+
+  const loadPresupuesto = async (id) => {
+    try {
+      const cotiz = await getCotizacionById(id);
+      if (!cotiz || !cotiz.itemsJson) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudieron cargar los datos del presupuesto.' });
+        return;
+      }
+      const items = typeof cotiz.itemsJson === 'string' ? JSON.parse(cotiz.itemsJson) : cotiz.itemsJson;
+      dispatch(resetPosSellOrderState());
+      if (cotiz.clienteId && cotiz.clienteId !== 1) {
+        dispatch(selectClientForOrder({ id: cotiz.clienteId, razonSocial: cotiz.razonSocial }));
+      }
+      items.forEach((item) => {
+        if (item.productId) {
+          dispatch(addLocalOrderItem({
+            productId: item.productId,
+            brandId: item.brandId,
+            article: item.article,
+            sellPrice: item.sellPrice,
+            description: item.description,
+            amount: item.amount,
+          }));
+        }
+      });
+      Swal.fire({ icon: 'success', title: 'Presupuesto cargado', timer: 1500, showConfirmButton: false });
+      setPresupOpen(false);
+      setPresupSearchText('');
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: `No se pudo cargar el presupuesto: ${err.message}` });
+    }
+  };
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedPresupSearch(presupSearchText.trim());
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [presupSearchText]);
+
+  useEffect(() => {
+    if (!debouncedPresupSearch) {
+      setPresupResults([]);
+      return;
+    }
+    setPresupLoading(true);
+    searchCotizacionRequest({ client: debouncedPresupSearch, page: 1, pageSize: 10 })
+      .then((data) => setPresupResults(data.list || []))
+      .catch(() => setPresupResults([]))
+      .finally(() => setPresupLoading(false));
+  }, [debouncedPresupSearch]);
 
   useEffect(() => {
     const selectPayMethod = Object.values(payMethod).some((v) => v.enabled === true);
@@ -500,6 +584,50 @@ function PosEcommerceOrderSidebar({ addProduct }) {
               />
             )}
           />
+        </div>
+
+        <div className={styles.presupSection}>
+          <div className={styles.presupHeader} onClick={() => setPresupOpen(!presupOpen)}>
+            <span>Presupuestos guardados</span>
+            <i className={`fa-solid fa-chevron-${presupOpen ? 'up' : 'down'}`} />
+          </div>
+          {presupOpen && (
+            <div className={styles.presupBody}>
+              <input
+                type="text"
+                className={styles.presupSearch}
+                placeholder="Buscar por nombre o teléfono..."
+                value={presupSearchText}
+                onChange={(e) => setPresupSearchText(e.target.value)}
+              />
+              {presupLoading && (
+                <div className={styles.presupLoading}>
+                  <i className="fa-solid fa-spinner fa-spin" />
+                </div>
+              )}
+              {!presupLoading && presupResults.length === 0 && debouncedPresupSearch && (
+                <div className={styles.presupEmpty}>Sin resultados</div>
+              )}
+              {!presupLoading && presupResults.length > 0 && (
+                <div className={styles.presupList}>
+                  {presupResults.map((p) => (
+                    <div key={p.id} className={styles.presupItem}>
+                      <div className={styles.presupItemInfo}>
+                        <span className={styles.presupItemDate}>
+                          {new Date(p.fechaCreacion).toLocaleDateString('es-AR')}
+                        </span>
+                        <span className={styles.presupItemClient}>{p.razonSocial || 'Sin nombre'}</span>
+                        <span className={styles.presupItemTotal}>${numberToStringV2(p.total)}</span>
+                      </div>
+                      <button className={styles.presupLoadBtn} onClick={() => loadPresupuesto(p.id)}>
+                        Cargar
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

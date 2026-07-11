@@ -319,6 +319,155 @@
   padding-top: 4px;
 }
 
+.presupSection {
+  background: #f8f8f8;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.presupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.2s;
+  user-select: none;
+}
+
+.presupHeader:hover {
+  background: #f0edf5;
+}
+
+.presupHeader i {
+  font-size: 11px;
+  color: #673ab7;
+}
+
+.presupBody {
+  padding: 0 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.presupSearch {
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid #d8d8d8;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #333;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.presupSearch:focus {
+  border-color: #673ab7;
+  box-shadow: 0 0 0 2px rgba(103, 58, 183, 0.12);
+}
+
+.presupSearch::placeholder {
+  color: #b0b0b0;
+}
+
+.presupLoading {
+  text-align: center;
+  color: #673ab7;
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.presupEmpty {
+  text-align: center;
+  color: #999;
+  font-size: 12px;
+  padding: 8px 0;
+}
+
+.presupList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.presupList::-webkit-scrollbar {
+  width: 3px;
+}
+
+.presupList::-webkit-scrollbar-thumb {
+  background: #d0d0d0;
+  border-radius: 2px;
+}
+
+.presupItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #e8e8e8;
+  transition: border-color 0.2s;
+}
+
+.presupItem:hover {
+  border-color: #d0c4e8;
+}
+
+.presupItemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.presupItemDate {
+  font-size: 10px;
+  color: #999;
+}
+
+.presupItemClient {
+  font-size: 12px;
+  color: #333;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.presupItemTotal {
+  font-size: 12px;
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.presupLoadBtn {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 6px;
+  background: #673ab7;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.presupLoadBtn:hover {
+  background: #5a2ea6;
+}
+
 @media (max-width: 1100px) {
   .sidebar {
     width: 320px;
