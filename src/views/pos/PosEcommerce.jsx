@@ -33,6 +33,7 @@ function PosEcommerce() {
   const [productToLink, setProductToLink] = useState(null);
   const [productBrands, setProductBrands] = useState([]);
   const [brandsLoading, setBrandsLoading] = useState(false);
+  const [cardImageIndexes, setCardImageIndexes] = useState({});
 
   const [debouncedSearchText, setDebouncedSearchText] = useState('');
 
@@ -137,6 +138,30 @@ function PosEcommerce() {
     setShowSaleOnly(false);
   };
 
+  const getProductImages = (product) => {
+    if (product.images && product.images.length > 0) return product.images;
+    if (product.image?.url) return [product.image];
+    return [];
+  };
+
+  const getCardImageIndex = (productId) => cardImageIndexes[productId] || 0;
+
+  const prevCardImage = (e, productId, total) => {
+    e.stopPropagation();
+    setCardImageIndexes((prev) => ({
+      ...prev,
+      [productId]: prev[productId] <= 0 ? total - 1 : prev[productId] - 1,
+    }));
+  };
+
+  const nextCardImage = (e, productId, total) => {
+    e.stopPropagation();
+    setCardImageIndexes((prev) => ({
+      ...prev,
+      [productId]: prev[productId] >= total - 1 ? 0 : (prev[productId] || 0) + 1,
+    }));
+  };
+
   return (
     <div className={styles.layout}>
       <div className={styles.mainContent}>
@@ -222,38 +247,49 @@ function PosEcommerce() {
         <>
           {viewMode === 'grid' ? (
             <div className={styles.productGrid}>
-              {products.map((product) => (
-                <div key={`${product.isEquivalence ? 'eq' : 'prod'}-${product.id}`} className={styles.productCard}>
-                  <div
-                    className={styles.cardImage}
-                    onClick={() => setSelectedProduct(product)}
-                  >
-                    {product.image || (product.images && product.images[0]) ? (
-                      <>
-                        {product.images && product.images.length > 1 ? (
-                          <div className={styles.cardThumbGrid}>
-                            {product.images.slice(0, 4).map((img, i) => (
-                              <div key={img.id || i} className={styles.cardThumbCell}>
-                                <img src={img.url} alt="" />
-                                {i === 3 && product.images.length > 4 && (
-                                  <span className={styles.cardThumbMore}>+{product.images.length - 4}</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
+              {products.map((product) => {
+                const cardImages = getProductImages(product);
+                const cardIdx = getCardImageIndex(product.id);
+                return (
+                  <div key={`${product.isEquivalence ? 'eq' : 'prod'}-${product.id}`} className={styles.productCard}>
+                    <div
+                      className={styles.cardImage}
+                      onClick={() => setSelectedProduct(product)}
+                    >
+                      {cardImages.length > 0 ? (
+                        <div className={styles.cardImageCarousel}>
                           <img
-                            src={product.image?.url || product.images[0].url}
+                            src={cardImages[cardIdx]?.url}
                             alt={product.article}
                           />
-                        )}
-                      </>
-                    ) : (
-                      <div className={styles.cardImagePlaceholder}>
-                        <i className="fa-solid fa-box" />
-                      </div>
-                    )}
-                  </div>
+                          {cardImages.length > 1 && (
+                            <>
+                              <button
+                                className={styles.cardImageArrow}
+                                onClick={(e) => prevCardImage(e, product.id, cardImages.length)}
+                                title="Imagen anterior"
+                              >
+                                <i className="fa-solid fa-chevron-left" />
+                              </button>
+                              <button
+                                className={`${styles.cardImageArrow} ${styles.cardImageArrowRight}`}
+                                onClick={(e) => nextCardImage(e, product.id, cardImages.length)}
+                                title="Siguiente imagen"
+                              >
+                                <i className="fa-solid fa-chevron-right" />
+                              </button>
+                              <span className={styles.cardImageCounter}>
+                                {cardIdx + 1}/{cardImages.length}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      ) : (
+                        <div className={styles.cardImagePlaceholder}>
+                          <i className="fa-solid fa-box" />
+                        </div>
+                      )}
+                    </div>
                   <div className={styles.cardBody}>
                     <span
                       className={styles.cardArticle}
@@ -297,37 +333,54 @@ function PosEcommerce() {
                     </div>
                   </div>
                 </div>
-              ))}
+              );
+            })}
             </div>
           ) : (
             <div className={styles.productList}>
-              {products.map((product) => (
-                <div key={`${product.isEquivalence ? 'eq' : 'prod'}-${product.id}`} className={styles.productRow}>
-                  <div
-                    className={styles.rowImage}
-                    onClick={() => setSelectedProduct(product)}
-                  >
-                    {product.image || (product.images && product.images[0]) ? (
-                      <img
-                        src={product.image?.url || product.images?.[0]?.url}
-                        alt={product.article}
-                      />
-                    ) : (
-                      <div className={styles.rowImagePlaceholder}>
-                        <i className="fa-solid fa-box" />
-                      </div>
-                    )}
-                    {product.images && product.images.length > 1 && (
-                      <div className={styles.rowImageDots}>
-                        {product.images.slice(0, 5).map((_, i) => (
-                          <span key={i} className={i === 0 ? styles.rowDotActive : styles.rowDot} />
-                        ))}
-                        {product.images.length > 5 && (
-                          <span className={styles.rowDotMore}>+{product.images.length - 5}</span>
-                        )}
-                      </div>
-                    )}
-                  </div>
+              {products.map((product) => {
+                const rowImages = getProductImages(product);
+                const rowIdx = getCardImageIndex(product.id);
+                return (
+                  <div key={`${product.isEquivalence ? 'eq' : 'prod'}-${product.id}`} className={styles.productRow}>
+                    <div
+                      className={styles.rowImage}
+                      onClick={() => setSelectedProduct(product)}
+                    >
+                      {rowImages.length > 0 ? (
+                        <div className={styles.rowImageCarousel}>
+                          <img
+                            src={rowImages[rowIdx]?.url}
+                            alt={product.article}
+                          />
+                          {rowImages.length > 1 && (
+                            <>
+                              <button
+                                className={styles.rowImageArrow}
+                                onClick={(e) => prevCardImage(e, product.id, rowImages.length)}
+                                title="Imagen anterior"
+                              >
+                                <i className="fa-solid fa-chevron-left" />
+                              </button>
+                              <button
+                                className={`${styles.rowImageArrow} ${styles.rowImageArrowRight}`}
+                                onClick={(e) => nextCardImage(e, product.id, rowImages.length)}
+                                title="Siguiente imagen"
+                              >
+                                <i className="fa-solid fa-chevron-right" />
+                              </button>
+                              <span className={styles.rowImageCounter}>
+                                {rowIdx + 1}/{rowImages.length}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      ) : (
+                        <div className={styles.rowImagePlaceholder}>
+                          <i className="fa-solid fa-box" />
+                        </div>
+                      )}
+                    </div>
                   <div className={styles.rowInfo}>
                     <span
                       className={styles.rowArticle}
@@ -362,7 +415,8 @@ function PosEcommerce() {
                     )}
                   </div>
                 </div>
-              ))}
+              );
+            })}
             </div>
           )}
 

@@ -170,11 +170,34 @@ function PosEcommerceProductModal({ product, onClose, addProduct }) {
 
       {showImageZoom && hasImage && (
         <div className={styles.zoomOverlay} onClick={() => setShowImageZoom(false)}>
-          <div className={styles.zoomContainer}>
+          <div className={styles.zoomContainer} onClick={(e) => e.stopPropagation()}>
+            {imageCount > 1 && (
+              <>
+                <button
+                  onClick={goToPrev}
+                  className={`${styles.zoomNavBtn} ${styles.zoomNavPrev}`}
+                  title="Imagen anterior"
+                >
+                  <i className="fa-solid fa-chevron-left" />
+                </button>
+                <button
+                  onClick={goToNext}
+                  className={`${styles.zoomNavBtn} ${styles.zoomNavNext}`}
+                  title="Siguiente imagen"
+                >
+                  <i className="fa-solid fa-chevron-right" />
+                </button>
+              </>
+            )}
             <img src={images[currentImageIndex].url} alt={product.article} className={styles.zoomImage} />
             <button onClick={() => setShowImageZoom(false)} className={styles.zoomCloseBtn}>
               <i className="fa-solid fa-times" />
             </button>
+            {imageCount > 1 && (
+              <span className={styles.zoomCounter}>
+                {currentImageIndex + 1}/{imageCount}
+              </span>
+            )}
           </div>
         </div>
       )}

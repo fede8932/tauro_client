@@ -14,6 +14,7 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
   const [quantities, setQuantities] = useState({});
   const [addingProductId, setAddingProductId] = useState(null);
   const [imageIndex, setImageIndex] = useState({});
+  const [zoom, setZoom] = useState(null);
 
   const products = equivalence.products ?? [];
 
@@ -41,14 +42,19 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
-        onClose();
+        if (zoom) {
+          setZoom(null);
+        } else {
+          onClose();
+        }
       }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, [onClose, zoom]);
 
   return (
+    <>
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
@@ -108,6 +114,13 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
                           return currentUrl ? (
                             <div className={styles.productImageInner}>
                               <img src={currentUrl} alt={product.article} />
+                              <button
+                                className={styles.imgZoomBtn}
+                                onClick={(e) => { e.stopPropagation(); setZoom({ productId: product.id, images: allImages.length > 0 ? allImages : [{ url: equivImageUrl }], index: currentIdx }); }}
+                                title="Ampliar imagen"
+                              >
+                                <i className="fa-solid fa-search-plus" />
+                              </button>
                               {allImages.length > 1 && (
                                 <>
                                   <button
@@ -236,6 +249,49 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
         </div>
       </div>
     </div>
+
+    {zoom && zoom.images.length > 0 && (
+      <div className={styles.zoomOverlay} onClick={() => setZoom(null)}>
+        <div className={styles.zoomContainer} onClick={(e) => e.stopPropagation()}>
+          <button
+            className={styles.zoomCloseBtn}
+            onClick={() => setZoom(null)}
+            title="Cerrar"
+          >
+            <i className="fa-solid fa-times" />
+          </button>
+          {zoom.images.length > 1 && (
+            <>
+              <button
+                className={`${styles.zoomNavBtn} ${styles.zoomPrevBtn}`}
+                onClick={(e) => setZoom((prev) => prev ? { ...prev, index: prev.index === 0 ? prev.images.length - 1 : prev.index - 1 } : null)}
+                title="Imagen anterior"
+              >
+                <i className="fa-solid fa-chevron-left" />
+              </button>
+              <button
+                className={`${styles.zoomNavBtn} ${styles.zoomNextBtn}`}
+                onClick={(e) => setZoom((prev) => prev ? { ...prev, index: prev.index === prev.images.length - 1 ? 0 : prev.index + 1 } : null)}
+                title="Siguiente imagen"
+              >
+                <i className="fa-solid fa-chevron-right" />
+              </button>
+            </>
+          )}
+          <img
+            src={zoom.images[zoom.index]?.url}
+            alt="Ampliada"
+            className={styles.zoomImage}
+          />
+          {zoom.images.length > 1 && (
+            <span className={styles.zoomCounter}>
+              {zoom.index + 1}/{zoom.images.length}
+            </span>
+          )}
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 
