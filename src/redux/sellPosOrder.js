@@ -18,6 +18,7 @@ const initialState = {
     razonSocial: POS_DEFAULT_CLIENT_NAME,
     items: [],
     rounding: 0,
+    cotizacionId: null,
   },
   billData: { oficial: null, numComprobante: null, ptoVenta: null, id: null, billType: null },
 };
@@ -38,6 +39,10 @@ const posSellOrderSlice = createSlice({
       state.billData = { oficial: null, numComprobante: null, ptoVenta: null };
       localStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
     },
+    setCotizacionId: (state, action) => {
+      state.order.cotizacionId = action.payload;
+      localStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
+    },
     getInitialOrderStorage: (state) => {
       try {
         const posSellOrderString = localStorage.getItem('pos-order');
@@ -56,6 +61,7 @@ const posSellOrderSlice = createSlice({
                   : POS_DEFAULT_CLIENT_NAME,
               items: posSellOrder.items,
               rounding: calcRounding(posSellOrder.subTotal || 0),
+              cotizacionId: posSellOrder.cotizacionId || null,
             };
           }
         }
@@ -145,6 +151,7 @@ export const {
   addLocalOrderItem,
   delLocalOrderItem,
   changeAmountOrderItem,
+  setCotizacionId,
 } = posSellOrderSlice.actions;
 
 export default posSellOrderSlice.reducer;

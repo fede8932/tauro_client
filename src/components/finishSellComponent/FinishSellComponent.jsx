@@ -134,6 +134,7 @@ function FinishSellComponent(props) {
         ([key, value]) => value.enabled === true
       )?.[1].value,
       rounding: order.rounding,
+      cotizacionId: order.cotizacionId || null,
     };
 
     if (sendData.payMethod === 2) {

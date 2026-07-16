@@ -18,6 +18,7 @@ import {
   addLocalOrderItem,
   getInitialOrderStorage,
   selectClientForOrder,
+  setCotizacionId,
 } from '../../redux/sellPosOrder';
 import { numberToString } from '../../utils';
 import CustomModal from '../../commonds/customModal/CustomModal';
@@ -303,6 +304,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
       }
       const items = typeof cotiz.itemsJson === 'string' ? JSON.parse(cotiz.itemsJson) : cotiz.itemsJson;
       dispatch(resetPosSellOrderState());
+      dispatch(setCotizacionId(cotiz.id));
       if (cotiz.clienteId && cotiz.clienteId !== 1) {
         dispatch(selectClientForOrder({ id: cotiz.clienteId, razonSocial: cotiz.razonSocial }));
       }
