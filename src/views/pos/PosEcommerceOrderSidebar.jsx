@@ -10,7 +10,8 @@ import {
   resetSelectClientState,
 } from '../../redux/client';
 import {
-  finishSellPosAsync,
+  POS_DEFAULT_CLIENT_ID,
+  POS_DEFAULT_CLIENT_NAME,
   resetPosSellOrderState,
   changeAmountOrderItem,
   delLocalOrderItem,
@@ -48,9 +49,9 @@ function PosEcommerceOrderSidebar({ addProduct }) {
   const dispatch = useDispatch();
 
   const [showResume, setShowResume] = useState(false);
-  const [textClient, setTextClient] = useState('');
+  const [textClient, setTextClient] = useState(POS_DEFAULT_CLIENT_NAME);
   const [listClient, setListClient] = useState([]);
-  const [selectClientId, setSelectClientId] = useState(null);
+  const [selectClientId, setSelectClientId] = useState(POS_DEFAULT_CLIENT_ID);
   const isMountedRef = React.useRef(false);
   const [finishMode, setFinishMode] = useState({ presup: true, venta: false });
   const [payMethod, setPayMethod] = useState({
@@ -89,8 +90,19 @@ function PosEcommerceOrderSidebar({ addProduct }) {
     setPayMethod(newPayMethod);
   };
 
-  const onChange = (d) => {
-    setTextClient(d);
+  const onChange = (value) => {
+    setTextClient(value);
+    if (!value || normalizeText(value) !== normalizeText(order?.razonSocial)) {
+      setSelectClientId(null);
+      dispatch(selectClientForOrder({ id: null, razonSocial: '' }));
+    }
+  };
+
+  const onClear = () => {
+    setTextClient('');
+    setSelectClientId(null);
+    dispatch(selectClientForOrder({ id: null, razonSocial: '' }));
+    dispatch(resetSelectClientState());
   };
 
   const onSelect = (value, options) => {
@@ -265,6 +277,14 @@ function PosEcommerceOrderSidebar({ addProduct }) {
 
   const resetOrder = () => {
     dispatch(resetPosSellOrderState());
+    dispatch(resetSelectClientState());
+    dispatch(selectClientForOrder({
+      id: POS_DEFAULT_CLIENT_ID,
+      razonSocial: POS_DEFAULT_CLIENT_NAME,
+    }));
+    dispatch(getClientIdRequestNew(POS_DEFAULT_CLIENT_ID));
+    setTextClient(POS_DEFAULT_CLIENT_NAME);
+    setSelectClientId(POS_DEFAULT_CLIENT_ID);
     setPayMethod({
       Efectivo: { enabled: false, value: 0 },
       QR: { enabled: false, value: 1 },
@@ -381,7 +401,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
     if (!textClient) {
       const reordered = (() => {
         if (!clientArray) return [];
-        const idx = clientArray.findIndex((c) => c.id === 1);
+        const idx = clientArray.findIndex((c) => c.id === POS_DEFAULT_CLIENT_ID);
         if (idx === -1) return clientArray;
         const first = clientArray[idx];
         return [first, ...clientArray.slice(0, idx), ...clientArray.slice(idx + 1)];
@@ -397,7 +417,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
     let filtered = [...(clientArray || [])].filter(
       (c) => c.label && c.label.toLowerCase().includes(textClient.toLowerCase())
     );
-    const idx = filtered.findIndex((c) => c.id === 1);
+    const idx = filtered.findIndex((c) => c.id === POS_DEFAULT_CLIENT_ID);
     if (idx > -1) {
       const first = filtered[idx];
       filtered = [first, ...filtered.slice(0, idx), ...filtered.slice(idx + 1)];
@@ -427,6 +447,8 @@ function PosEcommerceOrderSidebar({ addProduct }) {
           style={{ width: '100%' }}
           onSelect={onSelect}
           onChange={onChange}
+          onClear={onClear}
+          allowClear
           placeholder="Seleccionar cliente"
         />
       </div>

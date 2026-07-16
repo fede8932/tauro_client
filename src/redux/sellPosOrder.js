@@ -6,13 +6,16 @@ const calcRounding = (subTotal) => {
   return +((roundedTotal - rawTotal).toFixed(2));
 };
 
+export const POS_DEFAULT_CLIENT_ID = 540;
+export const POS_DEFAULT_CLIENT_NAME = 'Consumidor Final';
+
 const initialState = {
   loading: false,
   error: '',
   order: {
     subTotal: 0,
-    clientId: 540,
-    razonSocial: 'Consumidor Final',
+    clientId: POS_DEFAULT_CLIENT_ID,
+    razonSocial: POS_DEFAULT_CLIENT_NAME,
     items: [],
     rounding: 0,
   },
@@ -43,8 +46,14 @@ const posSellOrderSlice = createSlice({
           if (posSellOrder && posSellOrder.items) {
             state.order = {
               subTotal: posSellOrder.subTotal || 0,
-              clientId: posSellOrder.clientId || 1,
-              razonSocial: posSellOrder.razonSocial || 'Consumidor Final',
+              clientId:
+                posSellOrder.clientId && Number(posSellOrder.clientId) !== 1
+                  ? Number(posSellOrder.clientId)
+                  : POS_DEFAULT_CLIENT_ID,
+              razonSocial:
+                posSellOrder.clientId && Number(posSellOrder.clientId) !== 1
+                  ? posSellOrder.razonSocial || POS_DEFAULT_CLIENT_NAME
+                  : POS_DEFAULT_CLIENT_NAME,
               items: posSellOrder.items,
               rounding: calcRounding(posSellOrder.subTotal || 0),
             };
