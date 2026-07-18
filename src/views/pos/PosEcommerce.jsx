@@ -4,7 +4,8 @@ import CustomPagination from '../../commonds/pagination/CustomPagination';
 import LoadingSpinner from '../../commonds/loading/LoadingSpinner';
 import { searchProductsAndEquivalences, getBrands } from '../../request/productRequest';
 import PosEcommerceProductModal from './PosEcommerceProductModal';
-import PosEcommerceEquivalenceModal from './PosEcommerceEquivalenceModal';
+// import PosEcommerceEquivalenceModal from './PosEcommerceEquivalenceModal';
+import PosEcommerceEquivalenceModalV2 from './PosEcommerceEquivalenceModalV2';
 import PosEcommerceOrderSidebar from './PosEcommerceOrderSidebar';
 import LinkEquivalenceModal from '../../components/posComponent/LinkEquivalenceModal';
 import { useDispatch, useSelector } from 'react-redux';
@@ -452,11 +453,21 @@ function PosEcommerce() {
 
       {selectedProduct && (
         selectedProduct.isEquivalence ? (
-          <PosEcommerceEquivalenceModal
-            equivalence={selectedProduct}
-            onClose={() => setSelectedProduct(null)}
-            addProduct={addProduct}
-          />
+          <>
+            {/* Componente anterior conservado como referencia */}
+            {/*
+            <PosEcommerceEquivalenceModal
+              equivalence={selectedProduct}
+              onClose={() => setSelectedProduct(null)}
+              addProduct={addProduct}
+            />
+            */}
+            <PosEcommerceEquivalenceModalV2
+              equivalence={selectedProduct}
+              onClose={() => setSelectedProduct(null)}
+              addProduct={addProduct}
+            />
+          </>
         ) : (
           <PosEcommerceProductModal
             product={selectedProduct}
