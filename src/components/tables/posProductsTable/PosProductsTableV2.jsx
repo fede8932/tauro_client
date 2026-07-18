@@ -5,6 +5,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { searchProductsAndEquivalencesRequest } from '../../../redux/productEquivalence';
 import { discountApplicationV2, numberToString } from '../../../utils';
+import { uploadProductImage } from '../../../request/productRequest';
+import { uploadEquivalenceImage } from '../../../request/equivalencesRequest';
 import { Pagination, Select } from 'semantic-ui-react';
 import styles from './productsTables.module.css';
 import IconButonUsersTable from '../../../commonds/iconButtonUsersTable/IconButonUsersTable';
@@ -16,11 +18,61 @@ import { Button } from 'react-bootstrap';
 import ProtectedComponent from '../../../protected/protectedComponent/ProtectedComponent';
 import ActionModalContainer from '../../../containers/ActionModalContainer';
 
+const UploadImageButton = ({ onUpload, popupText, icon, loading }) => {
+  const inputRef = useRef(null);
+
+  const handleClick = () => {
+    inputRef.current?.click();
+  };
+
+  const handleChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onUpload(file);
+    }
+    e.target.value = '';
+  };
+
+  return (
+    <>
+      <input
+        type="file"
+        accept="image/*"
+        ref={inputRef}
+        onChange={handleChange}
+        style={{ display: 'none' }}
+      />
+      <IconButonUsersTable
+        popupText={popupText}
+        fn={handleClick}
+        icon={loading ? 'fa-solid fa-spinner fa-spin' : icon}
+        iconInitialStyle={loading ? 'iconStyleGrey' : 'iconStyleGreen'}
+      />
+    </>
+  );
+};
+
 const CustomComp = ({ data, props }) => {
-  const { selectClientId, addProduct, customerDiscounts } = props;
-  
+  const { selectClientId, addProduct, customerDiscounts, refreshSearch } = props;
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (file) => {
+    setUploading(true);
+    try {
+      if (data.type === 'EQUIVALENCE') {
+        await uploadEquivalenceImage(data.id, file);
+      } else {
+        await uploadProductImage(data.id, file);
+      }
+      refreshSearch();
+    } catch (error) {
+      console.error('Error al subir imagen:', error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   if (data.type === 'EQUIVALENCE') {
-    // Para equivalencias: mostrar botón de imagen de la equivalencia
     const equivImages = data.image ? [data.image] : [];
     return (
       <div className={styles.buttonContainer}>
@@ -31,11 +83,16 @@ const CustomComp = ({ data, props }) => {
           popupText="Ver imagen de equivalencia"
           images={equivImages}
         />
+        <UploadImageButton
+          onUpload={handleUpload}
+          popupText="Cargar imagen de equivalencia"
+          icon="fa-solid fa-upload"
+          loading={uploading}
+        />
       </div>
     );
   }
 
-  // Mock object for utils function
   const productMock = {
       price: { price: data.cost },
       brand: { id: data.brandId, rentabilidad: data.rentabilidad }
@@ -51,6 +108,12 @@ const CustomComp = ({ data, props }) => {
         size="lg"
         popupText="Ver imagen del producto"
         images={productImages}
+      />
+      <UploadImageButton
+        onUpload={handleUpload}
+        popupText="Cargar imagen del producto"
+        icon="fa-solid fa-upload"
+        loading={uploading}
       />
       <ProtectedComponent listAccesss={[1, 2, 5, 6]}>
         <IconButonUsersTable
@@ -141,7 +204,8 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
   standaloneProducts, 
   selectClientId, 
   customerDiscounts, 
-  addProduct 
+  addProduct,
+  refreshSearch
 }) {
   const gridRef = useRef(null);
   const containerRef = useRef(null);
@@ -209,6 +273,7 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
             ...prod,
             type: 'EQUIV_PRODUCT',
             parentId: eq.id,
+            parentCode: eq.code,
             brandName: prod.brand,
             stockValue: prod.stock,
             priceValue: prod.price
@@ -256,14 +321,15 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
         }
     },
     {
-        headerName: 'Tipo',
-        field: 'type',
-        width: 120,
+        headerName: 'Cod. Tauro',
+        field: 'code',
+        width: 140,
+        headerComponent: () => <HeaderInput title="Cod. Tauro" name={'code'} />,
         valueGetter: (params) => {
             switch(params.data.type) {
-                case 'EQUIVALENCE': return 'Equivalencia';
-                case 'EQUIV_PRODUCT': return '↳ Producto';
-                case 'PRODUCT': return 'Producto';
+                case 'EQUIVALENCE': return params.data.code || 'Equivalencia SC';
+                case 'EQUIV_PRODUCT': return params.data.parentCode ? `↳ ${params.data.parentCode}` : 'Producto SC';
+                case 'PRODUCT': return '';
                 default: return '';
             }
         },
@@ -328,7 +394,10 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
       width: 100,
     },
     {
-      headerName: 'Precio cIva',
+      headerName: 'Precio venta',
+      headerComponent: () => (
+        <span title="incluye iva">Precio venta</span>
+      ),
       field: 'sellPriceIva',
       sortable: false,
       cellRenderer: (params) => {
@@ -372,13 +441,14 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
             selectClientId: params.context.selectClientId,
             addProduct: params.context.addProduct,
             customerDiscounts: params.context.customerDiscounts,
+            refreshSearch: params.context.refreshSearch,
           }}
         />
       ),
       field: 'actions',
       sortable: false,
       filter: false,
-      width: 130,
+      width: 160,
     },
   ], []);
 
@@ -390,8 +460,9 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
     selectClientId,
     customerDiscounts,
     addProduct,
-    toggleExpand
-  }), [selectClientId, customerDiscounts, addProduct, toggleExpand]);
+    toggleExpand,
+    refreshSearch
+  }), [selectClientId, customerDiscounts, addProduct, toggleExpand, refreshSearch]);
 
   // Refresh cells when selectClientId or customerDiscounts change
   useEffect(() => {
@@ -429,6 +500,10 @@ function PosProductsTableV2(props) {
   const productEquivalence = useSelector((state) => state.productEquivalence);
   const dispatch = useDispatch();
 
+  const refreshSearch = useCallback(() => {
+    dispatch(searchProductsAndEquivalencesRequest(filterProducts));
+  }, [dispatch, filterProducts]);
+
   useEffect(() => {
     dispatch(searchProductsAndEquivalencesRequest(filterProducts));
   }, [filterProducts]);
@@ -452,6 +527,7 @@ function PosProductsTableV2(props) {
         selectClientId={selectClientId}
         customerDiscounts={customerDiscounts}
         addProduct={addProduct}
+        refreshSearch={refreshSearch}
       />
       <div className={styles.paginationContainer}>
         <span>{`Se encontraron ${productEquivalence.data.totalPages} páginas con ${productEquivalence.data.totalRows} resultados.`}</span>

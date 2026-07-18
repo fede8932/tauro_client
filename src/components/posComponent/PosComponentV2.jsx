@@ -340,9 +340,6 @@ function PosComponentV2(props) {
             placeholder="Seleccionar cliente"
           />
         </div>
-        <span style={{ color: 'green', fontWeight: 600, fontSize: '15px' }}>
-          Total:<span>$ {numberToStringV2(order?.subTotal * 1.21)}</span>
-        </span>
         <Button variant="secondary" onClick={() => setDrawer(true)}>
           Detalle de orden
         </Button>

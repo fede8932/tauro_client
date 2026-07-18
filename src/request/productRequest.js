@@ -425,3 +425,26 @@ export const bulkAssignActiveSupplier = async (brandId, supplierId) => {
     throw error;
   }
 };
+
+export const uploadProductImage = async (productId, file) => {
+  try {
+    const formData = new FormData();
+    formData.append('image', file);
+    const { data } = await axios.post(
+      `${apiUrl}/api/productos/${productId}/images`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+      }
+    );
+    return data;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};
