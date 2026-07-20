@@ -157,8 +157,9 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
           <thead>
             <tr>
               <th>Código</th>
-              <th>Descripción</th>
+              {isPriceTab ? null : <th>Descripción</th>}
               <th>Marca</th>
+              {isPriceTab ? <th>Stock</th> : null}
               <th>{isPriceTab ? 'Precio de venta' : 'Stock'}</th>
             </tr>
           </thead>
@@ -173,14 +174,30 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
                   className={isSelected ? styles.selectedRow : ''}
                   onClick={() => handleSelectProduct(product)}
                 >
-                  <td className={styles.codeCell}>{product.article}</td>
-                  <td className={styles.descCell} title={product.description}>
-                    {product.description || 'S/Descripción'}
-                  </td>
+                  <td className={styles.codeCell} title={product.description || ''}>{product.article}</td>
+                  {isPriceTab ? null : (
+                    <td className={styles.descCell} title={product.description}>
+                      {product.description ? (product.description.length > 40 ? product.description.slice(0, 40) + '...' : product.description) : 'S/Descripción'}
+                    </td>
+                  )}
                   <td className={styles.brandCell}>{product.brand}</td>
+                  {isPriceTab ? (
+                    <td>
+                      <span
+                        className={styles.stockPill}
+                        style={{ background: stockBadge.bg, color: stockBadge.text }}
+                      >
+                        <span
+                          className={styles.stockDot}
+                          style={{ background: stockBadge.dot }}
+                        />
+                        {stockBadge.label}
+                      </span>
+                    </td>
+                  ) : null}
                   <td>
                     {isPriceTab ? (
-                      <span className={styles.priceCell}>${price.toFixed(2)}</span>
+                      <span className={`${styles.priceCell}${(product.stock ?? 0) === 0 ? ` ${styles.priceCellNoStock}` : ''}`}>${price.toFixed(2)}</span>
                     ) : (
                       <span
                         className={styles.stockPill}
