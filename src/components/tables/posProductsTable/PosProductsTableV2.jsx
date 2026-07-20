@@ -6,7 +6,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { searchProductsAndEquivalencesRequest } from '../../../redux/productEquivalence';
 import { discountApplicationV2, numberToString } from '../../../utils';
 import { uploadProductImage } from '../../../request/productRequest';
-import { uploadEquivalenceImage } from '../../../request/equivalencesRequest';
+import { uploadEquivalenceImage, editDescriptionEquivalence } from '../../../request/equivalencesRequest';
+import Swal from 'sweetalert2';
 import { Pagination, Select } from 'semantic-ui-react';
 import styles from './productsTables.module.css';
 import IconButonUsersTable from '../../../commonds/iconButtonUsersTable/IconButonUsersTable';
@@ -355,14 +356,20 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
     },
     {
       headerName: 'Descripción',
+      field: 'description',
       headerComponent: () => (
         <HeaderInput title="Descripción" name={'description'} />
       ),
+      editable: (params) => params.data.type === 'EQUIVALENCE',
       valueGetter: (params) => {
         if (!params.data.description) return '';
         const desc = params.data.description;
         if (/^despiece/i.test(desc)) return 'DESPIECE';
         return desc.toUpperCase();
+      },
+      valueSetter: (params) => {
+        params.data.description = params.newValue;
+        return true;
       },
       width: 500,
       filterParams: {
@@ -456,6 +463,18 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
     sortable: false
   }), []);
 
+  const onCellValueChanged = useCallback(async (params) => {
+    if (params.column.getColId() !== 'description' || params.data.type !== 'EQUIVALENCE') return;
+    if (params.oldValue === params.newValue) return;
+
+    try {
+      await editDescriptionEquivalence({ id: params.data.id, description: params.data.description });
+    } catch (error) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo actualizar la descripción' });
+      params.node.setDataValue('description', params.oldValue);
+    }
+  }, []);
+
   const context = useMemo(() => ({
     selectClientId,
     customerDiscounts,
@@ -479,6 +498,7 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
         context={context}
+        onCellValueChanged={onCellValueChanged}
         getRowId={(params) => params.data.type === 'EQUIVALENCE' ? `equiv-${params.data.id}` : `prod-${params.data.id}-${params.data.parentId || ''}`}
         getRowStyle={(params) => {
             if (params.data.type === 'EQUIVALENCE') {
