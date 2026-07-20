@@ -160,6 +160,7 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
               {isPriceTab ? null : <th>Descripción</th>}
               <th>Marca</th>
               {isPriceTab ? <th>Stock</th> : null}
+              {isPriceTab ? <th>Ubicación</th> : null}
               <th>{isPriceTab ? 'Precio de venta' : 'Stock'}</th>
             </tr>
           </thead>
@@ -194,6 +195,9 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
                         {stockBadge.label}
                       </span>
                     </td>
+                  ) : null}
+                  {isPriceTab ? (
+                    <td className={styles.locationCell}>{product.location || '-'}</td>
                   ) : null}
                   <td>
                     {isPriceTab ? (

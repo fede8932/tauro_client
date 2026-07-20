@@ -434,6 +434,12 @@
   font-weight: 600;
 }
 
+.locationCell {
+  font-size: 12px;
+  color: #666;
+  white-space: nowrap;
+}
+
 .priceCell {
   font-weight: 700;
   color: #2e7d32;
