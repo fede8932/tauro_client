@@ -19,16 +19,14 @@ export const presupHtml = (
     if (!item.fact) {
       acum += item.sellPrice * item.amount;
     }
-    // console.log(item, acum)
     return acum;
   }, 0);
   const descuentos = movimentData.specialItems?.reduce((acum, item) => {
     if (!item.oficial) {
       acum += item.amount;
     }
-    // console.log(item, acum)
     return acum;
-  }, 0);
+  }, 0) ?? 0;
 
   const lista = pageItems.map((item) => {
     return `<tr>
@@ -323,14 +321,11 @@ export const presupHtml = (
             )}</span
           >
           <span class="pesosSpanCont"
-            >IVA 21%<span class="pesosSpan"></span>0</span
-          >
-          <span class="pesosSpanCont"
             >DESCUENTOS<span class="pesosSpan"></span>${redondearADosDecimales(0 - descuentos)}</span
           >
           <span class="pesosSpanCont"
             >TOTAL<span class="pesosSpan"></span>${redondearADosDecimales(
-              subTotal - descuentos
+              movimentData.total
             )}</span
           >
         </div>
