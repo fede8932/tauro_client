@@ -36,8 +36,11 @@ function ActionModalContainer(props) {
   };
 
   const extProps = { ...props };
-  extProps.disabled = imagesState?.length < 1;
-  extProps.iconColor = imagesState?.length < 1 ? 'iconStyleGrey' : 'iconStylePurple';
+  const isImageType = props.type === 'infoProduct';
+  if (isImageType) {
+    extProps.disabled = imagesState?.length < 1;
+    extProps.iconColor = imagesState?.length < 1 ? 'iconStyleGrey' : 'iconStylePurple';
+  }
   extProps.images = imagesState;
   extProps.onDeleteImage = handleDeleteImage;
   return <ActionModalComponent {...extProps} />;
