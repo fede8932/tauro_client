@@ -56,5 +56,5 @@
     "vite": "^4.3.9",
     "vite-plugin-pwa": "^0.15.1"
   },
-  "packageManager": "npm@10.9.2"
+  "packageManager": "pnpm@9.15.4"
 }
