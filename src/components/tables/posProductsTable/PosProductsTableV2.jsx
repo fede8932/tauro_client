@@ -520,13 +520,18 @@ function PosProductsTableV2(props) {
   const productEquivalence = useSelector((state) => state.productEquivalence);
   const dispatch = useDispatch();
 
+  const searchFilters = useMemo(
+    () => ({ ...filterProducts, includeProductsInEquivalences: true }),
+    [filterProducts]
+  );
+
   const refreshSearch = useCallback(() => {
-    dispatch(searchProductsAndEquivalencesRequest(filterProducts));
-  }, [dispatch, filterProducts]);
+    dispatch(searchProductsAndEquivalencesRequest(searchFilters));
+  }, [dispatch, searchFilters]);
 
   useEffect(() => {
-    dispatch(searchProductsAndEquivalencesRequest(filterProducts));
-  }, [filterProducts]);
+    dispatch(searchProductsAndEquivalencesRequest(searchFilters));
+  }, [dispatch, searchFilters]);
 
   const selectChange = (e, d) => {
     dispatch(setFilterProduct({ name: 'pageSize', value: d.value }));
