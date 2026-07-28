@@ -7,25 +7,6 @@ import {
 } from '../../request/equivalencesRequest';
 import Swal from 'sweetalert2';
 
-const generateEquivalenceCode = () => {
-  const letters = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let res = '';
-    for (let i = 0; i < 3; i++) {
-      res += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return res;
-  };
-  const numbers = () => {
-    let res = '';
-    for (let i = 0; i < 5; i++) {
-      res += Math.floor(Math.random() * 10);
-    }
-    return res;
-  };
-  return letters() + numbers() + letters();
-};
-
 function LinkEquivalenceModal({ product, onClose, onLinked }) {
   const [searchText, setSearchText] = useState('');
   const [equivalences, setEquivalences] = useState([]);
@@ -34,7 +15,6 @@ function LinkEquivalenceModal({ product, onClose, onLinked }) {
   const [linking, setLinking] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newDescription, setNewDescription] = useState('');
-  const [newCode, setNewCode] = useState('');
   const [creating, setCreating] = useState(false);
 
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -109,7 +89,7 @@ function LinkEquivalenceModal({ product, onClose, onLinked }) {
     try {
       const result = await createEquivalence({
         description: newDescription,
-        code: newCode || null,
+        code: null,
         productIds: [product.id],
       });
       if (result?.error) {
@@ -144,9 +124,6 @@ function LinkEquivalenceModal({ product, onClose, onLinked }) {
     }
   };
 
-  const handleGenerateCode = () => {
-    setNewCode(generateEquivalenceCode());
-  };
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -297,26 +274,6 @@ function LinkEquivalenceModal({ product, onClose, onLinked }) {
                     placeholder="Ej: Alternador Ford Focus 1.6"
                     className={styles.formInput}
                   />
-                </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Código (opcional)</label>
-                  <div className={styles.codeInputRow}>
-                    <input
-                      type="text"
-                      value={newCode}
-                      onChange={(e) => setNewCode(e.target.value)}
-                      placeholder="AAA12345BBB"
-                      className={styles.formInput}
-                    />
-                    <button
-                      type="button"
-                      onClick={handleGenerateCode}
-                      className={styles.genCodeBtn}
-                      title="Generar código automático"
-                    >
-                      <i className="fa-solid fa-dice" />
-                    </button>
-                  </div>
                 </div>
                 <button
                   onClick={handleCreate}
