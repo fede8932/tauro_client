@@ -120,15 +120,19 @@ function PosEcommerceOrderSidebar({ addProduct }) {
   const printPresupuesto = (cotizacion, items) => {
     const itemsHtml = items
       .map(
-        (item) => `
+        (item) => {
+        const isRounding = item.article === 'Redondeo';
+        const unitPrice = isRounding ? Number(item.sellPrice) : Number(item.sellPrice) * 1.21;
+        const lineTotal = isRounding ? Number(item.sellPrice) : Number(item.sellPrice) * item.amount * 1.21;
+        return `
       <tr>
         <td>${item.article || '-'}</td>
         <td>${item.amount}</td>
         <td>${item.description || ''}</td>
-        <td>$${numberToString(Number(item.sellPrice))}</td>
-        <td>$${numberToString(Number(item.sellPrice) * item.amount)}</td>
-      </tr>`
-      )
+        <td>$${numberToString(unitPrice)}</td>
+        <td>$${numberToString(lineTotal)}</td>
+      </tr>`;
+      })
       .join('');
 
     const printWindow = window.open('', '', 'width=800,height=1100');
@@ -200,7 +204,10 @@ function PosEcommerceOrderSidebar({ addProduct }) {
         0
       );
 
-      const rawTotalPres = subTotal;
+      const iva = +(subTotal * 0.21).toFixed(2);
+      const totalConIva = subTotal + iva;
+
+      const rawTotalPres = totalConIva;
       const roundedTotalPres = Math.floor(rawTotalPres / 10) * 10;
       const roundingPres = +((roundedTotalPres - rawTotalPres).toFixed(2));
 
@@ -215,7 +222,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
         });
       }
 
-      const totalPres = subTotal + roundingPres;
+      const totalPres = totalConIva + roundingPres;
       const itemsJson = JSON.stringify(items);
 
       let razonSocial = order.razonSocial || '';
@@ -249,8 +256,8 @@ function PosEcommerceOrderSidebar({ addProduct }) {
         clienteId: order.clientId,
         razonSocial,
         cuit: null,
-        subTotal: totalPres,
-        iva: 0,
+        subTotal: subTotal,
+        iva: iva,
         total: totalPres,
         itemsJson,
       };
