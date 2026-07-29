@@ -21,7 +21,9 @@ const VEHICLE_BRANDS = [
 function PosEcommerce() {
   const dispatch = useDispatch();
   const customerDiscounts = useSelector((state) => state.client)?.selectClient?.customerDiscounts;
-  const [searchText, setSearchText] = useState('');
+  const [codigoInterno, setCodigoInterno] = useState('');
+  const [articulo, setArticulo] = useState('');
+  const [descripcion, setDescripcion] = useState('');
   const [vehicleBrand, setVehicleBrand] = useState('');
   const [productBrand, setProductBrand] = useState('');
   const [showSaleOnly, setShowSaleOnly] = useState(false);
@@ -36,18 +38,34 @@ function PosEcommerce() {
   const [brandsLoading, setBrandsLoading] = useState(false);
   const [cardImageIndexes, setCardImageIndexes] = useState({});
 
-  const [debouncedSearchText, setDebouncedSearchText] = useState('');
+  const [debouncedCodigoInterno, setDebouncedCodigoInterno] = useState('');
+  const [debouncedArticulo, setDebouncedArticulo] = useState('');
+  const [debouncedDescripcion, setDebouncedDescripcion] = useState('');
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedSearchText(searchText.trim());
+      setDebouncedCodigoInterno(codigoInterno.trim());
     }, 500);
     return () => clearTimeout(handler);
-  }, [searchText]);
+  }, [codigoInterno]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedArticulo(articulo.trim());
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [articulo]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedDescripcion(descripcion.trim());
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [descripcion]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearchText, vehicleBrand, productBrand, showSaleOnly]);
+  }, [debouncedCodigoInterno, debouncedArticulo, debouncedDescripcion, vehicleBrand, productBrand, showSaleOnly]);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -55,9 +73,12 @@ function PosEcommerce() {
       const body = {
         page: currentPage,
         pageSize: viewMode === 'grid' ? 36 : 50,
+        includeProductsInEquivalences: true,
       };
-      if (debouncedSearchText) body.article = debouncedSearchText;
-      if (vehicleBrand) body.description = vehicleBrand;
+      if (debouncedCodigoInterno) body.code = debouncedCodigoInterno;
+      if (debouncedArticulo) body.article = debouncedArticulo;
+      if (debouncedDescripcion) body.description = debouncedDescripcion;
+      if (vehicleBrand) body.vehicleBrand = vehicleBrand;
       if (productBrand) body.brand = productBrand;
       if (showSaleOnly) body.esOferta = true;
 
@@ -101,7 +122,7 @@ function PosEcommerce() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, debouncedSearchText, vehicleBrand, productBrand, showSaleOnly, viewMode]);
+  }, [currentPage, debouncedCodigoInterno, debouncedArticulo, debouncedDescripcion, vehicleBrand, productBrand, showSaleOnly, viewMode]);
 
   useEffect(() => {
     fetchProducts();
@@ -133,7 +154,9 @@ function PosEcommerce() {
   };
 
   const handleReset = () => {
-    setSearchText('');
+    setCodigoInterno('');
+    setArticulo('');
+    setDescripcion('');
     setVehicleBrand('');
     setProductBrand('');
     setShowSaleOnly(false);
@@ -170,12 +193,32 @@ function PosEcommerce() {
         <div className={styles.filterCard}>
         <div className={styles.filterGrid}>
           <div className={styles.filterGroup}>
-            <label className={styles.label}>Buscar producto</label>
+            <label className={styles.label}>Código interno</label>
             <input
               type="text"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Buscar por código o descripción..."
+              value={codigoInterno}
+              onChange={(e) => setCodigoInterno(e.target.value)}
+              placeholder="Código Tauro..."
+              className={styles.input}
+            />
+          </div>
+          <div className={styles.filterGroup}>
+            <label className={styles.label}>Artículo</label>
+            <input
+              type="text"
+              value={articulo}
+              onChange={(e) => setArticulo(e.target.value)}
+              placeholder="Artículo..."
+              className={styles.input}
+            />
+          </div>
+          <div className={styles.filterGroup}>
+            <label className={styles.label}>Descripción</label>
+            <input
+              type="text"
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+              placeholder="Descripción..."
               className={styles.input}
             />
           </div>
