@@ -212,6 +212,13 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
   const containerRef = useRef(null);
   const [expandedIds, setExpandedIds] = useState([]);
   const pendingScrollRef = useRef(null);
+  const [descriptionOverrides, setDescriptionOverrides] = useState({});
+  const equivalencesRef = useRef(equivalences);
+
+  useEffect(() => {
+    equivalencesRef.current = equivalences;
+    setDescriptionOverrides({});
+  }, [equivalences]);
 
   const getGridViewport = useCallback(() => {
     return containerRef.current?.querySelector('.ag-body-viewport');
@@ -262,6 +269,7 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
     equivalences.forEach(eq => {
       rows.push({
         ...eq,
+        description: descriptionOverrides[eq.id] ?? eq.description,
         type: 'EQUIVALENCE',
         brandName: 'Equivalencia',
         stockValue: eq.totalStock,
@@ -294,7 +302,7 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
     });
 
     return rows;
-  }, [equivalences, standaloneProducts, expandedIds]);
+  }, [equivalences, standaloneProducts, expandedIds, descriptionOverrides]);
 
   const columnDefs = useMemo(() => [
     {
@@ -469,9 +477,14 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
 
     try {
       await editDescriptionEquivalence({ id: params.data.id, description: params.data.description });
+      setDescriptionOverrides(prev => ({ ...prev, [params.data.id]: params.data.description }));
     } catch (error) {
       Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo actualizar la descripción' });
-      params.node.setDataValue('description', params.oldValue);
+      const eq = equivalencesRef.current.find(e => e.id === params.data.id);
+      if (eq) {
+        params.data.description = eq.description;
+      }
+      params.api.refreshCells({ rowNodes: [params.node], force: true });
     }
   }, []);
 
