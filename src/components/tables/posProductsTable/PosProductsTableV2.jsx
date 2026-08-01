@@ -379,6 +379,51 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
         params.data.description = params.newValue;
         return true;
       },
+      cellRenderer: (params) => {
+        if (params.data.type === 'EQUIVALENCE') {
+          const count = (params.data.products || []).length;
+          const desc = params.data.description
+            ? (/^despiece/i.test(params.data.description) ? 'DESPIECE' : params.data.description.toUpperCase())
+            : '';
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '100%' }}>
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                {desc}
+              </span>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: '22px',
+                  height: '22px',
+                  padding: '0 7px',
+                  borderRadius: '11px',
+                  backgroundColor: '#ede7f6',
+                  color: '#5e35b1',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  flexShrink: 0,
+                  lineHeight: 1,
+                }}
+                title={`${count} producto${count !== 1 ? 's' : ''} en esta equivalencia`}
+              >
+                {count}
+              </span>
+            </div>
+          );
+        }
+        if (params.data.type === 'EQUIV_PRODUCT') {
+          const desc = params.data.description
+            ? (/^despiece/i.test(params.data.description) ? 'DESPIECE' : params.data.description.toUpperCase())
+            : '';
+          return <span style={{ paddingLeft: '20px' }}>{desc}</span>;
+        }
+        const desc = params.data.description
+          ? (/^despiece/i.test(params.data.description) ? 'DESPIECE' : params.data.description.toUpperCase())
+          : '';
+        return <span>{desc}</span>;
+      },
       width: 500,
       filterParams: {
         filterOptions: ['contains'],
