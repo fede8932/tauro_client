@@ -17,29 +17,35 @@ export const presupHtml = (
   // console.log("mov-->", movimentData);
   const subTotal = order.purchaseOrderItems.reduce((acum, item) => {
     if (!item.fact) {
-      acum += item.sellPrice * item.amount;
+      acum += item.sellPrice * 1.21 * item.amount;
     }
     return acum;
   }, 0);
   const descuentos = movimentData.specialItems?.reduce((acum, item) => {
-    if (!item.oficial) {
+    if (!item.oficial && item.concept?.toUpperCase() !== 'REDONDEO') {
       acum += item.amount;
     }
     return acum;
   }, 0) ?? 0;
+  const redondeo = redondearADosDecimales(movimentData.total - subTotal + descuentos);
 
   const lista = pageItems.map((item) => {
+    const isSpecial = item?.product?.article === 'OP-ES01';
+    const unitPrice = isSpecial
+      ? redondearADosDecimales(item?.sellPrice)
+      : redondearADosDecimales(item?.sellPrice * 1.21);
+    const lineTotal = isSpecial
+      ? redondearADosDecimales(item?.amount * item?.sellPrice)
+      : redondearADosDecimales(item?.amount * item?.sellPrice * 1.21);
     return `<tr>
-              <td>${/*item?.product?.article*/"-"}</td>
+              <td>${item?.product?.article ?? "-"}</td>
               <td class="descrip">${item?.amount}</td>
-              <td class="descrip">${item?.product?.description.substring(
+              <td class="descrip">${item?.product?.description?.substring(
                 0,
                 75
-              )}</td>
-              <td>$${item?.sellPrice}</td>
-              <td>$${redondearADosDecimales(
-                item?.amount * item?.sellPrice
-              )}</td>i
+              ) ?? ''}</td>
+              <td>$${unitPrice}</td>
+              <td>$${lineTotal}</td>
             </tr>`;
   });
 
@@ -320,9 +326,12 @@ export const presupHtml = (
               subTotal
             )}</span
           >
-          <span class="pesosSpanCont"
+          ${redondeo !== 0 ? `<span class="pesosSpanCont"
+            >REDONDEO<span class="pesosSpan"></span>${redondearADosDecimales(redondeo)}</span
+          >` : ''}
+          ${descuentos > 0 ? `<span class="pesosSpanCont"
             >DESCUENTOS<span class="pesosSpan"></span>${redondearADosDecimales(0 - descuentos)}</span
-          >
+          >` : ''}
           <span class="pesosSpanCont"
             >TOTAL<span class="pesosSpan"></span>${redondearADosDecimales(
               movimentData.total

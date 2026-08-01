@@ -137,7 +137,7 @@ const Equivalences = ({ data, props }) => {
   return (
     <div className={styles.buttonContainer}>
       <IconButonUsersTable
-        disabled={!data.equivalenceId}
+        disabled={!data.equivalence || data.equivalence.productCount <= 1}
         popupText={equivalenceId ? 'Quitar filtro' : 'Ver equivalencias'}
         fn={() => {
           equivalenceId
@@ -146,7 +146,7 @@ const Equivalences = ({ data, props }) => {
         }}
         icon={equivalenceId ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'}
         iconInitialStyle={
-          !data.equivalenceId
+          !data.equivalence || data.equivalence.productCount <= 1
             ? 'iconStyleGrey'
             : equivalenceId
               ? 'iconStyleRed'

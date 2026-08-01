@@ -573,6 +573,7 @@ function PosComponent(props) {
                     <FinishSellComponent
                       payMethod={payMethod}
                       order={order}
+                      onResetOrder={resetOrder}
                       {...props}
                     />
                   )}

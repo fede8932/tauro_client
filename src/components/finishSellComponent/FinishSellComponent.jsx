@@ -6,7 +6,6 @@ import Swal from 'sweetalert2';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   finishSellPosAsync,
-  resetPosSellOrderState,
 } from '../../redux/sellPosOrder';
 import { printPosBill } from '../../utils/printPosBill';
 
@@ -45,7 +44,7 @@ function isIvaConsumidorFinal(value) {
 }
 
 function FinishSellComponent(props) {
-  const { closeModal } = props;
+  const { closeModal, onResetOrder } = props;
 
   const dispatch = useDispatch();
 
@@ -183,12 +182,12 @@ function FinishSellComponent(props) {
             title: 'Venta registrada, pero no se pudo imprimir',
             text: printErr.message || 'Puede reimprimir desde la cuenta corriente del cliente.',
           });
-          dispatch(resetPosSellOrderState());
+          if (onResetOrder) onResetOrder();
           closeModal();
           return;
         }
 
-        dispatch(resetPosSellOrderState());
+        if (onResetOrder) onResetOrder();
         closeModal();
       })
       .catch((err) => {

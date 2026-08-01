@@ -184,7 +184,7 @@ const CustomActionComp = ({ data }) => {
         (poi) => !poi.fact
       );
       presData.specialItems?.map((si) => {
-        if (!si.oficial) {
+        if (!si.oficial && si.concept?.toUpperCase() !== 'REDONDEO') {
           factPresItems.push({
             product: {
               article: 'OP-ES01',

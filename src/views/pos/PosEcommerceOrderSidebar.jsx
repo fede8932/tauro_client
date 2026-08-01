@@ -118,12 +118,14 @@ function PosEcommerceOrderSidebar({ addProduct }) {
   };
 
   const printPresupuesto = (cotizacion, items) => {
+    const roundingItem = items.find((item) => item.article === 'Redondeo');
+    const redondeo = roundingItem ? Number(roundingItem.sellPrice) : 0;
+
     const itemsHtml = items
-      .map(
-        (item) => {
-        const isRounding = item.article === 'Redondeo';
-        const unitPrice = isRounding ? Number(item.sellPrice) : Number(item.sellPrice) * 1.21;
-        const lineTotal = isRounding ? Number(item.sellPrice) : Number(item.sellPrice) * item.amount * 1.21;
+      .filter((item) => item.article !== 'Redondeo')
+      .map((item) => {
+        const unitPrice = Number(item.sellPrice) * 1.21;
+        const lineTotal = Number(item.sellPrice) * item.amount * 1.21;
         return `
       <tr>
         <td>${item.article || '-'}</td>
@@ -134,6 +136,11 @@ function PosEcommerceOrderSidebar({ addProduct }) {
       </tr>`;
       })
       .join('');
+
+    const subTotal = items
+      .filter((item) => item.article !== 'Redondeo')
+      .reduce((sum, item) => sum + Number(item.sellPrice) * item.amount * 1.21, 0);
+    const total = subTotal + redondeo;
 
     const printWindow = window.open('', '', 'width=800,height=1100');
     printWindow.document.write(`
@@ -149,7 +156,9 @@ function PosEcommerceOrderSidebar({ addProduct }) {
             table { width: 100%; border-collapse: collapse; margin-top: 10px; }
             th, td { border: 1px solid #000; padding: 6px; text-align: center; font-size: 12px; }
             th { background: #f0f0f0; }
-            .total-row { display: flex; justify-content: flex-end; margin-top: 10px; font-size: 18px; font-weight: bold; }
+            .totals { display: flex; flex-direction: column; align-items: flex-end; margin-top: 10px; gap: 4px; }
+            .totals-row { font-size: 14px; display: flex; gap: 20px; }
+            .totals-row.bold { font-size: 18px; font-weight: bold; }
           </style>
         </head>
         <body>
@@ -171,7 +180,11 @@ function PosEcommerceOrderSidebar({ addProduct }) {
             </tr>
             ${itemsHtml}
           </table>
-          <div class="total-row">Total: $${numberToString(cotizacion.total)}</div>
+          <div class="totals">
+            <div class="totals-row"><span>Subtotal:</span><span>$${numberToString(subTotal)}</span></div>
+            ${redondeo !== 0 ? `<div class="totals-row"><span>Redondeo:</span><span>$${numberToString(redondeo)}</span></div>` : ''}
+            <div class="totals-row bold"><span>Total:</span><span>$${numberToString(total)}</span></div>
+          </div>
           <script>window.print();window.close();</script>
         </body>
       </html>
@@ -205,9 +218,9 @@ function PosEcommerceOrderSidebar({ addProduct }) {
       );
 
       const iva = +(subTotal * 0.21).toFixed(2);
-      const totalConIva = subTotal + iva;
+      const totalConIva = +(subTotal * 1.21).toFixed(2);
 
-      const rawTotalPres = totalConIva;
+      const rawTotalPres = subTotal * 1.21;
       const roundedTotalPres = Math.floor(rawTotalPres / 10) * 10;
       const roundingPres = +((roundedTotalPres - rawTotalPres).toFixed(2));
 
@@ -222,7 +235,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
         });
       }
 
-      const totalPres = totalConIva + roundingPres;
+      const totalPres = roundedTotalPres;
       const itemsJson = JSON.stringify(items);
 
       let razonSocial = order.razonSocial || '';
@@ -277,7 +290,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
         printPresupuesto(cotizacion, items);
       }
 
-      dispatch(resetPosSellOrderState());
+      resetOrder();
     } catch (err) {
       Swal.fire({ icon: 'error', title: 'Error', text: `No se pudo guardar el presupuesto: ${err.message}` });
     }
@@ -611,6 +624,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
                 payMethod={payMethod}
                 order={order}
                 isEmpresaAnonima={isEmpresaAnonima}
+                onResetOrder={resetOrder}
                 {...props}
               />
             )}
