@@ -394,6 +394,47 @@ export const searchProductsAndEquivalences = async (searchData) => {
   }
 };
 
+export const exportProductsAndEquivalences = async (searchData) => {
+  try {
+    const response = await axios.post(
+      `${apiUrl}/api/productos/search/mixed/export`,
+      searchData,
+      { withCredentials: true, responseType: 'blob' }
+    );
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'productos_equivalencias.xlsx');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};
+
+export const importProductsAndEquivalences = async (file) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    const { data } = await axios.post(
+      `${apiUrl}/api/productos/search/mixed/import`,
+      formData,
+      { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+    return data;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};
+
 export const updateProductBrand = async (productId, brandId) => {
   try {
     const { data } = await axios.put(

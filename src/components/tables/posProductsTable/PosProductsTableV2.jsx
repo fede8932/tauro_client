@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { searchProductsAndEquivalencesRequest } from '../../../redux/productEquivalence';
 import { discountApplicationV2, numberToString } from '../../../utils';
-import { uploadProductImage } from '../../../request/productRequest';
+import { uploadProductImage, exportProductsAndEquivalences } from '../../../request/productRequest';
 import { uploadEquivalenceImage, editDescriptionEquivalence } from '../../../request/equivalencesRequest';
 import Swal from 'sweetalert2';
 import { Pagination, Select } from 'semantic-ui-react';
@@ -577,11 +577,31 @@ function PosProductsTableV2(props) {
   const filterProducts = useSelector((state) => state.filterProduct);
   const productEquivalence = useSelector((state) => state.productEquivalence);
   const dispatch = useDispatch();
+  const [exporting, setExporting] = useState(false);
 
   const searchFilters = useMemo(
     () => ({ ...filterProducts, includeProductsInEquivalences: true }),
     [filterProducts]
   );
+
+  const handleExport = useCallback(async () => {
+    setExporting(true);
+    try {
+      await exportProductsAndEquivalences(searchFilters);
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo exportar el Excel',
+      });
+    } finally {
+      setExporting(false);
+    }
+  }, [searchFilters]);
+
+  useEffect(() => {
+    if (props.onExportReady) props.onExportReady(handleExport, exporting);
+  }, [handleExport, exporting, props.onExportReady]);
 
   const refreshSearch = useCallback(() => {
     dispatch(searchProductsAndEquivalencesRequest(searchFilters));
@@ -594,6 +614,7 @@ function PosProductsTableV2(props) {
   const selectChange = (e, d) => {
     dispatch(setFilterProduct({ name: 'pageSize', value: d.value }));
   };
+
   const changePage = (e, d) => {
     dispatch(setFilterProduct({ name: 'page', value: d.activePage }));
   };

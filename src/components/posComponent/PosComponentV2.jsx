@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from './posComponent.module.css';
 import Button from 'react-bootstrap/esm/Button';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,6 +16,8 @@ import {
 } from '../../redux/client';
 import Swal from 'sweetalert2';
 import PosProductsTableV2 from '../tables/posProductsTable/PosProductsTableV2';
+import ProtectedComponent from '../../protected/protectedComponent/ProtectedComponent';
+import { importProductsAndEquivalences } from '../../request/productRequest';
 import { Popup } from 'semantic-ui-react';
 import {
   finishSellPosAsync,
@@ -49,6 +51,10 @@ function PosComponentV2(props) {
   const { deleteProduct } = props;
 
   const [drawer, setDrawer] = useState(false);
+  const [exportFn, setExportFn] = useState(null);
+  const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef(null);
   const [textClient, setTextClient] = useState('');
   const [listClient, setListClient] = useState([]);
   const [selectClientId, setSelectClientId] = useState(null);
@@ -69,6 +75,29 @@ function PosComponentV2(props) {
     ?.customerDiscounts;
 
   const dispatch = useDispatch();
+
+  const handleImport = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImporting(true);
+    try {
+      const result = await importProductsAndEquivalences(file);
+      Swal.fire({
+        icon: 'success',
+        title: 'Importación completa',
+        text: `Equivalencias actualizadas: ${result.updatedEquivalences} | Productos actualizados: ${result.updatedProducts} | Omitidos: ${result.skipped}`,
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo importar el Excel',
+      });
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const handleSelectPayMethod = (method) => {
     const cuentaCorrienteDisabled = !selectClientId || isConsumidorFinal;
@@ -340,9 +369,44 @@ function PosComponentV2(props) {
             placeholder="Seleccionar cliente"
           />
         </div>
-        <Button variant="secondary" onClick={() => setDrawer(true)}>
-          Detalle de orden
-        </Button>
+        <ProtectedComponent listAccesss={[1, 2, 5, 6]}>
+          <div style={{ display: 'flex', gap: '7px', marginLeft: '7px' }}>
+          <Button variant="secondary" onClick={() => setDrawer(true)}>
+            Detalle de orden
+          </Button>
+          <Button
+            variant="success"
+            disabled={exporting || !exportFn}
+            onClick={exportFn}
+          >
+            {exporting ? (
+              <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '6px' }} />
+            ) : (
+              <i className="fa-solid fa-file-excel" style={{ marginRight: '6px' }} />
+            )}
+            Exportar Excel
+          </Button>
+          <Button
+            variant="primary"
+            disabled={importing}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {importing ? (
+              <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '6px' }} />
+            ) : (
+              <i className="fa-solid fa-file-import" style={{ marginRight: '6px' }} />
+            )}
+            Importar Excel
+          </Button>
+          <input
+            type="file"
+            accept=".xlsx,.xls"
+            ref={fileInputRef}
+            onChange={handleImport}
+            style={{ display: 'none' }}
+          />
+          </div>
+        </ProtectedComponent>
       </div>
       <div className={styles.table}>
         <PosProductsTableV2
@@ -350,6 +414,10 @@ function PosComponentV2(props) {
           selectClientId={selectClientId}
           customerDiscounts={customerDiscounts}
           addProduct={addProduct}
+          onExportReady={(fn, loading) => {
+            setExportFn(() => fn);
+            setExporting(loading);
+          }}
         />
       </div>
       <Offcanvas
