@@ -167,12 +167,13 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
           <tbody>
             {products.map((product) => {
               const isSelected = selectedProductId === product.id;
+              const isMatched = product._matched === true;
               const stockBadge = getStockBadge(product.stock ?? 0);
               const price = Number(product.price) || 0;
               return (
                 <tr
                   key={product.id}
-                  className={isSelected ? styles.selectedRow : ''}
+                  className={`${isSelected ? styles.selectedRow : ''} ${isMatched ? styles.matchedRow : ''}`}
                   onClick={() => handleSelectProduct(product)}
                 >
                   <td className={styles.codeCell} title={product.description || ''}>{product.article}</td>

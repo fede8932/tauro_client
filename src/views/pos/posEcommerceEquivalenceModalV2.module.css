@@ -416,6 +416,24 @@
   border-bottom-color: #e0d6f2;
 }
 
+.table tr.matchedRow {
+  background: #e8f5e9;
+  font-weight: bold;
+}
+
+.table tr.matchedRow td {
+  border-bottom-color: #c8e6c9;
+}
+
+.table tr.selectedRow.matchedRow {
+  background: #c8e6c9;
+  font-weight: bold;
+}
+
+.table tr.selectedRow.matchedRow td {
+  border-bottom-color: #a5d6a7;
+}
+
 .codeCell {
   font-weight: 700;
   color: #333;

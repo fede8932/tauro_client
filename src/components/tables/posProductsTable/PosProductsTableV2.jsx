@@ -285,7 +285,8 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
             parentCode: eq.code,
             brandName: prod.brand,
             stockValue: prod.stock,
-            priceValue: prod.price
+            priceValue: prod.price,
+            _matched: prod.matchedBySearch === true
           });
         });
       }
@@ -563,6 +564,9 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
                 return { background: '#f8f9fa' };
             }
             if (params.data.type === 'EQUIV_PRODUCT') {
+                if (params.data._matched) {
+                    return { background: '#e8f5e9', fontWeight: 'bold' };
+                }
                 return { background: '#ffffff' };
             }
             return null;

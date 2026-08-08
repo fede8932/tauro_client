@@ -96,7 +96,7 @@ function PosEcommerce() {
           price: eq.price,
           image: eq.image,
           images: eq.images,
-          products: eq.products,
+          products: eq.products.map(p => ({ ...p, _matched: p.matchedBySearch === true })),
         })),
         ...(data.standaloneProducts || []).map((p) => ({
           id: p.id,

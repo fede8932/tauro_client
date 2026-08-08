@@ -258,6 +258,15 @@ function ProductsTable(props) {
 
   const [columnDefs, setColumnDefs] = useState([
     {
+      headerName: 'Cod. Tauro',
+      field: 'codeEquivalence',
+      valueGetter: (params) =>
+        params.data.equivalence?.code ? params.data.equivalence.code : '',
+      sortable: false,
+      filter: false,
+      width: 110,
+    },
+    {
       headerName: 'Artículo',
       field: 'article',
       headerComponent: () => <HeaderInput title="Artículo" name={'article'} />,
