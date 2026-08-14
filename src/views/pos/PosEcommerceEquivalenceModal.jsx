@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './posEcommerceEquivalenceModal.module.css';
+import useSafeImages from '../../hooks/useSafeImages';
 
 const getStockBadge = (stock) => {
   if (stock > 4) return { bg: '#e8f5e9', text: '#2e7d32', dot: '#4caf50', label: `${stock} en stock` };
@@ -15,6 +16,7 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
   const [addingProductId, setAddingProductId] = useState(null);
   const [imageIndex, setImageIndex] = useState({});
   const [zoom, setZoom] = useState(null);
+  const { markFailed, filter } = useSafeImages();
 
   const products = equivalence.products ?? [];
 
@@ -38,6 +40,8 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
 
   const hasEquivImage = !!equivalence.image?.url;
   const equivImageUrl = equivalence.image?.url || null;
+  const zoomImages = zoom ? filter(zoom.images) : [];
+  const zoomIndex = zoom ? Math.min(zoom.index, Math.max(zoomImages.length - 1, 0)) : 0;
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -105,18 +109,18 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
                     <div className={styles.productHeader}>
                       <div className={styles.productImage}>
                         {(() => {
-                          const allImages = product.images || [];
-                          const currentIdx = getImageIndex(product.id);
-                          const currentUrl = allImages.length > 0
-                            ? allImages[currentIdx]?.url
-                            : equivImageUrl;
+                          const productImages = filter(product.images || []);
+                          const equivImages = equivImageUrl ? filter([{ id: 'eq', url: equivImageUrl }]) : [];
+                          const allImages = productImages.length > 0 ? productImages : equivImages;
+                          const currentIdx = Math.min(getImageIndex(product.id), Math.max(allImages.length - 1, 0));
+                          const currentUrl = allImages[currentIdx]?.url || null;
 
                           return currentUrl ? (
                             <div className={styles.productImageInner}>
-                              <img src={currentUrl} alt={product.article} />
+                              <img src={currentUrl} alt={product.article} onError={() => markFailed(currentUrl)} />
                               <button
                                 className={styles.imgZoomBtn}
-                                onClick={(e) => { e.stopPropagation(); setZoom({ productId: product.id, images: allImages.length > 0 ? allImages : [{ url: equivImageUrl }], index: currentIdx }); }}
+                                onClick={(e) => { e.stopPropagation(); setZoom({ productId: product.id, images: allImages, index: currentIdx }); }}
                                 title="Ampliar imagen"
                               >
                                 <i className="fa-solid fa-search-plus" />
@@ -250,7 +254,7 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
       </div>
     </div>
 
-    {zoom && zoom.images.length > 0 && (
+    {zoom && zoomImages.length > 0 && (
       <div className={styles.zoomOverlay} onClick={() => setZoom(null)}>
         <div className={styles.zoomContainer} onClick={(e) => e.stopPropagation()}>
           <button
@@ -260,7 +264,7 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
           >
             <i className="fa-solid fa-times" />
           </button>
-          {zoom.images.length > 1 && (
+          {zoomImages.length > 1 && (
             <>
               <button
                 className={`${styles.zoomNavBtn} ${styles.zoomPrevBtn}`}
@@ -279,13 +283,14 @@ function PosEcommerceEquivalenceModal({ equivalence, onClose, addProduct }) {
             </>
           )}
           <img
-            src={zoom.images[zoom.index]?.url}
+            src={zoomImages[zoomIndex]?.url}
             alt="Ampliada"
             className={styles.zoomImage}
+            onError={() => markFailed(zoomImages[zoomIndex]?.url)}
           />
-          {zoom.images.length > 1 && (
+          {zoomImages.length > 1 && (
             <span className={styles.zoomCounter}>
-              {zoom.index + 1}/{zoom.images.length}
+              {zoomIndex + 1}/{zoomImages.length}
             </span>
           )}
         </div>

@@ -10,6 +10,7 @@ import PosEcommerceOrderSidebar from './PosEcommerceOrderSidebar';
 import LinkEquivalenceModal from '../../components/posComponent/LinkEquivalenceModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { addLocalOrderItem } from '../../redux/sellPosOrder';
+import useSafeImages from '../../hooks/useSafeImages';
 
 const VEHICLE_BRANDS = [
   'ALFA ROMEO', 'AUDI', 'BMW', 'CHEVROLET', 'CITROEN', 'FIAT', 'FORD',
@@ -21,6 +22,7 @@ const VEHICLE_BRANDS = [
 function PosEcommerce() {
   const dispatch = useDispatch();
   const customerDiscounts = useSelector((state) => state.client)?.selectClient?.customerDiscounts;
+  const { markFailed, filter, reset: resetFailedImages } = useSafeImages();
   const [codigoInterno, setCodigoInterno] = useState('');
   const [articulo, setArticulo] = useState('');
   const [descripcion, setDescripcion] = useState('');
@@ -113,6 +115,7 @@ function PosEcommerce() {
         })),
       ];
       setProducts(allItems);
+      resetFailedImages();
       setPaginatorInfo({
         totalPages: data.totalPages,
         totalRows: data.totalRows,
@@ -292,8 +295,10 @@ function PosEcommerce() {
           {viewMode === 'grid' ? (
             <div className={styles.productGrid}>
               {products.map((product) => {
-                const cardImages = getProductImages(product);
-                const cardIdx = getCardImageIndex(product.id);
+                const cardImages = filter(getProductImages(product));
+                const cardIdx = cardImages.length
+                  ? Math.min(getCardImageIndex(product.id), cardImages.length - 1)
+                  : 0;
                 return (
                   <div key={`${product.isEquivalence ? 'eq' : 'prod'}-${product.id}`} className={styles.productCard}>
                     <div
@@ -305,6 +310,7 @@ function PosEcommerce() {
                           <img
                             src={cardImages[cardIdx]?.url}
                             alt={product.article}
+                            onError={() => markFailed(cardImages[cardIdx]?.url)}
                           />
                           {cardImages.length > 1 && (
                             <>
@@ -383,8 +389,10 @@ function PosEcommerce() {
           ) : (
             <div className={styles.productList}>
               {products.map((product) => {
-                const rowImages = getProductImages(product);
-                const rowIdx = getCardImageIndex(product.id);
+                const rowImages = filter(getProductImages(product));
+                const rowIdx = rowImages.length
+                  ? Math.min(getCardImageIndex(product.id), rowImages.length - 1)
+                  : 0;
                 return (
                   <div key={`${product.isEquivalence ? 'eq' : 'prod'}-${product.id}`} className={styles.productRow}>
                     <div
@@ -396,6 +404,7 @@ function PosEcommerce() {
                           <img
                             src={rowImages[rowIdx]?.url}
                             alt={product.article}
+                            onError={() => markFailed(rowImages[rowIdx]?.url)}
                           />
                           {rowImages.length > 1 && (
                             <>

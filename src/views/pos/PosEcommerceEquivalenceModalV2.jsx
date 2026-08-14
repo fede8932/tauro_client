@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import styles from './posEcommerceEquivalenceModalV2.module.css';
+import useSafeImages from '../../hooks/useSafeImages';
 
 const getStockBadge = (stock) => {
   if (stock > 4) return { bg: '#e8f5e9', text: '#2e7d32', dot: '#4caf50', label: `${stock} en stock` };
@@ -15,6 +16,7 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
   const [mainImageIndex, setMainImageIndex] = useState(0);
   const [zoom, setZoom] = useState(null);
   const thumbListRef = useRef(null);
+  const { markFailed, filter } = useSafeImages();
 
   const allImages = useMemo(() => {
     const list = [];
@@ -66,12 +68,12 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
 
   const handlePrevMain = (e) => {
     if (e) e.stopPropagation();
-    setMainImageIndex((prev) => (prev <= 0 ? allImages.length - 1 : prev - 1));
+    setMainImageIndex((prev) => (prev <= 0 ? Math.max(visibleImages.length - 1, 0) : prev - 1));
   };
 
   const handleNextMain = (e) => {
     if (e) e.stopPropagation();
-    setMainImageIndex((prev) => (prev >= allImages.length - 1 ? 0 : prev + 1));
+    setMainImageIndex((prev) => (prev >= Math.max(visibleImages.length - 1, 0) ? 0 : prev + 1));
   };
 
   const handleQuantityChange = (value) => {
@@ -225,7 +227,11 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
     );
   };
 
-  const currentMainImage = allImages[mainImageIndex];
+  const visibleImages = filter(allImages);
+  const safeIndex = Math.min(mainImageIndex, Math.max(visibleImages.length - 1, 0));
+  const currentMainImage = visibleImages[safeIndex];
+  const zoomImages = zoom ? filter(zoom.images) : [];
+  const zoomIndex = zoom ? Math.min(zoom.index, Math.max(zoomImages.length - 1, 0)) : 0;
 
   return (
     <>
@@ -236,15 +242,15 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
               <div className={styles.mainImage}>
                 {currentMainImage ? (
                   <>
-                    <img src={currentMainImage.url} alt="Imagen principal" />
+                    <img src={currentMainImage.url} alt="Imagen principal" onError={() => markFailed(currentMainImage.url)} />
                     <button
                       className={styles.imgZoomBtn}
-                      onClick={() => setZoom({ index: mainImageIndex, images: allImages })}
+                      onClick={() => setZoom({ index: safeIndex, images: visibleImages })}
                       title="Ampliar imagen"
                     >
                       <i className="fa-solid fa-search-plus" />
                     </button>
-                    {allImages.length > 1 && (
+                    {visibleImages.length > 1 && (
                       <>
                         <button
                           className={styles.imgArrowLeft}
@@ -261,7 +267,7 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
                           <i className="fa-solid fa-chevron-right" />
                         </button>
                         <span className={styles.imgCounter}>
-                          {mainImageIndex + 1}/{allImages.length}
+                          {safeIndex + 1}/{visibleImages.length}
                         </span>
                       </>
                     )}
@@ -273,7 +279,7 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
                 )}
               </div>
 
-              {allImages.length > 1 && (
+              {visibleImages.length > 1 && (
                 <div className={styles.thumbnails}>
                   <button
                     className={styles.thumbNavBtn}
@@ -283,14 +289,14 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
                     <i className="fa-solid fa-chevron-left" />
                   </button>
                   <div className={styles.thumbList} ref={thumbListRef}>
-                    {allImages.map((img, idx) => (
+                    {visibleImages.map((img, idx) => (
                       <button
                         key={idx}
-                        className={`${styles.thumb} ${idx === mainImageIndex ? styles.thumbActive : ''}`}
+                        className={`${styles.thumb} ${idx === safeIndex ? styles.thumbActive : ''}`}
                         onClick={() => setMainImageIndex(idx)}
                         title={`Imagen ${idx + 1}`}
                       >
-                        <img src={img.url} alt={`Miniatura ${idx + 1}`} />
+                        <img src={img.url} alt={`Miniatura ${idx + 1}`} onError={() => markFailed(img.url)} />
                       </button>
                     ))}
                   </div>
@@ -405,7 +411,7 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
         </div>
       </div>
 
-      {zoom && zoom.images.length > 0 && (
+      {zoom && zoomImages.length > 0 && (
         <div className={styles.zoomOverlay} onClick={() => setZoom(null)}>
           <div className={styles.zoomContainer} onClick={(e) => e.stopPropagation()}>
             <button
@@ -415,7 +421,7 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
             >
               <i className="fa-solid fa-times" />
             </button>
-            {zoom.images.length > 1 && (
+            {zoomImages.length > 1 && (
               <>
                 <button
                   className={`${styles.zoomNavBtn} ${styles.zoomPrevBtn}`}
@@ -448,13 +454,14 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
               </>
             )}
             <img
-              src={zoom.images[zoom.index]?.url}
+              src={zoomImages[zoomIndex]?.url}
               alt="Ampliada"
               className={styles.zoomImage}
+              onError={() => markFailed(zoomImages[zoomIndex]?.url)}
             />
-            {zoom.images.length > 1 && (
+            {zoomImages.length > 1 && (
               <span className={styles.zoomCounter}>
-                {zoom.index + 1}/{zoom.images.length}
+                {zoomIndex + 1}/{zoomImages.length}
               </span>
             )}
           </div>

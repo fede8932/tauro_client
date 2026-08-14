@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styles from './posEcommerceProductModal.module.css';
+import useSafeImages from '../../hooks/useSafeImages';
 
 const getStockInfo = (stock) => {
   if (stock > 4) return { bg: '#e8f5e9', text: '#2e7d32', dot: '#4caf50', label: `${stock} en stock` };
@@ -11,10 +12,12 @@ function PosEcommerceProductModal({ product, onClose, addProduct }) {
   const [quantity, setQuantity] = useState(1);
   const [showImageZoom, setShowImageZoom] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { markFailed, filter } = useSafeImages();
 
-  const images = product.images || [];
+  const images = filter(product.images || []);
   const hasImage = images.length > 0;
   const imageCount = images.length;
+  const safeImageIndex = Math.min(currentImageIndex, Math.max(imageCount - 1, 0));
 
   const stockInfo = getStockInfo(product.stock ?? 0);
   const sellPrice = product.price ? Number(product.price) : 0;
@@ -46,7 +49,7 @@ function PosEcommerceProductModal({ product, onClose, addProduct }) {
               <div className={styles.imageColumn}>
                 <div className={styles.imageContainer}>
                   {hasImage ? (
-                    <img src={images[currentImageIndex].url} alt={product.article} className={styles.image} />
+                    <img src={images[safeImageIndex].url} alt={product.article} className={styles.image} onError={() => markFailed(images[safeImageIndex].url)} />
                   ) : (
                     <div className={styles.imagePlaceholder}>
                       <i className="fa-solid fa-box" />
@@ -78,10 +81,10 @@ function PosEcommerceProductModal({ product, onClose, addProduct }) {
                     {images.map((img, idx) => (
                       <button
                         key={idx}
-                        className={`${styles.thumb} ${idx === currentImageIndex ? styles.thumbActive : ''}`}
+                        className={`${styles.thumb} ${idx === safeImageIndex ? styles.thumbActive : ''}`}
                         onClick={() => setCurrentImageIndex(idx)}
                       >
-                        <img src={img.url} alt={`${product.article} ${idx + 1}`} />
+                        <img src={img.url} alt={`${product.article} ${idx + 1}`} onError={() => markFailed(img.url)} />
                       </button>
                     ))}
                   </div>
@@ -184,13 +187,13 @@ function PosEcommerceProductModal({ product, onClose, addProduct }) {
                 </button>
               </>
             )}
-            <img src={images[currentImageIndex].url} alt={product.article} className={styles.zoomImage} />
+            <img src={images[safeImageIndex].url} alt={product.article} className={styles.zoomImage} onError={() => markFailed(images[safeImageIndex].url)} />
             <button onClick={() => setShowImageZoom(false)} className={styles.zoomCloseBtn}>
               <i className="fa-solid fa-times" />
             </button>
             {imageCount > 1 && (
               <span className={styles.zoomCounter}>
-                {currentImageIndex + 1}/{imageCount}
+                {safeImageIndex + 1}/{imageCount}
               </span>
             )}
           </div>

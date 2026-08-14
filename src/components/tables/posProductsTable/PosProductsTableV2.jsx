@@ -214,6 +214,8 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
   const pendingScrollRef = useRef(null);
   const [descriptionOverrides, setDescriptionOverrides] = useState({});
   const equivalencesRef = useRef(equivalences);
+  const [activeEdit, setActiveEdit] = useState(null);
+  const activeEditRef = useRef(null);
 
   useEffect(() => {
     equivalencesRef.current = equivalences;
@@ -534,6 +536,92 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
     }
   }, []);
 
+  useEffect(() => {
+    activeEditRef.current = activeEdit;
+  }, [activeEdit]);
+
+  const getEditingValue = useCallback(() => {
+    const input = containerRef.current?.querySelector('.ag-cell-inline-editing input');
+    return input ? input.value : null;
+  }, []);
+
+  const onCellEditingStarted = useCallback((params) => {
+    if (params.column.getColId() !== 'description') return;
+    setActiveEdit({
+      id: params.data.id,
+      oldValue: params.value,
+      node: params.node,
+      column: params.column,
+    });
+  }, []);
+
+  const onCellEditingStopped = useCallback(() => {
+    setActiveEdit(null);
+  }, []);
+
+  const reDispatchClick = useCallback((e, target) => {
+    const el = target?.closest?.('button, a, [role="button"]');
+    if (!el) return;
+    setTimeout(() => {
+      el.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, cancelable: true, view: window })
+      );
+    }, 0);
+  }, []);
+
+  const handleOutsideMousedown = useCallback((e) => {
+    const edit = activeEditRef.current;
+    if (!edit) return;
+
+    const target = e.target;
+    if (!(target instanceof Element)) return;
+    if (containerRef.current?.contains(target)) return;
+    if (target.closest('.swal2-container')) return;
+
+    const isAction = !!target.closest('button, a, [role="button"]');
+    const currentValue = getEditingValue();
+    const hasChanges = currentValue !== edit.oldValue;
+
+    if (!hasChanges) {
+      gridRef.current?.api?.stopEditing(true);
+      return;
+    }
+
+    if (!isAction) {
+      gridRef.current?.api?.stopEditing(false);
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    Swal.fire({
+      title: 'Cambios sin guardar',
+      text: 'Hay una edición sin guardar en la descripción de la equivalencia.',
+      icon: 'warning',
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      denyButtonText: 'Descartar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        gridRef.current?.api?.stopEditing(false);
+        reDispatchClick(e, target);
+      } else if (result.isDenied) {
+        gridRef.current?.api?.stopEditing(true);
+        reDispatchClick(e, target);
+      }
+    });
+  }, [getEditingValue, reDispatchClick]);
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleOutsideMousedown, true);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideMousedown, true);
+    };
+  }, [handleOutsideMousedown]);
+
   const context = useMemo(() => ({
     selectClientId,
     customerDiscounts,
@@ -558,6 +646,9 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
         defaultColDef={defaultColDef}
         context={context}
         onCellValueChanged={onCellValueChanged}
+        onCellEditingStarted={onCellEditingStarted}
+        onCellEditingStopped={onCellEditingStopped}
+        stopEditingWhenCellsLoseFocus={false}
         getRowId={(params) => params.data.type === 'EQUIVALENCE' ? `equiv-${params.data.id}` : `prod-${params.data.id}-${params.data.parentId || ''}`}
         getRowStyle={(params) => {
             if (params.data.type === 'EQUIVALENCE') {
