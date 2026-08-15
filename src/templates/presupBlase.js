@@ -15,19 +15,22 @@ export const presupHtml = (
   totalPages
 ) => {
   // console.log("mov-->", movimentData);
-  const subTotal = order.purchaseOrderItems.reduce((acum, item) => {
+  const subTotal = (order.purchaseOrderItems || []).reduce((acum, item) => {
     if (!item.fact) {
       acum += item.sellPrice * 1.21 * item.amount;
     }
     return acum;
   }, 0);
+  const manualSubTotal = movimentData.specialItems
+    ?.filter((si) => si.quantity > 0 && !si.oficial)
+    .reduce((acum, si) => acum + si.amount * 1.21, 0) ?? 0;
   const descuentos = movimentData.specialItems?.reduce((acum, item) => {
-    if (!item.oficial && item.concept?.toUpperCase() !== 'REDONDEO') {
+    if (!item.oficial && item.concept?.toUpperCase() !== 'REDONDEO' && !(item.quantity > 0)) {
       acum += item.amount;
     }
     return acum;
   }, 0) ?? 0;
-  const redondeo = redondearADosDecimales(movimentData.total - subTotal + descuentos);
+  const redondeo = redondearADosDecimales(movimentData.total - (subTotal + manualSubTotal) + descuentos);
 
   const lista = pageItems.map((item) => {
     const isSpecial = item?.product?.article === 'OP-ES01';

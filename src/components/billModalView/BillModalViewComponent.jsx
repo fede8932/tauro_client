@@ -10,6 +10,9 @@ function BillModalViewComponent(props) {
   let sendDate = { ...data };
   sendDate.purchaseOrderItems =
     data.type == 1 || data.type == 3 ? data.ncOrderItems : data.fItems;
+  sendDate.manualItems = (data.specialItems || []).filter(
+    (si) => si.quantity > 0
+  );
   return (
     <div className={styles.editContainer}>
       <div className={styles.dataContainer}>

@@ -16,6 +16,7 @@ import {
   changeAmountOrderItem,
   delLocalOrderItem,
   addLocalOrderItem,
+  genManualItemUid,
   getInitialOrderStorage,
   selectClientForOrder,
   setCotizacionId,
@@ -23,6 +24,7 @@ import {
 import { numberToString } from '../../utils';
 import CustomModal from '../../commonds/customModal/CustomModal';
 import FinishSellComponent from '../../components/finishSellComponent/FinishSellComponent';
+import PosEcommerceManualItemModal from './PosEcommerceManualItemModal';
 import { createCotizacion, searchCotizacionRequest, getCotizacionById } from '../../request/cotizacionRequest';
 import Swal from 'sweetalert2';
 
@@ -67,6 +69,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
   const [debouncedPresupSearch, setDebouncedPresupSearch] = useState('');
   const [presupResults, setPresupResults] = useState([]);
   const [presupLoading, setPresupLoading] = useState(false);
+  const [manualItemOpen, setManualItemOpen] = useState(false);
 
   const clients = useSelector((state) => state.client).data;
   const { order } = useSelector((state) => state.posSellOrder);
@@ -111,10 +114,27 @@ function PosEcommerceOrderSidebar({ addProduct }) {
     setSelectClientId(value);
   };
 
-  const changeAmount = (productId, brandId, amount) => {
+  const changeAmount = (productId, brandId, uid, amount) => {
     const parsedAmount = parseInt(amount, 10);
     if (isNaN(parsedAmount) || parsedAmount < 1) return;
-    dispatch(changeAmountOrderItem({ productId, brandId, amount: parsedAmount }));
+    if (uid) {
+      dispatch(changeAmountOrderItem({ uid, amount: parsedAmount }));
+    } else {
+      dispatch(changeAmountOrderItem({ productId, brandId, amount: parsedAmount }));
+    }
+  };
+
+  const addManualItem = ({ description, quantity, unitPrice }) => {
+    dispatch(addLocalOrderItem({
+      uid: genManualItemUid(),
+      productId: null,
+      brandId: null,
+      article: description,
+      description,
+      sellPrice: unitPrice,
+      amount: quantity,
+      isManual: true,
+    }));
   };
 
   const printPresupuesto = (cotizacion, items) => {
@@ -338,6 +358,17 @@ function PosEcommerceOrderSidebar({ addProduct }) {
             description: item.description,
             amount: item.amount,
           }));
+        } else if (item.description) {
+          dispatch(addLocalOrderItem({
+            uid: genManualItemUid(),
+            productId: null,
+            brandId: null,
+            article: item.description,
+            description: item.description,
+            sellPrice: item.sellPrice,
+            amount: item.amount,
+            isManual: true,
+          }));
         }
       });
       Swal.fire({ icon: 'success', title: 'Presupuesto cargado', timer: 1500, showConfirmButton: false });
@@ -478,6 +509,14 @@ function PosEcommerceOrderSidebar({ addProduct }) {
       <div className={styles.orderContent}>
         <div className={styles.orderDetail}>
           <h5 className={styles.sectionTitle}>Detalle de orden</h5>
+          <button
+            onClick={() => setManualItemOpen(true)}
+            className={styles.addManualBtn}
+            title="Agregar ítem manual"
+          >
+            <i className="fa-solid fa-pen-to-square" />
+            <span>Ítem manual</span>
+          </button>
           <div className={styles.listContainer}>
             <div className={styles.headerList}>
               <span>Artículo</span>
@@ -487,20 +526,23 @@ function PosEcommerceOrderSidebar({ addProduct }) {
             </div>
             <div className={styles.bodyList}>
               {order.items.map((item, i) => (
-                <div className={styles.row} key={`${item.productId}-${item.brandId}`}>
-                  <span className={styles.rowArticle}>{item.article?.toUpperCase()}</span>
+                <div className={styles.row} key={item.uid || `${item.productId}-${item.brandId}`}>
+                  <span className={styles.rowArticle}>
+                    {item.article?.toUpperCase()}
+                    {item.isManual && <span className={styles.rowManualTag}>MANUAL</span>}
+                  </span>
                   <span className={styles.rowPrice}>$ {numberToString(item.sellPrice * 1.21)}</span>
                   <input
                     className={styles.qtyInput}
                     type="number"
                     step="1"
                     value={item.amount}
-                    onChange={(e) => changeAmount(item.productId, item.brandId, e.target.value)}
+                    onChange={(e) => changeAmount(item.productId, item.brandId, item.uid, e.target.value)}
                   />
                   <span className={styles.rowSubtotal}>
                     $ {numberToString(item.sellPrice * item.amount * 1.21)}
                     <button
-                      onClick={() => dispatch(delLocalOrderItem({ productId: item.productId, brandId: item.brandId }))}
+                      onClick={() => dispatch(delLocalOrderItem(item.uid ? { uid: item.uid } : { productId: item.productId, brandId: item.brandId }))}
                       className={styles.delBtn}
                     >
                       <i className="fa-solid fa-trash-can" />
@@ -675,6 +717,13 @@ function PosEcommerceOrderSidebar({ addProduct }) {
           )}
         </div>
       </div>
+
+      {manualItemOpen && (
+        <PosEcommerceManualItemModal
+          onClose={() => setManualItemOpen(false)}
+          onAdd={addManualItem}
+        />
+      )}
     </div>
   );
 }

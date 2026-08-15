@@ -79,6 +79,39 @@
   margin: 0 0 8px;
 }
 
+.addManualBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 8px;
+  background: #fff;
+  border: 1px dashed #4a7cf7;
+  color: #4a7cf7;
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.addManualBtn:hover {
+  background: #eef3ff;
+}
+
+.rowManualTag {
+  display: inline-block;
+  margin-left: 6px;
+  background: #eef3ff;
+  color: #4a7cf7;
+  font-size: 9px;
+  font-weight: 700;
+  border: 1px solid #c3d4fb;
+  border-radius: 4px;
+  padding: 0 4px;
+  vertical-align: middle;
+}
+
 .orderDetail {
   background: #f8f8f8;
   border-radius: 10px;

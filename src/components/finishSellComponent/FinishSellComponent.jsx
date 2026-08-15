@@ -121,12 +121,26 @@ function FinishSellComponent(props) {
       }
     }
 
+    const productItems = (order.items || []).filter(
+      (item) => item.productId != null
+    );
+    const manualItems = (order.items || []).filter(
+      (item) => item.productId == null
+    );
+
     const sendData = {
       clientId: order.clientId,
-      items: order.items.map((item) => ({
-        ...item,
+      items: productItems.map((item) => ({
+        productId: item.productId,
+        brandId: item.brandId,
+        article: item.article,
         amount: Number(item.amount),
         sellPrice: Number(item.sellPrice),
+      })),
+      manualItems: manualItems.map((item) => ({
+        concept: item.description || item.article || 'Ítem manual',
+        quantity: Number(item.amount),
+        unitPrice: Number(item.sellPrice),
       })),
       billType: getBillType(),
       payMethod: Object.entries(payMethod).find(

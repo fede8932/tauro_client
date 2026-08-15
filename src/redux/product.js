@@ -134,7 +134,7 @@ const productSlice = createSlice({
     },
     [deleteProductRequest.fulfilled]: (state, action) => {
       const newList = state.data.list.filter(
-        (prod) => prod.id != action.payload
+        (prod) => prod.id !== action.payload
       );
       state.loading = false;
       state.data.list = newList;

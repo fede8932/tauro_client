@@ -8,6 +8,7 @@ const BillDetailTable = (props) => {
   const items = data?.orderAjust
     ? data.orderAjust.ajustOrderItems
     : data.purchaseOrderItems;
+  const manualItems = data?.manualItems || [];
 
   // console.log(items);
 
@@ -42,6 +43,22 @@ const BillDetailTable = (props) => {
                 {`$ ${redondearADosDecimales(
                   item.sellPrice * item.amount * (item.fact ? 1.21 : 1)
                 )}`}
+              </Table.Cell>
+            </Table.Row>
+          ))}
+          {manualItems.map((si, i) => (
+            <Table.Row key={`manual-${i}`}>
+              <Table.Cell>-</Table.Cell>
+              <Table.Cell>
+                <CustomPopup characters={60} content={si.concept.toUpperCase()} />
+              </Table.Cell>
+              <Table.Cell>-</Table.Cell>
+              <Table.Cell>
+                {`$ ${redondearADosDecimales(si.unitPrice)}`}
+              </Table.Cell>
+              <Table.Cell>{si.quantity}</Table.Cell>
+              <Table.Cell>
+                {`$ ${redondearADosDecimales(si.amount)}`}
               </Table.Cell>
             </Table.Row>
           ))}

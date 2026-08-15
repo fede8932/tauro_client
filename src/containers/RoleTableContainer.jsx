@@ -20,7 +20,7 @@ import {
 } from '../request/orderRequest';
 import { getBillByIdRequest } from '../request/billRequest';
 import { billHtml } from '../templates/bill';
-import { convertImageToBase64 } from '../utils';
+import { convertImageToBase64, redondearADosDecimales } from '../utils';
 import logoAfip from '../assets/afip/logo-vector-afip.jpg';
 import logoBlase from '../assets/logo/logoBlase.png';
 import { remitHtml } from '../templates/RemBlase';
@@ -227,7 +227,28 @@ function RoleTableContainer(props) {
       purchaseOrder = billInfo.purchaseOrder;
       const codigoQR = await QRCode.toDataURL(billData.url);
 
-      const factItems = fItems;
+      const factItems = fItems || [];
+      billInfo.specialItems?.forEach((si) => {
+        if (si.quantity > 0) {
+          factItems.push({
+            product: {
+              article: '-',
+              description: si.concept?.toUpperCase() ?? '-',
+            },
+            amount: si.quantity,
+            sellPrice: si.unitPrice,
+          });
+        } else if (si.oficial) {
+          factItems.push({
+            product: {
+              article: 'OP-ES01',
+              description: si.concept?.toUpperCase() ?? '-',
+            },
+            amount: 1,
+            sellPrice: 0 - redondearADosDecimales(si.amount / 1.21),
+          });
+        }
+      });
       const itemsPerPage = 10; // Número de ítems por página
       const totalPages = Math.ceil(factItems.length / itemsPerPage);
       nuevaVentana = window.open('', '', 'width=900,height=1250');
@@ -269,9 +290,30 @@ function RoleTableContainer(props) {
 
       numRemito = purchaseOrder.pickingOrder.numRemito;
 
-      const factPresItems = purchaseOrder.purchaseOrderItems.filter(
+      const factPresItems = (purchaseOrder.purchaseOrderItems || []).filter(
         (poi) => !poi.fact
       );
+      presData.specialItems?.forEach((si) => {
+        if (si.quantity > 0) {
+          factPresItems.push({
+            product: {
+              article: '-',
+              description: si.concept?.toUpperCase() ?? '-',
+            },
+            amount: si.quantity,
+            sellPrice: si.unitPrice,
+          });
+        } else if (!si.oficial && si.concept?.toUpperCase() !== 'REDONDEO') {
+          factPresItems.push({
+            product: {
+              article: 'OP-ES01',
+              description: si.concept?.toUpperCase() ?? '-',
+            },
+            amount: 1,
+            sellPrice: 0 - si.amount,
+          });
+        }
+      });
 
       const itemsPerPage = 10; // Número de ítems por página
       const totalPresPages = Math.ceil(factPresItems.length / itemsPerPage);

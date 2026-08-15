@@ -1,5 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as billRequest from '../request/billRequest';
+export const genManualItemUid = () =>
+  `manual_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
 const calcRounding = (subTotal) => {
   const rawTotal = subTotal * 1.21;
   const roundedTotal = Math.floor(rawTotal / 10) * 10;
@@ -76,10 +79,15 @@ const posSellOrderSlice = createSlice({
     },
     addLocalOrderItem: (state, action) => {
       const newStateOrder = { ...state.order };
-      const { productId, brandId, amount, sellPrice } = action.payload;
-      const index = newStateOrder.items.findIndex(
-        (item) => item.productId == productId && item.brandId == brandId
-      );
+      const { productId, brandId, amount, sellPrice, uid } = action.payload;
+      let index = -1;
+      if (uid) {
+        index = newStateOrder.items.findIndex((item) => item.uid == uid);
+      } else {
+        index = newStateOrder.items.findIndex(
+          (item) => item.productId == productId && item.brandId == brandId
+        );
+      }
       if (index > -1) {
         newStateOrder.items[index].amount += amount;
       } else {
@@ -94,10 +102,11 @@ const posSellOrderSlice = createSlice({
       let newTotal = 0;
       const newStateOrder = { ...state.order };
       const items = newStateOrder.items.filter((item) => {
-        if (
-          item.productId == action.payload.productId &&
-          item.brandId == action.payload.brandId
-        ) {
+        const match = action.payload.uid
+          ? item.uid == action.payload.uid
+          : item.productId == action.payload.productId &&
+            item.brandId == action.payload.brandId;
+        if (match) {
           return false;
         }
         newTotal += item.sellPrice * item.amount;
@@ -110,11 +119,14 @@ const posSellOrderSlice = createSlice({
       localStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
     },
     changeAmountOrderItem: (state, action) => {
-      const { productId, brandId, amount } = action.payload;
+      const { productId, brandId, amount, uid } = action.payload;
       let newTotal = 0;
       const newStateOrder = { ...state.order };
       const items = newStateOrder.items.map((item) => {
-        if (item.productId == productId && item.brandId == brandId) {
+        const match = uid
+          ? item.uid == uid
+          : item.productId == productId && item.brandId == brandId;
+        if (match) {
           item.amount = amount;
         }
         newTotal += item.sellPrice * item.amount;

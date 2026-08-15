@@ -124,10 +124,19 @@ const CustomActionComp = ({ data }) => {
       const codigoQR = await QRCode.toDataURL(billData.url);
 
       // console.log("verfact->", billData.billData.ResultGet)
-      const factItems = fItems;
+      const factItems = fItems || [];
 
       billInfo.specialItems?.map((si) => {
-        if (si.oficial) {
+        if (si.quantity > 0) {
+          factItems.push({
+            product: {
+              article: '-',
+              description: si.concept?.toUpperCase() ?? '-',
+            },
+            amount: si.quantity,
+            sellPrice: si.unitPrice,
+          });
+        } else if (si.oficial) {
           factItems.push({
             product: {
               article: 'OP-ES01',
@@ -180,11 +189,20 @@ const CustomActionComp = ({ data }) => {
 
       numRemito = purchaseOrder.pickingOrder.numRemito;
 
-      const factPresItems = purchaseOrder.purchaseOrderItems.filter(
+      const factPresItems = (purchaseOrder.purchaseOrderItems || []).filter(
         (poi) => !poi.fact
       );
       presData.specialItems?.map((si) => {
-        if (!si.oficial && si.concept?.toUpperCase() !== 'REDONDEO') {
+        if (si.quantity > 0) {
+          factPresItems.push({
+            product: {
+              article: '-',
+              description: si.concept?.toUpperCase() ?? '-',
+            },
+            amount: si.quantity,
+            sellPrice: si.unitPrice,
+          });
+        } else if (!si.oficial && si.concept?.toUpperCase() !== 'REDONDEO') {
           factPresItems.push({
             product: {
               article: 'OP-ES01',

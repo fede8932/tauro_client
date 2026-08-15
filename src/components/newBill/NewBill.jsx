@@ -113,14 +113,23 @@ const TotalComponent = (props) => {
       const factItems = order.purchaseOrderItems.filter((poi) => poi.fact);
 
       discItems.map((d) => {
-        if (d.oficial) {
+        if (d.quantity > 0) {
+          factItems.push({
+            product: {
+              article: '-',
+              description: d.concept?.toUpperCase() ?? '-',
+            },
+            amount: d.quantity,
+            sellPrice: d.unitPrice,
+          });
+        } else if (d.oficial) {
           factItems.push({
             product: {
               article: 'OP-ES01',
-              description: si.concept?.toUpperCase() ?? '-',
+              description: d.concept?.toUpperCase() ?? '-',
             },
             amount: 1,
-            sellPrice: 0 - redondearADosDecimales(si.amount / 1.21),
+            sellPrice: 0 - redondearADosDecimales(d.amount / 1.21),
           });
         }
       });
@@ -160,7 +169,16 @@ const TotalComponent = (props) => {
       const factItems = order.purchaseOrderItems.filter((poi) => !poi.fact);
 
       presData.specialItems?.map((si) => {
-        if (!si.oficial) {
+        if (si.quantity > 0) {
+          factItems.push({
+            product: {
+              article: '-',
+              description: si.concept?.toUpperCase() ?? '-',
+            },
+            amount: si.quantity,
+            sellPrice: si.unitPrice,
+          });
+        } else if (!si.oficial) {
           factItems.push({
             product: {
               article: 'OP-ES01',

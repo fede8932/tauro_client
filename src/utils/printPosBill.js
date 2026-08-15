@@ -60,7 +60,16 @@ export async function printPosBill(billData) {
     const factItems = billInfo.fItems || [];
 
     billInfo.specialItems?.forEach((si) => {
-      if (si.oficial) {
+      if (si.quantity > 0) {
+        factItems.push({
+          product: {
+            article: '-',
+            description: si.concept?.toUpperCase() ?? '-',
+          },
+          amount: si.quantity,
+          sellPrice: si.unitPrice,
+        });
+      } else if (si.oficial) {
         factItems.push({
           product: {
             article: 'OP-ES01',
@@ -113,7 +122,16 @@ export async function printPosBill(billData) {
       (poi) => !poi.fact
     );
     presData.specialItems?.forEach((si) => {
-      if (!si.oficial && si.concept?.toUpperCase() !== 'REDONDEO') {
+      if (si.quantity > 0) {
+        factPresItems.push({
+          product: {
+            article: '-',
+            description: si.concept?.toUpperCase() ?? '-',
+          },
+          amount: si.quantity,
+          sellPrice: si.unitPrice,
+        });
+      } else if (!si.oficial && si.concept?.toUpperCase() !== 'REDONDEO') {
         factPresItems.push({
           product: {
             article: 'OP-ES01',
