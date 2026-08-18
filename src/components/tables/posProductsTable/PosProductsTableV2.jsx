@@ -74,7 +74,10 @@ const CustomComp = ({ data, props }) => {
   };
 
   if (data.type === 'EQUIVALENCE') {
-    const equivImages = data.image ? [data.image] : [];
+    const equivImages = [
+      ...(data.image ? [data.image] : []),
+      ...(Array.isArray(data.images) ? data.images : []),
+    ].filter((img, i, arr) => img?.url && arr.findIndex((x) => x.url === img.url) === i);
     return (
       <div className={styles.buttonContainer}>
         <ActionModalContainer

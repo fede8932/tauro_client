@@ -13,7 +13,12 @@ import {
 } from '../redux/equivalences';
 import { useLocation, useNavigate } from 'react-router';
 import Swal from 'sweetalert2';
-import { deleteEquivalence } from '../request/equivalencesRequest';
+import {
+  deleteEquivalence,
+  uploadEquivalenceImage,
+  removeEquivalenceImage,
+  selectEquivalenceImage,
+} from '../request/equivalencesRequest';
 
 function EquivalencesContainer(props) {
   const dispatch = useDispatch();
@@ -228,6 +233,98 @@ function EquivalencesContainer(props) {
     dispatch(getEquivalenceByProductId(Number(pathname.split('/')[2])));
   }, [equivalences.product]);
 
+  const refreshEquivalence = () => {
+    dispatch(getEquivalenceByProductId(Number(pathname.split('/')[2])));
+  };
+
+  const uploadImage = (file) => {
+    const id = equivalences.equivalence?.id;
+    if (!id || !file) return;
+    uploadEquivalenceImage(id, file)
+      .then(() => {
+        Swal.fire({
+          position: 'center',
+          icon: 'success',
+          title: 'Imagen actualizada',
+          showConfirmButton: false,
+          timer: 1000,
+        });
+        refreshEquivalence();
+      })
+      .catch(() => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Ocurrió un error al subir la imagen',
+          showConfirmButton: false,
+          timer: 2500,
+        });
+      });
+  };
+
+  const removeImage = () => {
+    const id = equivalences.equivalence?.id;
+    if (!id) return;
+    Swal.fire({
+      title: 'Estás seguro?',
+      text: 'Se va a quitar la imagen del grupo de equivalencias',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        removeEquivalenceImage(id)
+          .then(() => {
+            Swal.fire({
+              position: 'center',
+              icon: 'success',
+              title: 'Imagen quitada',
+              showConfirmButton: false,
+              timer: 1000,
+            });
+            refreshEquivalence();
+          })
+          .catch(() => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Ocurrió un error al quitar la imagen',
+              showConfirmButton: false,
+              timer: 2500,
+            });
+          });
+      }
+    });
+  };
+
+  const selectImage = (imageId) => {
+    const id = equivalences.equivalence?.id;
+    if (!id || !imageId) return;
+    selectEquivalenceImage(id, imageId)
+      .then(() => {
+        Swal.fire({
+          position: 'center',
+          icon: 'success',
+          title: 'Imagen asignada',
+          showConfirmButton: false,
+          timer: 1000,
+        });
+        refreshEquivalence();
+      })
+      .catch(() => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Ocurrió un error al asignar la imagen',
+          showConfirmButton: false,
+          timer: 2500,
+        });
+      });
+  };
+
   return (
     <EquivalencesComponent
       createEquiv={createEquiv}
@@ -238,6 +335,9 @@ function EquivalencesContainer(props) {
       deleteFn={deleteAllEquiv}
       editFn={editDescriptEquiv}
       reemplceEquiv={reemplceEquiv}
+      uploadImage={uploadImage}
+      removeImage={removeImage}
+      selectImage={selectImage}
     />
   );
 }

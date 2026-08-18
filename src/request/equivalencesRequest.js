@@ -144,3 +144,34 @@ export const uploadEquivalenceImage = async (equivalenceId, file) => {
     throw error;
   }
 };
+
+export const removeEquivalenceImage = async (equivalenceId) => {
+  try {
+    const { data } = await axios.delete(
+      `${apiUrl}/api/equivalences/${equivalenceId}/images`,
+      { withCredentials: true }
+    );
+    return data;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};
+
+export const selectEquivalenceImage = async (equivalenceId, imageId) => {
+  try {
+    const { data } = await axios.post(
+      `${apiUrl}/api/equivalences/${equivalenceId}/images/select`,
+      { imageId },
+      { withCredentials: true }
+    );
+    return data;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};

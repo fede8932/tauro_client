@@ -55,6 +55,7 @@ function AddProductFormContainer(props) {
         });
         methods.reset();
         setSelectedFiles([]);
+        setSelectStatus(true);
       })
       .catch((err) => {
         console.log(err);
@@ -193,6 +194,8 @@ function AddProductFormContainer(props) {
       });
   };
   const activeSelect = (razonSocial) => {
+    setSelectStatus(true);
+    methods.setValue('brandId', '');
     dispatch(getBrandByRSRequest(razonSocial)).then(() => {
       setSelectStatus(false);
     });
@@ -216,6 +219,7 @@ function AddProductFormContainer(props) {
               methods={methods}
               suppliers={suppliers.data}
               brands={brands.data}
+              brandsLoading={brands.loading}
               onSubmit={addProduct}
               status={productStatus}
               selectStatus={selectStatus}

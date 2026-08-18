@@ -126,3 +126,79 @@
 .selectArticle {
   margin-left: 8px;
 }
+.equivImgContainer {
+  margin-top: 42px;
+  background-color: #fbfbfb;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.equivImgHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.equivImgHeaderIcons i {
+  margin-left: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  color: rgba(53, 133, 255, 0.75);
+  transition: color 0.2s;
+}
+.equivImgHeaderIcons i:hover {
+  color: rgba(53, 133, 255, 1);
+}
+.equivImgHeaderIcons i.trashIcon {
+  color: rgba(255, 53, 87, 0.7);
+}
+.equivImgHeaderIcons i.trashIcon:hover {
+  color: rgba(255, 53, 87, 1);
+}
+.equivImgMain {
+  height: 140px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.equivImgMain img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.equivImgMain span {
+  font-size: 12px;
+  color: #9e9e9e;
+}
+.equivImgList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.equivImgThumb {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.equivImgThumb:hover {
+  border-color: #2185d0;
+}
+.equivImgThumb.active {
+  border: 3px solid #2185d0;
+  box-shadow: 0 0 0 1px #2185d0;
+}
+.equivImgEmpty {
+  font-size: 12px;
+  color: #9e9e9e;
+}

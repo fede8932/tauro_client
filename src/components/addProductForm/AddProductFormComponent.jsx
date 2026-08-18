@@ -33,6 +33,7 @@ function AddProductFormComponent(props) {
     methods,
     suppliers,
     brands,
+    brandsLoading,
     selectStatus,
     setSelectStatus,
     files,
@@ -76,7 +77,7 @@ function AddProductFormComponent(props) {
                 fnSelect={setSelectStatus}
               />
             )}
-            {
+            <div className={styles.brandSelectWrapper}>
               <CustomSelect
                 active={selectStatus}
                 text="Seleccioná la marca"
@@ -84,7 +85,12 @@ function AddProductFormComponent(props) {
                 validate={{ required: true }}
                 arrayOptions={brands}
               />
-            }
+              {brandsLoading && (
+                <div className={styles.brandSelectSpinner}>
+                  <Spinner animation="border" size="sm" />
+                </div>
+              )}
+            </div>
           </div>
           <div className={styles.inputContainer}>
             <span className={styles.subTitle}>Datos adicionales</span>

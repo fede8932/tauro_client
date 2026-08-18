@@ -93,3 +93,14 @@
   width: 100%;
   justify-content: space-between;
 }
+.brandSelectWrapper {
+  position: relative;
+}
+.brandSelectSpinner {
+  position: absolute;
+  right: 34px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #673ab7;
+  pointer-events: none;
+}

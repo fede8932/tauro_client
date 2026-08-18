@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './equiv.module.css';
 import {
   Button,
@@ -24,9 +24,13 @@ function EquivalencesComponent(props) {
     deleteFn,
     editFn,
     reemplceEquiv,
+    uploadImage,
+    removeImage,
+    selectImage,
   } = props;
 
   const [inputValue, setInputValue] = useState('');
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -52,6 +56,14 @@ function EquivalencesComponent(props) {
       reemplceEquiv();
     }
   };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) uploadImage(file);
+    e.target.value = '';
+  };
+
+  const currentImageId = equivalences?.equivalence?.image?.id;
 
   return (
     <div>
@@ -145,6 +157,67 @@ function EquivalencesComponent(props) {
           </div>
         </div>
         <div className={styles.rigthCont}>
+          <div className={styles.equivImgContainer}>
+            <div className={styles.equivImgHeader}>
+              <span>Imágenes del grupo</span>
+              <div className={styles.equivImgHeaderIcons}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                  onChange={handleFileChange}
+                />
+                <i
+                  onClick={() => fileInputRef.current?.click()}
+                  className="fa-solid fa-upload"
+                  title="Subir imagen para el grupo"
+                ></i>
+                {equivalences?.equivalence?.image && (
+                  <i
+                    onClick={removeImage}
+                    className={`fa-solid fa-trash-can ${styles.trashIcon}`}
+                    title="Quitar imagen del grupo"
+                  ></i>
+                )}
+              </div>
+            </div>
+            <div className={styles.equivImgMain}>
+              {equivalences?.equivalence?.image ? (
+                <img
+                  src={equivalences.equivalence.image.url}
+                  alt="Imagen del grupo"
+                />
+              ) : (
+                <span>Sin imagen propia</span>
+              )}
+            </div>
+            <div className={styles.equivImgList}>
+              {equivalences?.equivalencesProducts?.length ? (
+                equivalences.equivalencesProducts
+                  .filter((p) => p.images && p.images.length > 0)
+                  .flatMap((p) =>
+                    (p.images || []).map((img) => ({ img, article: p.article }))
+                  )
+                  .map(({ img, article }) => (
+                    <img
+                      key={img.id}
+                      src={img.url}
+                      alt={article}
+                      title={`${article}${currentImageId === img.id ? ' (imagen actual)' : ''}`}
+                      className={`${styles.equivImgThumb} ${
+                        currentImageId === img.id ? styles.active : ''
+                      }`}
+                      onClick={() => selectImage(img.id)}
+                    />
+                  ))
+              ) : (
+                <span className={styles.equivImgEmpty}>
+                  Sin imágenes de productos
+                </span>
+              )}
+            </div>
+          </div>
           <div className={styles.equivContainer}>
             <Table celled compact>
               <TableHeader

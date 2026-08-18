@@ -166,9 +166,16 @@ function PosEcommerce() {
   };
 
   const getProductImages = (product) => {
-    if (product.images && product.images.length > 0) return product.images;
-    if (product.image?.url) return [product.image];
-    return [];
+    const list = [];
+    const seen = new Set();
+    const add = (img) => {
+      if (!img || !img.url || seen.has(img.url)) return;
+      seen.add(img.url);
+      list.push(img);
+    };
+    add(product.image);
+    (product.images || []).forEach(add);
+    return list;
   };
 
   const getCardImageIndex = (productId) => cardImageIndexes[productId] || 0;
