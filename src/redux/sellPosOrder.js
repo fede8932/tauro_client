@@ -3,6 +3,11 @@ import * as billRequest from '../request/billRequest';
 export const genManualItemUid = () =>
   `manual_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
+// Los ítems manuales no oficiales se ingresan con precio final (IVA incluido),
+// por eso aportan su neto al subTotal. El resto aporta el precio tal cual.
+export const manualNetFactor = (item) =>
+  item?.isManual && item?.oficial === false ? 1 / 1.21 : 1;
+
 const calcRounding = (subTotal) => {
   const rawTotal = subTotal * 1.21;
   const roundedTotal = Math.floor(rawTotal / 10) * 10;
@@ -93,7 +98,7 @@ const posSellOrderSlice = createSlice({
       } else {
         newStateOrder.items.push({ ...action.payload, amount });
       }
-      newStateOrder.subTotal += sellPrice * amount;
+      newStateOrder.subTotal += sellPrice * amount * manualNetFactor(action.payload);
       newStateOrder.rounding = calcRounding(newStateOrder.subTotal);
       state.order = newStateOrder;
       localStorage.setItem('pos-order', JSON.stringify({ ...state.order }));
@@ -109,7 +114,7 @@ const posSellOrderSlice = createSlice({
         if (match) {
           return false;
         }
-        newTotal += item.sellPrice * item.amount;
+        newTotal += item.sellPrice * item.amount * manualNetFactor(item);
         return true;
       });
       newStateOrder.subTotal = newTotal;
@@ -129,7 +134,7 @@ const posSellOrderSlice = createSlice({
         if (match) {
           item.amount = amount;
         }
-        newTotal += item.sellPrice * item.amount;
+        newTotal += item.sellPrice * item.amount * manualNetFactor(item);
         return item;
       });
       newStateOrder.subTotal = newTotal;

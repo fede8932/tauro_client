@@ -15,6 +15,7 @@ import {
   confirmSellOrderRequest,
   searchSellOrderRequest,
 } from '../../redux/searchOrders';
+import { getOrderItemsRequest } from '../../redux/addOrderItems';
 import { useNavigate } from 'react-router';
 import {
   getDiscOfficialRequest,
@@ -166,7 +167,24 @@ const TotalComponent = (props) => {
 
       const presData = await printPresRequest(order.id);
 
-      const factItems = order.purchaseOrderItems.filter((poi) => !poi.fact);
+      // Las líneas manuales van a valor final: se marcan para que la
+      // impresión no les sume IVA, venga o no la marca en el payload.
+      const manualIds = new Set(
+        (listOrder || [])
+          .filter((i) => i.product?.brand?.code === 'ITEM-MANUAL')
+          .map((i) => i.id)
+      );
+      const taggedOrder = {
+        ...order,
+        purchaseOrderItems: (order.purchaseOrderItems || []).map((poi) =>
+          manualIds.has(poi.id) ||
+          poi.product?.brand?.code === 'ITEM-MANUAL'
+            ? { ...poi, isManualFace: true }
+            : poi
+        ),
+      };
+
+      const factItems = taggedOrder.purchaseOrderItems.filter((poi) => !poi.fact);
 
       presData.specialItems?.map((si) => {
         if (si.quantity > 0) {
@@ -199,7 +217,7 @@ const TotalComponent = (props) => {
 
         const render = presupHtml(
           presData,
-          order,
+          taggedOrder,
           logoBlaseBase64,
           pageItems,
           pageNumber,
@@ -350,6 +368,7 @@ const TotalComponent = (props) => {
 
 function NewBill(props) {
   const { closeModal } = props;
+  const dispatch = useDispatch();
   const client = useSelector((state) => state.client.data);
   const order = useSelector((state) => state.newBuyOrder.data);
   const clientStatus = client?.data?.inTerm;
@@ -381,6 +400,12 @@ function NewBill(props) {
     const discounts = JSON.parse(localStorage.getItem(order.id));
     setDiscountList(discounts ?? []);
   }, [order]);
+
+  useEffect(() => {
+    if (order?.id) {
+      dispatch(getOrderItemsRequest(order.id));
+    }
+  }, [order?.id]);
 
   return (
     <div className={styles.facContainer}>

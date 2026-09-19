@@ -16,6 +16,7 @@ function AddProductToSellOrder(props) {
     fnUpdate,
     fnPrUpdate,
     fnAdd,
+    fnAddManual,
     order,
     cancel,
     type,
@@ -83,6 +84,7 @@ function AddProductToSellOrder(props) {
                 fnDelete={fnDelete}
                 fnUpdate={fnUpdate}
                 fnPrUpdate={fnPrUpdate}
+                fnAddManual={fnAddManual}
                 listOrder={listOrder}
                 orderAjust={'orderAjust'}
               />

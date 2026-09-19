@@ -1,6 +1,19 @@
 .butStyle {
   all: unset;
-  height: 20px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.butStyle:hover {
+  background: #f0f0f0;
+}
+.butStyle:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 .iconStyleGrey {
   color: #5f655c;

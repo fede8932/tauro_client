@@ -240,6 +240,21 @@ export const getAllBrandToTable = async (clientId) => {
   }
 };
 
+export const bulkUpdateBrandRentabilidad = async (payload) => {
+  try {
+    const { data } = await axios.patch(
+      `${apiUrl}/api/brand/bulk/rentabilidad`,
+      payload,
+      { withCredentials: true }
+    );
+    return data;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};
 export const getBrandById = async (id) => {
   try {
     const { data } = await axios.get(`${apiUrl}/api/brand/get/unique/${id}`, {

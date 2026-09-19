@@ -36,6 +36,22 @@ export const addOrderItem = async (dataOrder) => {
     throw error;
   }
 };
+export const addManualSellOrderItem = async (dataOrder) => {
+  try {
+    const { orderId, concept, quantity, unitPrice, oficial } = dataOrder;
+    const { data } = await axios.post(
+      `${apiUrl}/api/purchase/order/items/manual/sell/${orderId}`,
+      { concept, quantity, unitPrice, oficial },
+      { withCredentials: true }
+    );
+    return data;
+  } catch (error) {
+    if (error.response?.status == 401) {
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};
 export const addOrderItemSearchProd = async (dataOrder) => {
   try {
     const { productId, brandId, clientId, cantidad } = dataOrder;

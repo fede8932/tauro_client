@@ -11,13 +11,21 @@ import {
   toggleEcommerceBrandRequest,
 } from '../../../redux/searchBrandsExtra';
 import { setFilterBrand } from '../../../redux/filtersBrands';
+import { getSupplierRequest } from '../../../redux/supplier';
 import EditBrandContainer from '../../../containers/EditBrandContainer';
 import ProtectedComponent from '../../../protected/protectedComponent/ProtectedComponent';
 import IconButonUsersTable from '../../../commonds/iconButtonUsersTable/IconButonUsersTable';
 import { useNavigate } from 'react-router';
-import { resetBrandRentabilidad } from '../../../request/brandRequest';
+import { resetBrandRentabilidad, getBrandsBySupplier } from '../../../request/brandRequest';
 import Swal from 'sweetalert2';
 import BulkAssignSupplierModal from '../../searchProduct/BulkAssignSupplierModal';
+import BulkUpdateRentabilidadModal from '../../searchProduct/BulkUpdateRentabilidadModal';
+
+const centeredCell = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+};
 
 const CustomComp = (props) => {
   const { brand } = props;
@@ -66,9 +74,13 @@ const CustomComp = (props) => {
         title="Editar marca"
         size="lg"
         actionButton={
-          <buton className={`${styles.iconButton} ${styles.blueIcon}`}>
+          <button
+            type="button"
+            title="Editar marca"
+            className={`${styles.actionBtn} ${styles.blueIcon}`}
+          >
             <i className="fa-regular fa-pen-to-square"></i>
-          </buton>
+          </button>
         }
         bodyModal={(props) => <EditBrandContainer brand={brand} {...props} />}
       />
@@ -185,8 +197,26 @@ function BrandsTable(props) {
   const dispatch = useDispatch();
 
   const brands = useSelector((state) => state.brandResults);
+  const suppliers = useSelector((state) => state.supplier.data);
+
+  const gridRef = useRef(null);
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [showRentModal, setShowRentModal] = useState(false);
+  const [supplierBulkId, setSupplierBulkId] = useState('');
+  const [supplierBulkCount, setSupplierBulkCount] = useState(0);
+  const [showSupplierRentModal, setShowSupplierRentModal] = useState(false);
 
   const [columnDefs, setColumnDefs] = useState([
+    {
+      headerName: '',
+      checkboxSelection: true,
+      headerCheckboxSelection: true,
+      width: 50,
+      sortable: false,
+      filter: false,
+      suppressHeaderMenuButton: true,
+      cellStyle: centeredCell,
+    },
     {
       field: 'code',
       headerComponent: () => <HeaderInput title="Código" name={'code'} />,
@@ -199,7 +229,7 @@ function BrandsTable(props) {
     {
       field: 'name',
       headerComponent: () => <HeaderInput title="Nombre" name={'name'} />,
-      width: 650,
+      width: 600,
       filterParams: {
         filterOptions: ['contains'], // Solo opción 'contains'
         suppressFilterButton: true, // Ocultar el botón del menú del filtro
@@ -218,7 +248,7 @@ function BrandsTable(props) {
     },
     {
       headerName: 'Rentabilidad',
-      valueGetter: ({ data }) => `${data?.rentabilidad * 100} %`,
+      valueGetter: ({ data }) => (data?.rentabilidad != null ? `${data.rentabilidad * 100} %` : '—'),
       sortable: false,
       filter: false,
       width: 125,
@@ -227,7 +257,7 @@ function BrandsTable(props) {
       headerName: 'Ecommerce',
       field: 'price',
       cellRenderer: ({ data }) => (
-        <div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
           <Checkbox
             checked={data.ecommerce}
             onChange={() => dispatch(toggleEcommerceBrandRequest(data.id))}
@@ -237,13 +267,16 @@ function BrandsTable(props) {
       filter: false,
       width: 120,
       sortable: false,
+      cellStyle: centeredCell,
     },
     {
       headerName: 'Acciones',
-      field: 'stock',
       cellRenderer: ({ data }) => <CustomComp brand={data} />,
       filter: false,
-      width: 240,
+      sortable: false,
+      suppressHeaderMenuButton: true,
+      width: 220,
+      cellStyle: { ...centeredCell, padding: 0 },
     },
   ]);
 
@@ -259,6 +292,39 @@ function BrandsTable(props) {
     return () => {};
   }, [filterBrands]);
 
+  useEffect(() => {
+    if (!suppliers || suppliers.length === 0) {
+      dispatch(getSupplierRequest());
+    }
+  }, []);
+
+  useEffect(() => {
+    // La selección corresponde a la página visible
+    setSelectedBrands([]);
+  }, [brands.data.list]);
+
+  const onSelectionChanged = () => {
+    const selected = gridRef.current?.api?.getSelectedRows() ?? [];
+    setSelectedBrands(selected);
+  };
+
+  const handleSupplierBulkChange = async (value) => {
+    setSupplierBulkId(value);
+    if (!value) {
+      setSupplierBulkCount(0);
+      return;
+    }
+    try {
+      const list = await getBrandsBySupplier(Number(value));
+      setSupplierBulkCount(list?.length ?? 0);
+    } catch {
+      setSupplierBulkCount(0);
+    }
+  };
+
+  const supplierBulkName =
+    suppliers?.find((s) => String(s.value) === String(supplierBulkId))?.text || '';
+
   const selectChange = (e, d) => {
     dispatch(setFilterBrand({ name: 'pageSize', value: d.value }));
   };
@@ -267,37 +333,104 @@ function BrandsTable(props) {
   };
 
   return (
-    <div className={'ag-theme-quartz'} style={{ height: 665 }}>
-      <AgGridReact
-        rowData={brands.data.list}
-        columnDefs={columnDefs}
-        defaultColDef={defaultColDef}
+    <div>
+      <ProtectedComponent listAccesss={[1, 2]}>
+        <div className={styles.bulkBar}>
+          <span className={styles.bulkCount}>
+            {selectedBrands.length} marca(s) tildada(s) en esta página
+          </span>
+          <button
+            type="button"
+            className={styles.bulkApplyBtn}
+            disabled={selectedBrands.length === 0}
+            onClick={() => setShowRentModal(true)}
+            title="Fijar el mismo valor de rentabilidad a las marcas tildadas"
+          >
+            Fijar rentabilidad ({selectedBrands.length})
+          </button>
+          <span className={styles.bulkField}>
+            Proveedor:
+            <select
+              value={supplierBulkId}
+              onChange={(e) => handleSupplierBulkChange(e.target.value)}
+            >
+              <option value="">Seleccionar...</option>
+              {(suppliers || []).map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.text}
+                </option>
+              ))}
+            </select>
+          </span>
+          <button
+            type="button"
+            className={styles.bulkApplyBtn}
+            disabled={!supplierBulkId || supplierBulkCount === 0}
+            onClick={() => setShowSupplierRentModal(true)}
+            title="Fijar el mismo valor de rentabilidad a todas las marcas del proveedor"
+          >
+            Aplicar a proveedor ({supplierBulkCount})
+          </button>
+        </div>
+      </ProtectedComponent>
+
+      <BulkUpdateRentabilidadModal
+        show={showRentModal}
+        onHide={() => setShowRentModal(false)}
+        onSuccess={() => {
+          dispatch(searchBrandsExtraRequest(filterBrands));
+          gridRef.current?.api?.deselectAll();
+          setSelectedBrands([]);
+        }}
+        brands={selectedBrands}
       />
-      <div className={styles.paginationContainer}>
-        <span>{`Se encontraron ${brands.data.totalPages} páginas con ${brands.data.totalRows} resultados.`}</span>
-        <div className={styles.pagination}>
-          <div style={{ marginRight: '10px' }}>
-            <Select
-              width="10px"
-              defaultValue={filterBrands.pageSize}
-              onChange={selectChange}
-              options={[
-                { key: 15, value: 15, text: 15 },
-                { key: 20, value: 20, text: 20 },
-                { key: 50, value: 50, text: 50 },
-              ]}
+
+      <BulkUpdateRentabilidadModal
+        show={showSupplierRentModal}
+        onHide={() => setShowSupplierRentModal(false)}
+        onSuccess={() => dispatch(searchBrandsExtraRequest(filterBrands))}
+        brands={[]}
+        supplierId={supplierBulkId ? Number(supplierBulkId) : null}
+        supplierName={supplierBulkName}
+        affectedCount={supplierBulkCount}
+      />
+
+      <div className={'ag-theme-quartz'} style={{ height: 665 }}>
+        <AgGridReact
+          ref={gridRef}
+          rowData={brands.data.list}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          rowSelection="multiple"
+          suppressRowClickSelection
+          onSelectionChanged={onSelectionChanged}
+        />
+        <div className={styles.paginationContainer}>
+          <span>{`Se encontraron ${brands.data.totalPages} páginas con ${brands.data.totalRows} resultados.`}</span>
+          <div className={styles.pagination}>
+            <div style={{ marginRight: '10px' }}>
+              <Select
+                width="10px"
+                defaultValue={filterBrands.pageSize}
+                onChange={selectChange}
+                options={[
+                  { key: 15, value: 15, text: 15 },
+                  { key: 20, value: 20, text: 20 },
+                  { key: 50, value: 50, text: 50 },
+                ]}
+              />
+            </div>
+            <Pagination
+              boundaryRange={0}
+              activePage={filterBrands.page}
+              ellipsisItem={null}
+              firstItem={null}
+              lastItem={null}
+              siblingRange={1}
+              totalPages={brands.data.totalPages}
+              onPageChange={changePage}
             />
           </div>
-          <Pagination
-            boundaryRange={0}
-            activePage={filterBrands.page}
-            ellipsisItem={null}
-            firstItem={null}
-            lastItem={null}
-            siblingRange={1}
-            totalPages={brands.data.totalPages}
-            onPageChange={changePage}
-          />
         </div>
       </div>
     </div>

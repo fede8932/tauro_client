@@ -20,6 +20,7 @@ import {
   getInitialOrderStorage,
   selectClientForOrder,
   setCotizacionId,
+  manualNetFactor,
 } from '../../redux/sellPosOrder';
 import { numberToString } from '../../utils';
 import CustomModal from '../../commonds/customModal/CustomModal';
@@ -125,6 +126,15 @@ function PosEcommerceOrderSidebar({ addProduct }) {
   };
 
   const addManualItem = ({ description, quantity, unitPrice }) => {
+    const newSubTotal = (order?.subTotal || 0) + unitPrice * quantity;
+    if (newSubTotal <= 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Descuento inválido',
+        text: 'El descuento no puede superar el total de la orden.',
+      });
+      return;
+    }
     dispatch(addLocalOrderItem({
       uid: genManualItemUid(),
       productId: null,
@@ -144,8 +154,10 @@ function PosEcommerceOrderSidebar({ addProduct }) {
     const itemsHtml = items
       .filter((item) => item.article !== 'Redondeo')
       .map((item) => {
-        const unitPrice = Number(item.sellPrice) * 1.21;
-        const lineTotal = Number(item.sellPrice) * item.amount * 1.21;
+        const isManual = item.isManual || item.productId == null;
+        const factor = isManual ? 1 : 1.21;
+        const unitPrice = Number(item.sellPrice) * factor;
+        const lineTotal = Number(item.sellPrice) * item.amount * factor;
         return `
       <tr>
         <td>${item.article || '-'}</td>
@@ -159,7 +171,10 @@ function PosEcommerceOrderSidebar({ addProduct }) {
 
     const subTotal = items
       .filter((item) => item.article !== 'Redondeo')
-      .reduce((sum, item) => sum + Number(item.sellPrice) * item.amount * 1.21, 0);
+      .reduce((sum, item) => {
+        const isManual = item.isManual || item.productId == null;
+        return sum + Number(item.sellPrice) * item.amount * (isManual ? 1 : 1.21);
+      }, 0);
     const total = subTotal + redondeo;
 
     const printWindow = window.open('', '', 'width=800,height=1100');
@@ -230,10 +245,16 @@ function PosEcommerceOrderSidebar({ addProduct }) {
         sellPrice: Number(item.sellPrice) || 0,
         description: item.description || '',
         amount: item.amount,
+        isManual: !!item.isManual,
       }));
 
+      // El presupuesto no lleva IVA sobre ítems manuales: van a valor final,
+      // por eso aportan su neto al subtotal.
+      const presNetFactor = (it) =>
+        it.isManual || it.productId == null ? 1 / 1.21 : 1;
+
       const subTotal = items.reduce(
-        (sum, item) => sum + item.sellPrice * item.amount,
+        (sum, item) => sum + item.sellPrice * item.amount * presNetFactor(item),
         0
       );
 
@@ -529,9 +550,10 @@ function PosEcommerceOrderSidebar({ addProduct }) {
                 <div className={styles.row} key={item.uid || `${item.productId}-${item.brandId}`}>
                   <span className={styles.rowArticle}>
                     {item.article?.toUpperCase()}
-                    {item.isManual && <span className={styles.rowManualTag}>MANUAL</span>}
+                    {item.isManual && item.sellPrice >= 0 && <span className={styles.rowManualTag}>MANUAL</span>}
+                    {item.isManual && item.sellPrice < 0 && <span className={styles.rowDiscountTag}>DESCUENTO</span>}
                   </span>
-                  <span className={styles.rowPrice}>$ {numberToString(item.sellPrice * 1.21)}</span>
+                  <span className={styles.rowPrice}>$ {numberToString(item.sellPrice * manualNetFactor(item) * 1.21)}</span>
                   <input
                     className={styles.qtyInput}
                     type="number"
@@ -540,7 +562,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
                     onChange={(e) => changeAmount(item.productId, item.brandId, item.uid, e.target.value)}
                   />
                   <span className={styles.rowSubtotal}>
-                    $ {numberToString(item.sellPrice * item.amount * 1.21)}
+                    $ {numberToString(item.sellPrice * item.amount * manualNetFactor(item) * 1.21)}
                     <button
                       onClick={() => dispatch(delLocalOrderItem(item.uid ? { uid: item.uid } : { productId: item.productId, brandId: item.brandId }))}
                       className={styles.delBtn}
@@ -720,6 +742,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
 
       {manualItemOpen && (
         <PosEcommerceManualItemModal
+          showOfficialOption={false}
           onClose={() => setManualItemOpen(false)}
           onAdd={addManualItem}
         />

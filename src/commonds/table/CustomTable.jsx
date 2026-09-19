@@ -249,21 +249,37 @@ const CustomTable = (props) => {
                   <Table.Cell>{<Checkbox checked={p.noRemove} />}</Table.Cell>
                   <Table.Cell
                     style={
-                      p.amount > p.product.stock.stock ? { color: 'red' } : null
+                      p.amount > (p.product?.stock?.stock ?? 999999) ? { color: 'red' } : null
                     }
                   >
-                    {p.product.article}
+                    {p.product?.article || '-'}
+                    {p.sellPrice < 0 ? (
+                      <span
+                        style={{
+                          marginLeft: '6px',
+                          background: '#fdecec',
+                          color: '#c0392b',
+                          fontSize: '9px',
+                          fontWeight: 700,
+                          border: '1px solid #f5b7b1',
+                          borderRadius: '4px',
+                          padding: '0 4px',
+                        }}
+                      >
+                        DESCUENTO
+                      </span>
+                    ) : null}
                   </Table.Cell>
                   <Table.Cell
                     style={
-                      p.amount > p.product.stock.stock ? { color: 'red' } : null
+                      p.amount > (p.product?.stock?.stock ?? 999999) ? { color: 'red' } : null
                     }
                   >
-                    {p.product.brand?.name}
+                    {p.product?.brand?.name || ''}
                   </Table.Cell>
                   <Table.Cell
                     style={
-                      p.amount > p.product.stock.stock ? { color: 'red' } : null
+                      p.amount > (p.product?.stock?.stock ?? 999999) ? { color: 'red' } : null
                     }
                   >
                     <span style={{ display: 'flex', alignItems: 'center' }}>
@@ -315,7 +331,7 @@ const CustomTable = (props) => {
                   </Table.Cell>
                   <Table.Cell
                     style={
-                      p.amount > p.product.stock.stock
+                      p.amount > (p.product?.stock?.stock ?? 999999)
                         ? { color: 'red', fontSize: '11px' }
                         : { fontSize: '10px' }
                     }

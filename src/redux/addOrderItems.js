@@ -13,6 +13,10 @@ export const addOrderItemsRequest = createAsyncThunk(
   'ADD_ITEM',
   orderRequest.addOrderItem
 );
+export const addManualSellItemRequest = createAsyncThunk(
+  'ADD_MANUAL_SELL_ITEM',
+  orderRequest.addManualSellOrderItem
+);
 export const deleteOrderItemsRequest = createAsyncThunk(
   'DELETE_ITEM',
   orderRequest.deleteOrderItem
@@ -169,6 +173,27 @@ const newOrderItem = createSlice({
       });
       state.data = newList;
       state.loading = false;
+    },
+    [addManualSellItemRequest.pending]: (state, action) => {
+      state.loading = true;
+    },
+    [addManualSellItemRequest.rejected]: (state, action) => {
+      state.loading = false;
+      state.error = action.error.message;
+    },
+    [addManualSellItemRequest.fulfilled]: (state, action) => {
+      const actualList = [...state.data];
+      const newList = action.payload.map((item) => {
+        const actualItem = actualList.find((ai) => ai.id == item.id);
+        if (actualItem) {
+          item.noRemove = actualItem.noRemove;
+        } else {
+          item.noRemove = true;
+        }
+        return item;
+      });
+      state.loading = false;
+      state.data = newList;
     },
     [deleteSellOrderItemsRequest.pending]: (state, action) => {
       state.loading = true;

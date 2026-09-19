@@ -9,10 +9,12 @@ import {
   newBuyOrderRequest,
 } from '../redux/newOrder';
 import {
+  addManualSellItemRequest,
   addOrderItemsRequest,
   deleteSellOrderItemsRequest,
   resetAddOrderItems,
   updateCantItemsRequest,
+  updatePriceItemsRequest,
 } from '../redux/addOrderItems';
 import { useNavigate } from 'react-router';
 import Swal from 'sweetalert2';
@@ -54,6 +56,26 @@ function AddProductToSellOrderContainer(props) {
     });
   };
   const infoProduct = (product) => {};
+
+  const addManualItemToOrder = ({ concept, quantity, unitPrice, oficial }) => {
+    const objSend = {
+      orderId: actualOrder.data.id,
+      concept,
+      quantity,
+      unitPrice,
+      oficial,
+    };
+    dispatch(addManualSellItemRequest(objSend)).then((res) => {
+      if (res.error) {
+        const serverMsg =
+          res.payload?.message || res.error?.message || 'No se pudo agregar el ítem manual';
+        Swal.fire({ icon: 'error', title: 'Error', text: serverMsg });
+        return;
+      }
+      dispatch(getBuyOrderRequest(actualOrder.data.id));
+      dispatch(setPendingSave({ pending: false, orderId: null }));
+    });
+  };
 
   const deleteOrder = (dataOrder) => {
     dispatch(deleteSellOrderItemsRequest(dataOrder)).then(() => {
@@ -164,6 +186,7 @@ function AddProductToSellOrderContainer(props) {
       onSubmit={searchProd}
       productPages={productPages}
       fnAdd={addProductToOrder}
+      fnAddManual={addManualItemToOrder}
       fnInfo={infoProduct}
       fnDelete={deleteOrder}
       fnUpdate={updateCantOrderItem}

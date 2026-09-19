@@ -109,6 +109,15 @@ function FinishSellComponent(props) {
       return;
     }
 
+    if ((order.subTotal || 0) <= 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'El total de la orden debe ser mayor a cero. Revise los descuentos manuales.',
+      });
+      return;
+    }
+
     if (isEmpresaAnonima) {
       const cuitLimpio = billingCuit.replace(/\D/g, '');
       if (cuitLimpio.length !== 11) {

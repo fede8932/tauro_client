@@ -15,9 +15,14 @@ export const presupHtml = (
   totalPages
 ) => {
   // console.log("mov-->", movimentData);
+  // Los ítems manuales (marca ITEM MANUAL) se guardan a valor final:
+  // no se les suma IVA. Se detectan por marca explícita del payload.
+  const isManualLine = (item) =>
+    item?.isManualFace || item?.product?.brand?.code === 'ITEM-MANUAL';
   const subTotal = (order.purchaseOrderItems || []).reduce((acum, item) => {
     if (!item.fact) {
-      acum += item.sellPrice * 1.21 * item.amount;
+      const gross = isManualLine(item) ? 1 : 1.21;
+      acum += item.sellPrice * gross * item.amount;
     }
     return acum;
   }, 0);
@@ -34,12 +39,10 @@ export const presupHtml = (
 
   const lista = pageItems.map((item) => {
     const isSpecial = item?.product?.article === 'OP-ES01';
-    const unitPrice = isSpecial
-      ? redondearADosDecimales(item?.sellPrice)
-      : redondearADosDecimales(item?.sellPrice * 1.21);
-    const lineTotal = isSpecial
-      ? redondearADosDecimales(item?.amount * item?.sellPrice)
-      : redondearADosDecimales(item?.amount * item?.sellPrice * 1.21);
+    const isManual = isManualLine(item);
+    const gross = isSpecial || isManual ? 1 : 1.21;
+    const unitPrice = redondearADosDecimales(item?.sellPrice * gross);
+    const lineTotal = redondearADosDecimales(item?.amount * item?.sellPrice * gross);
     return `<tr>
               <td>${item?.product?.article ?? "-"}</td>
               <td class="descrip">${item?.amount}</td>

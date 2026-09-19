@@ -14,22 +14,28 @@
   max-height: calc(90vh - 120px);
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #b6bcc7 transparent;
+  scrollbar-gutter: stable;
 }
 
 .modalBody::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 
 .modalBody::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
+  background: transparent;
 }
 
 .modalBody::-webkit-scrollbar-thumb {
-  background: #673ab7;
-  border-radius: 10px;
+  background-color: #b6bcc7;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 .modalBody::-webkit-scrollbar-thumb:hover {
-  background: #5e35b1;
+  background-color: #8f97a5;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }

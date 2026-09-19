@@ -1,5 +1,8 @@
 .facContainer {
-  height: 760px;
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+  max-height: calc(90vh - 140px);
 }
 .dataContainer {
   display: flex;
@@ -24,8 +27,41 @@
 }
 .tableContainer {
   margin-top: 10px;
-  height: 590px;
+  flex: 1 1 auto;
+  min-height: 220px;
+  max-height: 52vh;
   overflow-y: auto;
+  border: 1px solid #e5e8ee;
+  border-radius: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #b6bcc7 transparent;
+}
+
+.tableContainer::-webkit-scrollbar {
+  width: 10px;
+}
+
+.tableContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+  background-color: #b6bcc7;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover {
+  background-color: #8f97a5;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.tableContainer thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 .buttonContainer {
   margin-top: 25px;

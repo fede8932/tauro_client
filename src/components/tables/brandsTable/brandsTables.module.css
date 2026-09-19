@@ -13,9 +13,26 @@
 .buttonContainer {
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: center;
   width: 100%;
-  gap: 0;
+  height: 100%;
+  gap: 8px;
+}
+.actionBtn {
+  all: unset;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.actionBtn:hover {
+  background: #f0f0f0;
+}
+.actionBtn i {
+  font-size: 17px;
 }
 .iconB {
   color: #dcd365;
@@ -32,4 +49,53 @@
 }
 .blueIcon {
   color: #2185d0;
+}
+.bulkBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border: 1px solid #eaeaea;
+  border-radius: 10px;
+  background: #fbfbfb;
+}
+.bulkCount {
+  font-size: 13px;
+  color: #575757;
+  min-width: 140px;
+}
+.bulkField {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #575757;
+}
+.bulkField select,
+.bulkField input {
+  height: 32px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  padding: 0 8px;
+  background: #fff;
+  font-size: 13px;
+}
+.bulkField input {
+  width: 90px;
+}
+.bulkApplyBtn {
+  height: 32px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 6px;
+  background: #673ab7;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+.bulkApplyBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }

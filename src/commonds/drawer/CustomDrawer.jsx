@@ -9,6 +9,7 @@ import { deleteNoMarcOrderItemsRequest } from '../../redux/addOrderItems';
 import { useDispatch } from 'react-redux';
 import { Button } from 'react-bootstrap';
 import Swal from 'sweetalert2';
+import PosEcommerceManualItemModal from '../../views/pos/PosEcommerceManualItemModal';
 const CustomDrawer = (props) => {
   const {
     type,
@@ -16,6 +17,7 @@ const CustomDrawer = (props) => {
     fnDelete,
     fnUpdate,
     fnPrUpdate,
+    fnAddManual,
     listOrder,
     orderAjust,
   } = props;
@@ -29,6 +31,7 @@ const CustomDrawer = (props) => {
   const dispatch = useDispatch();
 
   const [open, setOpen] = useState(false);
+  const [manualItemOpen, setManualItemOpen] = useState(false);
   const showDrawer = () => {
     setOpen(true);
   };
@@ -40,17 +43,27 @@ const CustomDrawer = (props) => {
     setSearchValue(e.target.value);
   };
 
+  const openManualItemModal = () => {
+    setOpen(false);
+    setManualItemOpen(true);
+  };
+
+  const closeManualItemModal = () => {
+    setManualItemOpen(false);
+    setOpen(true);
+  };
+
   useEffect(() => {
     if (searchValue == '') {
       setFilterList(listOrder);
       return;
     }
     const keys = searchValue.trim().toLowerCase().split(/\s+/);
-    const newList = listOrder.filter((item) =>
+    const newList = (listOrder || []).filter((item) =>
       searchInList(
         keys,
-        item.product.article.toLowerCase(),
-        item.product.description.toLowerCase()
+        (item.product?.article || item.article || '').toLowerCase(),
+        (item.product?.description || item.description || '').toLowerCase()
       )
     );
     setFilterList(newList);
@@ -115,6 +128,15 @@ const CustomDrawer = (props) => {
           >
             Eliminar no marcado
           </Button>
+          {orderType !== 'OC' && fnAddManual ? (
+            <Button
+              style={{ marginLeft: '10px', marginTop: '-5px' }}
+              variant="primary"
+              onClick={openManualItemModal}
+            >
+              Ítem manual
+            </Button>
+          ) : null}
           {orderType === 'OC' ? (
             <div>
               <div className={styles.listContainer}>
@@ -175,6 +197,15 @@ const CustomDrawer = (props) => {
           ) : null}
         </div>
       </Drawer>
+      {manualItemOpen && fnAddManual ? (
+        <PosEcommerceManualItemModal
+          defaultOfficial={false}
+          onClose={closeManualItemModal}
+          onAdd={({ description, quantity, unitPrice, oficial }) =>
+            fnAddManual({ concept: description, quantity, unitPrice, oficial })
+          }
+        />
+      ) : null}
     </>
   );
 };

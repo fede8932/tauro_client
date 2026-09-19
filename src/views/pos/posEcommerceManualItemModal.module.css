@@ -110,6 +110,40 @@
   color: #333;
 }
 
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkBox {
+  width: 16px;
+  height: 16px;
+  accent-color: #4a7cf7;
+  cursor: pointer;
+}
+
+.ivaNotice {
+  font-size: 13px;
+  color: #004a6f;
+  margin: 0;
+  background: rgba(0, 170, 255, 0.1);
+  border: 1px solid #00aaff;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.inputDisabled {
+  background: #f0f1f4;
+  color: #555;
+  cursor: not-allowed;
+}
+
 .addBtn {
   background: #4a7cf7;
   color: #fff;

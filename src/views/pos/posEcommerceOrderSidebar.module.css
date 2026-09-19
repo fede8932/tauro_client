@@ -112,6 +112,19 @@
   vertical-align: middle;
 }
 
+.rowDiscountTag {
+  display: inline-block;
+  margin-left: 6px;
+  background: #fdecec;
+  color: #c0392b;
+  font-size: 9px;
+  font-weight: 700;
+  border: 1px solid #f5b7b1;
+  border-radius: 4px;
+  padding: 0 4px;
+  vertical-align: middle;
+}
+
 .orderDetail {
   background: #f8f8f8;
   border-radius: 10px;

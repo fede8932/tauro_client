@@ -1,18 +1,25 @@
 import React, { useState } from 'react';
 import styles from './posEcommerceManualItemModal.module.css';
 
-function PosEcommerceManualItemModal({ onClose, onAdd }) {
+function PosEcommerceManualItemModal({ onClose, onAdd, defaultOfficial = true, showOfficialOption = true }) {
   const [description, setDescription] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [unitPrice, setUnitPrice] = useState('');
+  const [oficial, setOficial] = useState(defaultOfficial);
 
+  const parsedPrice = Number(unitPrice);
   const isValid =
     description.trim().length > 0 &&
     quantity >= 1 &&
     unitPrice !== '' &&
-    Number(unitPrice) > 0;
+    !isNaN(parsedPrice) &&
+    parsedPrice !== 0;
 
-  const subtotal = isValid ? Number(unitPrice) * quantity : 0;
+  const subtotal = isValid ? parsedPrice * quantity : 0;
+  const isDiscount = isValid && parsedPrice < 0;
+  const grossTotal = !isNaN(parsedPrice)
+    ? parsedPrice * quantity * 1.21
+    : 0;
 
   const handleAdd = () => {
     if (!isValid) return;
@@ -20,6 +27,7 @@ function PosEcommerceManualItemModal({ onClose, onAdd }) {
       description: description.trim(),
       quantity,
       unitPrice: Number(unitPrice),
+      oficial: showOfficialOption ? oficial : undefined,
     });
     onClose();
   };
@@ -36,8 +44,10 @@ function PosEcommerceManualItemModal({ onClose, onAdd }) {
 
         <div className={styles.content}>
           <p className={styles.helper}>
-            Ítem sin stock ni catálogo. El precio unitario se ingresa{' '}
-            <strong>sin IVA</strong>.
+            Ítem sin stock ni catálogo. El monto va tal cual en el
+            presupuesto; si la factura es oficial se le agrega el IVA (21%).
+            Usá un precio en negativo para cargar un{' '}
+            <strong>descuento manual</strong>.
           </p>
 
           <div className={styles.field}>
@@ -69,18 +79,45 @@ function PosEcommerceManualItemModal({ onClose, onAdd }) {
                 type="number"
                 className={styles.input}
                 value={unitPrice}
-                min="0"
                 step="0.01"
                 onChange={(e) => setUnitPrice(e.target.value)}
-                placeholder="0.00"
+                placeholder="Ej: 1500 o -500 (descuento)"
               />
             </div>
           </div>
 
           <div className={styles.subtotal}>
-            <span>Subtotal</span>
+            <span>{isDiscount ? 'Descuento' : 'Subtotal'}</span>
             <span>$ {subtotal.toFixed(2)}</span>
           </div>
+
+          <label className={styles.checkRow} style={showOfficialOption ? undefined : { display: 'none' }}>
+            <input
+              type="checkbox"
+              className={styles.checkBox}
+              checked={oficial}
+              onChange={(e) => setOficial(e.target.checked)}
+            />
+            <span>Factura oficial</span>
+          </label>
+
+          {showOfficialOption && oficial ? (
+            <>
+              <p className={styles.ivaNotice}>
+                A este monto se le va a agregar el IVA (21%).
+              </p>
+              <div className={styles.field}>
+                <label className={styles.label}>Monto con IVA</label>
+                <input
+                  type="text"
+                  className={`${styles.input} ${styles.inputDisabled}`}
+                  value={`$ ${grossTotal.toFixed(2)}`}
+                  disabled
+                  readOnly
+                />
+              </div>
+            </>
+          ) : null}
 
           <button
             onClick={handleAdd}
