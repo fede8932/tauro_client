@@ -20,8 +20,8 @@ import {
   getInitialOrderStorage,
   selectClientForOrder,
   setCotizacionId,
-  manualNetFactor,
 } from '../../redux/sellPosOrder';
+
 import { numberToString } from '../../utils';
 import CustomModal from '../../commonds/customModal/CustomModal';
 import FinishSellComponent from '../../components/finishSellComponent/FinishSellComponent';
@@ -48,6 +48,19 @@ function numberToStringV2(numero) {
   if (!numero && numero !== 0) return '0,00';
   return numberToString(numero);
 }
+
+// En /pos/ecommerce el ítem manual se ingresa a valor final (ya incluye IVA).
+// Por eso aporta su neto (precio / 1.21) al subTotal, se muestra tal cual
+// en el detalle/resumen, y solo suma IVA al facturar oficial (lo resuelve el backend
+// según billType). En presupuesto/factura X queda como está.
+const ecommerceNetFactor = (item) =>
+  item?.isManual || item?.productId == null ? 1 / 1.21 : 1;
+
+const calcEcommerceRounding = (subTotal) => {
+  const rawTotal = subTotal * 1.21;
+  const roundedTotal = Math.floor(rawTotal / 10) * 10;
+  return +((roundedTotal - rawTotal).toFixed(2));
+};
 
 function PosEcommerceOrderSidebar({ addProduct }) {
   const dispatch = useDispatch();
@@ -77,6 +90,15 @@ function PosEcommerceOrderSidebar({ addProduct }) {
   const isConsumidorFinal = (order?.razonSocial || '').toLowerCase() === 'consumidor final';
   const isEmpresaAnonima = normalizeText(order?.razonSocial) === 'empresa anonima';
   const customerDiscounts = useSelector((state) => state.client)?.selectClient?.customerDiscounts;
+
+  // Subtotal corregido: el manual va a valor final, aporta su neto.
+  // Cubre carritos viejos guardados sin el flag oficial:false.
+  const displaySubTotal = (order?.items || []).reduce(
+    (sum, item) => sum + Number(item.sellPrice || 0) * Number(item.amount || 0) * ecommerceNetFactor(item),
+    0
+  );
+  const displayRounding = calcEcommerceRounding(displaySubTotal);
+  const displayOrder = { ...order, subTotal: displaySubTotal, rounding: displayRounding };
 
   const handleSelectPayMethod = (method) => {
     const cuentaCorrienteDisabled = !selectClientId || isConsumidorFinal;
@@ -126,7 +148,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
   };
 
   const addManualItem = ({ description, quantity, unitPrice }) => {
-    const newSubTotal = (order?.subTotal || 0) + unitPrice * quantity;
+    const newSubTotal = displaySubTotal + (unitPrice * quantity) / 1.21;
     if (newSubTotal <= 0) {
       Swal.fire({
         icon: 'error',
@@ -144,6 +166,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
       sellPrice: unitPrice,
       amount: quantity,
       isManual: true,
+      oficial: false,
     }));
   };
 
@@ -389,6 +412,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
             sellPrice: item.sellPrice,
             amount: item.amount,
             isManual: true,
+            oficial: false,
           }));
         }
       });
@@ -553,7 +577,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
                     {item.isManual && item.sellPrice >= 0 && <span className={styles.rowManualTag}>MANUAL</span>}
                     {item.isManual && item.sellPrice < 0 && <span className={styles.rowDiscountTag}>DESCUENTO</span>}
                   </span>
-                  <span className={styles.rowPrice}>$ {numberToString(item.sellPrice * manualNetFactor(item) * 1.21)}</span>
+                  <span className={styles.rowPrice}>$ {numberToString(item.sellPrice * ecommerceNetFactor(item) * 1.21)}</span>
                   <input
                     className={styles.qtyInput}
                     type="number"
@@ -562,7 +586,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
                     onChange={(e) => changeAmount(item.productId, item.brandId, item.uid, e.target.value)}
                   />
                   <span className={styles.rowSubtotal}>
-                    $ {numberToString(item.sellPrice * item.amount * manualNetFactor(item) * 1.21)}
+                    $ {numberToString(item.sellPrice * item.amount * ecommerceNetFactor(item) * 1.21)}
                     <button
                       onClick={() => dispatch(delLocalOrderItem(item.uid ? { uid: item.uid } : { productId: item.productId, brandId: item.brandId }))}
                       className={styles.delBtn}
@@ -587,15 +611,15 @@ function PosEcommerceOrderSidebar({ addProduct }) {
             <>
               <div className={styles.resumeRow}>
                 <span>Subtotal</span>
-                <span>$ {numberToStringV2(order?.subTotal)}</span>
+                <span>$ {numberToStringV2(displaySubTotal)}</span>
               </div>
               <div className={styles.resumeRow}>
                 <span>IVA (21%)</span>
-                <span>$ {numberToStringV2(order?.subTotal * 0.21)}</span>
+                <span>$ {numberToStringV2(displaySubTotal * 0.21)}</span>
               </div>
               <div className={styles.resumeRow}>
                 <span>Redondeo</span>
-                <span>$ {numberToStringV2(order?.rounding)}</span>
+                <span>$ {numberToStringV2(displayRounding)}</span>
               </div>
             </>
           )}
@@ -606,7 +630,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
               </button>
               Total
             </span>
-            <span>$ {numberToStringV2((order?.subTotal * 1.21) + (order?.rounding || 0))}</span>
+            <span>$ {numberToStringV2((displaySubTotal * 1.21) + (displayRounding || 0))}</span>
           </div>
         </div>
 
@@ -656,7 +680,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
 
         <div className={styles.actions}>
           <Button
-            disabled={!finishMode.presup || order.subTotal <= 0 || !order.clientId}
+            disabled={!finishMode.presup || displaySubTotal <= 0 || !order.clientId}
             style={{ width: '48%', fontSize: '13px' }}
             variant="outline-primary"
             onClick={guardarPresupuesto}
@@ -676,7 +700,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
             size="sm"
             actionButton={
               <Button
-                disabled={!finishMode.venta || order.subTotal <= 0 || !order.clientId}
+                disabled={!finishMode.venta || displaySubTotal <= 0 || !order.clientId}
                 style={{ width: '48%', fontSize: '13px' }}
                 variant="success"
               >
@@ -686,7 +710,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
             bodyModal={(props) => (
               <FinishSellComponent
                 payMethod={payMethod}
-                order={order}
+                order={displayOrder}
                 isEmpresaAnonima={isEmpresaAnonima}
                 onResetOrder={resetOrder}
                 {...props}

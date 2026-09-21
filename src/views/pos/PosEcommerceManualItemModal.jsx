@@ -74,7 +74,7 @@ function PosEcommerceManualItemModal({ onClose, onAdd, defaultOfficial = true, s
               />
             </div>
             <div className={styles.field}>
-              <label className={styles.label}>Precio unitario (sin IVA)</label>
+              <label className={styles.label}>{showOfficialOption ? 'Precio unitario (sin IVA)' : 'Precio unitario (final)'}</label>
               <input
                 type="number"
                 className={styles.input}
