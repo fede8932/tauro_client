@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './equiv.module.css';
+import tauroPlaceholder from '../../assets/logo/logo_tauro.png';
 import {
   Button,
   Checkbox,
@@ -64,6 +65,13 @@ function EquivalencesComponent(props) {
   };
 
   const currentImageId = equivalences?.equivalence?.image?.id;
+
+  const handleImgFallback = (e) => {
+    if (!e.currentTarget.dataset.fallback) {
+      e.currentTarget.dataset.fallback = '1';
+      e.currentTarget.src = tauroPlaceholder;
+    }
+  };
 
   return (
     <div>
@@ -187,6 +195,7 @@ function EquivalencesComponent(props) {
                 <img
                   src={equivalences.equivalence.image.url}
                   alt="Imagen del grupo"
+                  onError={handleImgFallback}
                 />
               ) : (
                 <span>Sin imagen propia</span>
@@ -209,6 +218,7 @@ function EquivalencesComponent(props) {
                         currentImageId === img.id ? styles.active : ''
                       }`}
                       onClick={() => selectImage(img.id)}
+                      onError={handleImgFallback}
                     />
                   ))
               ) : (
