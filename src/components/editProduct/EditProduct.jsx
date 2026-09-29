@@ -6,6 +6,7 @@ import { Button, Spinner } from 'react-bootstrap';
 import FileInput from '../../commonds/inputFile/InputFile';
 import ProtectedComponent from '../../protected/protectedComponent/ProtectedComponent';
 import { getBrandsByData } from '../../request/brandRequest';
+import Swal from 'sweetalert2';
 
 function EditProduct(props) {
   const { methods, product, update, files, onChangeActiveSupplier, onUpdateSupplierPrice, onUpdateProductBrand } = props;
@@ -64,14 +65,9 @@ function EditProduct(props) {
     brandSearchTimeout.current = setTimeout(async () => {
       try {
         const results = await getBrandsByData(value);
-        // Filter brands to only show those with matching suppliers
-        const currentSupplierIds = brandSuppliers.map(bs => bs.supplierId);
-        const filteredResults = (results || []).filter(brand => {
-          if (!brand.brandSuppliers || brand.brandSuppliers.length === 0) return false;
-          const brandSupplierIds = brand.brandSuppliers.map(bs => bs.supplierId);
-          return brandSupplierIds.some(id => currentSupplierIds.includes(id));
-        });
-        setBrandResults(filteredResults);
+        // Se muestran todas las marcas coincidentes (la compatibilidad
+        // de proveedores se avisa al momento de asignar).
+        setBrandResults(results || []);
         setShowBrandDropdown(true);
       } catch {
         setBrandResults([]);
@@ -79,7 +75,13 @@ function EditProduct(props) {
         setBrandSearching(false);
       }
     }, 350);
-  }, [brandSuppliers]);
+  }, []);
+
+  const getSupplierNames = (suppliers = []) =>
+    suppliers.map(
+      (bs) =>
+        bs.supplier?.razonSocial || bs.supplier?.name || `ID ${bs.supplierId}`
+    );
 
   const handleSelectBrand = async (brand) => {
     if (brand.id === product?.data?.brand?.id) {
@@ -87,9 +89,47 @@ function EditProduct(props) {
       setBrandSearch('');
       return;
     }
-    setChangingBrand(true);
+
+    const currentSupplierIds = brandSuppliers.map((bs) => bs.supplierId);
+    const newSupplierIds = (brand.brandSuppliers || []).map((bs) => bs.supplierId);
+    const commonIds = newSupplierIds.filter((id) => currentSupplierIds.includes(id));
+    const hasCurrentSuppliers = currentSupplierIds.length > 0;
+    const hasNewSuppliers = newSupplierIds.length > 0;
+
+    let confirmResult = { isConfirmed: true };
+
+    if (!hasNewSuppliers) {
+      confirmResult = await Swal.fire({
+        title: '¿Asignar marca sin proveedores?',
+        html: `La marca <b>${brand.name}</b> no tiene proveedores asociados.<br/><br/>El producto quedará <b>sin proveedor activo y sin precio de compra</b> hasta que asocies un proveedor a la marca.<br/><br/>¿Deseás continuar?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, asignar igual',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#673ab7',
+        cancelButtonColor: '#6c757d',
+      });
+    } else if (hasCurrentSuppliers && commonIds.length === 0) {
+      const currentNames = getSupplierNames(brandSuppliers).join(', ') || '—';
+      const newNames = getSupplierNames(brand.brandSuppliers).join(', ') || '—';
+      const currentBrandName = product?.data?.brand?.name || 'Sin marca';
+      confirmResult = await Swal.fire({
+        title: '¿Cambiar marca del producto?',
+        html: `Vas a cambiar de <b>${currentBrandName}</b> (proveedor: ${currentNames}) a <b>${brand.name}</b> (proveedor: ${newNames}).<br/><br/>No comparten proveedor, por lo que se <b>restablecerá el proveedor activo</b> y deberás <b>revisar / cargar los precios de compra</b> para la nueva marca.<br/><br/>¿Deseás continuar?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, cambiar marca',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#673ab7',
+        cancelButtonColor: '#6c757d',
+      });
+    }
+
     setShowBrandDropdown(false);
     setBrandSearch('');
+    if (!confirmResult.isConfirmed) return;
+
+    setChangingBrand(true);
     await onUpdateProductBrand(product.data.id, brand.id);
     setChangingBrand(false);
   };
@@ -180,15 +220,47 @@ function EditProduct(props) {
             )}
             {showBrandDropdown && brandResults.length > 0 && (
               <ul className={styles.brandDropdown}>
-                {brandResults.map((b) => (
-                  <li
-                    key={b.id}
-                    className={styles.brandDropdownItem}
-                    onMouseDown={() => handleSelectBrand(b)}
-                  >
-                    {b.name} <span className={styles.brandCode}>{b.code}</span>
-                  </li>
-                ))}
+                {brandResults.map((b) => {
+                  const bSupplierIds = (b.brandSuppliers || []).map((bs) => bs.supplierId);
+                  const currentIds = brandSuppliers.map((bs) => bs.supplierId);
+                  const hasCommon =
+                    bSupplierIds.length === 0 || currentIds.length === 0
+                      ? true
+                      : bSupplierIds.some((id) => currentIds.includes(id));
+                  const supplierHint =
+                    bSupplierIds.length === 0
+                      ? 'Sin proveedores'
+                      : getSupplierNames(b.brandSuppliers).join(', ');
+                  return (
+                    <li
+                      key={b.id}
+                      className={styles.brandDropdownItem}
+                      onMouseDown={() => handleSelectBrand(b)}
+                      title={hasCommon ? '' : 'No comparte proveedor con la marca actual'}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        {!hasCommon && (
+                          <i
+                            className="fa-solid fa-triangle-exclamation"
+                            style={{ color: '#ff9800', fontSize: 12 }}
+                          />
+                        )}
+                        <span>{b.name}</span>{' '}
+                        <span className={styles.brandCode}>{b.code}</span>
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: bSupplierIds.length === 0 || !hasCommon ? '#b26a00' : '#888',
+                          marginTop: 2,
+                        }}
+                      >
+                        {supplierHint}
+                        {!hasCommon && ' • Otro proveedor'}
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>
