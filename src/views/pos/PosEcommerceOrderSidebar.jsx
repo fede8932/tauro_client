@@ -12,6 +12,7 @@ import {
 import {
   POS_DEFAULT_CLIENT_ID,
   POS_DEFAULT_CLIENT_NAME,
+  ANONYMOUS_CLIENT_ID,
   resetPosSellOrderState,
   changeAmountOrderItem,
   delLocalOrderItem,
@@ -89,6 +90,9 @@ function PosEcommerceOrderSidebar({ addProduct }) {
   const { order } = useSelector((state) => state.posSellOrder);
   const isConsumidorFinal = (order?.razonSocial || '').toLowerCase() === 'consumidor final';
   const isEmpresaAnonima = normalizeText(order?.razonSocial) === 'empresa anonima';
+  const isClienteAnonimo =
+    Number(order?.clientId) === ANONYMOUS_CLIENT_ID ||
+    normalizeText(order?.razonSocial) === 'cliente anonimo';
   const customerDiscounts = useSelector((state) => state.client)?.selectClient?.customerDiscounts;
 
   // Subtotal corregido: el manual va a valor final, aporta su neto.
@@ -689,7 +693,7 @@ function PosEcommerceOrderSidebar({ addProduct }) {
           </Button>
           <CustomModal
             title={
-              isEmpresaAnonima
+              isEmpresaAnonima || isClienteAnonimo
                 ? 'Datos de facturación'
                 : payMethod.CuentaCorriente.enabled
                 ? 'Cuenta corriente'

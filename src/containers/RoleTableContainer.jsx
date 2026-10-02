@@ -27,6 +27,7 @@ import { remitHtml } from '../templates/RemBlase';
 import { presupHtml } from '../templates/presupBlase';
 import { ncAHtml } from '../templates/ncA';
 import { ncPresupHtml } from '../templates/ncPresupBlase';
+import { applyBillingSnapshot } from '../utils/printPosBill';
 
 function RoleTableContainer(props) {
   const [printLoading, setPrintLoading] = useState(false);
@@ -224,7 +225,7 @@ function RoleTableContainer(props) {
       numRemito = billData.billData.ResultGet.CbteDesde;
       const billInfo = await getBillByIdRequest(id);
       const { fItems } = billInfo;
-      purchaseOrder = billInfo.purchaseOrder;
+      purchaseOrder = applyBillingSnapshot(billInfo.purchaseOrder, billInfo);
       const codigoQR = await QRCode.toDataURL(billData.url);
 
       const factItems = fItems || [];

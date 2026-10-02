@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   finishSellPosAsync,
+  ANONYMOUS_CLIENT_ID,
 } from '../../redux/sellPosOrder';
 import { printPosBill } from '../../utils/printPosBill';
 
@@ -58,6 +59,14 @@ function FinishSellComponent(props) {
   const [dni, setDni] = useState('');
   const [billingIva, setBillingIva] = useState('ResponsableInscripto');
   const [billingCuit, setBillingCuit] = useState('');
+  const [billingNombre, setBillingNombre] = useState('');
+
+  // CLIENTE ANONIMO (id 554): si factura oficial, pide datos fiscales manuales
+  // que se guardan como snapshot en el movimiento. Si es Factura X, actúa
+  // igual que Consumidor Final (no pide nada).
+  const isClienteAnonimo =
+    Number(order?.clientId) === ANONYMOUS_CLIENT_ID ||
+    normalizeText(order?.razonSocial) === 'cliente anonimo';
 
   useEffect(() => {
     if (isEmpresaAnonima) {
@@ -65,8 +74,10 @@ function FinishSellComponent(props) {
     }
   }, [isEmpresaAnonima]);
 
-  const clientIva = isEmpresaAnonima ? billingIva : selectClient?.iva || '';
-  const isConsumidorFinal = isEmpresaAnonima
+  const clientIva = isEmpresaAnonima || (isClienteAnonimo && tipoFactura === 1)
+    ? billingIva
+    : selectClient?.iva || '';
+  const isConsumidorFinal = isEmpresaAnonima || isClienteAnonimo
     ? false
     : normalizeText(order?.razonSocial) === 'consumidor final';
   const isMonotributista = isIvaMonotributista(clientIva);
@@ -74,7 +85,7 @@ function FinishSellComponent(props) {
 
   const total = (order?.subTotal || 0) * 1.21;
   const requiresDni = isConsumidorFinal && tipoFactura === 1 && total >= 10000000;
-  const requiresCuit = isEmpresaAnonima && tipoFactura === 1;
+  const requiresBilling = (isEmpresaAnonima || isClienteAnonimo) && tipoFactura === 1;
 
   // Determinar el tipo de factura oficial según el IVA del cliente
   // Factura B (6) para Consumidor Final o Monotributista
@@ -118,13 +129,21 @@ function FinishSellComponent(props) {
       return;
     }
 
-    if (isEmpresaAnonima) {
+    if (requiresBilling) {
       const cuitLimpio = billingCuit.replace(/\D/g, '');
       if (cuitLimpio.length !== 11) {
         Swal.fire({
           icon: 'error',
           title: 'Error',
           text: 'Debe ingresar un CUIT válido (11 dígitos).',
+        });
+        return;
+      }
+      if (isClienteAnonimo && !billingNombre.trim()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Debe ingresar la razón social para la factura oficial.',
         });
         return;
       }
@@ -158,6 +177,12 @@ function FinishSellComponent(props) {
       rounding: order.rounding,
       cotizacionId: order.cotizacionId || null,
     };
+
+    if (requiresBilling && isClienteAnonimo) {
+      sendData.billingRazonSocial = billingNombre.trim();
+      sendData.billingCuit = billingCuit.replace(/\D/g, '');
+      sendData.billingIva = billingIva;
+    }
 
     if (sendData.payMethod === 2) {
       if (op === '' || bank === '') {
@@ -277,6 +302,47 @@ function FinishSellComponent(props) {
           </>
         )}
       </div>
+      {isClienteAnonimo && !isEmpresaAnonima && tipoFactura === 1 && (
+        <div className={styles.billTypeContainer}>
+          <p>
+            <i className="fa-solid fa-file-invoice"></i>
+            <span>Datos de facturación</span>
+          </p>
+          <span className={styles.helperText}>
+            Se factura a nombre de los datos ingresados y se guarda en CLIENTE ANONIMO.
+          </span>
+          <div className={styles.inputCont}>
+            <label>Razón social</label>
+            <input
+              value={billingNombre}
+              onChange={(e) => setBillingNombre(e.target.value)}
+              placeholder="Ingrese razón social"
+            />
+          </div>
+          <div className={styles.inputCont}>
+            <label>CUIT</label>
+            <input
+              value={billingCuit}
+              onChange={(e) => setBillingCuit(e.target.value)}
+              placeholder="Ingrese CUIT"
+            />
+          </div>
+          <div className={styles.inputCont}>
+            <label>Condición frente al IVA</label>
+            <select
+              value={billingIva}
+              onChange={(e) => setBillingIva(e.target.value)}
+              className={styles.selectInput}
+            >
+              {IVA_OPTIONS_ANONIMA.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
       {requiresDni && (
         <div className={styles.billTypeContainer}>
           <p>

@@ -46,6 +46,7 @@ import { ndHtml } from '../../../templates/ndBlase';
 import { remitHtml } from '../../../templates/RemBlase';
 import { payDetail } from '../../../templates/payDetail';
 import { printNDByIdRequest } from '../../../request/currentAcountRequest';
+import { applyBillingSnapshot } from '../../../utils/printPosBill';
 
 const CustomComp = ({ data }) => {
   // console.log(data);
@@ -120,7 +121,7 @@ const CustomActionComp = ({ data }) => {
       );
       const billInfo = await getBillByIdRequest(id);
       const { fItems } = billInfo;
-      purchaseOrder = billInfo.purchaseOrder;
+      purchaseOrder = applyBillingSnapshot(billInfo.purchaseOrder, billInfo);
       const codigoQR = await QRCode.toDataURL(billData.url);
 
       // console.log("verfact->", billData.billData.ResultGet)

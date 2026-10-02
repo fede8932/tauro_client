@@ -18,6 +18,32 @@ import { presupHtml } from '../templates/presupBlase';
 import { remitHtml } from '../templates/RemBlase';
 
 /**
+ * Aplica el snapshot de datos fiscales manuales (ventas oficiales a
+ * CLIENTE ANONIMO) sobre una copia del purchaseOrder, para que factura,
+ * presupuesto y remito muestren lo efectivamente facturado en AFIP.
+ * Si el movimiento no tiene snapshot, devuelve la orden sin cambios.
+ */
+export function applyBillingSnapshot(purchaseOrder, billInfo) {
+  if (!purchaseOrder || !billInfo) return purchaseOrder;
+  const { billingRazonSocial, billingCuit, billingIva } = billInfo;
+  if (!billingRazonSocial && !billingCuit && !billingIva) return purchaseOrder;
+  const digits = (billingCuit || '').replace(/\D/g, '');
+  const formattedCuit =
+    digits.length === 11
+      ? `${digits.slice(0, 2)}-${digits.slice(2, 10)}-${digits.slice(10)}`
+      : billingCuit;
+  return {
+    ...purchaseOrder,
+    client: {
+      ...purchaseOrder?.client,
+      ...(billingRazonSocial ? { razonSocial: billingRazonSocial } : {}),
+      ...(billingCuit ? { cuit: formattedCuit } : {}),
+      ...(billingIva ? { iva: billingIva } : {}),
+    },
+  };
+}
+
+/**
  * Imprime la factura/presupuesto + remito a partir del billData
  * devuelto por GenSellOrderByPos.
  *
@@ -56,7 +82,7 @@ export async function printPosBill(billData) {
     );
 
     const billInfo = await getBillByIdRequest(id);
-    purchaseOrder = billInfo.purchaseOrder;
+    purchaseOrder = applyBillingSnapshot(billInfo.purchaseOrder, billInfo);
     const factItems = billInfo.fItems || [];
 
     billInfo.specialItems?.forEach((si) => {

@@ -17,6 +17,11 @@ const calcRounding = (subTotal) => {
 export const POS_DEFAULT_CLIENT_ID = 540;
 export const POS_DEFAULT_CLIENT_NAME = 'Consumidor Final';
 
+// Cliente genérico para ventas de mostrador con factura oficial y datos
+// fiscales manuales. Si la venta no es oficial, actúa igual que Consumidor Final.
+export const ANONYMOUS_CLIENT_ID = 554;
+export const ANONYMOUS_CLIENT_NAME = 'CLIENTE ANONIMO';
+
 const initialState = {
   loading: false,
   error: '',
