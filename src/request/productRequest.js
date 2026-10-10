@@ -394,7 +394,7 @@ export const searchProductsAndEquivalences = async (searchData) => {
   }
 };
 
-export const exportProductsAndEquivalences = async (searchData) => {
+export const exportEquivalences = async (searchData) => {
   try {
     const response = await axios.post(
       `${apiUrl}/api/productos/search/mixed/export`,
@@ -404,7 +404,7 @@ export const exportProductsAndEquivalences = async (searchData) => {
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', 'productos_equivalencias.xlsx');
+    link.setAttribute('download', 'equivalencias.xlsx');
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -417,7 +417,7 @@ export const exportProductsAndEquivalences = async (searchData) => {
   }
 };
 
-export const importProductsAndEquivalences = async (file) => {
+export const importEquivalences = async (file) => {
   try {
     const formData = new FormData();
     formData.append('file', file);

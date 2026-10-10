@@ -17,7 +17,7 @@ import {
 import Swal from 'sweetalert2';
 import PosProductsTableV2 from '../tables/posProductsTable/PosProductsTableV2';
 import ProtectedComponent from '../../protected/protectedComponent/ProtectedComponent';
-import { importProductsAndEquivalences } from '../../request/productRequest';
+import { importEquivalences } from '../../request/productRequest';
 import { Popup } from 'semantic-ui-react';
 import {
   finishSellPosAsync,
@@ -45,6 +45,71 @@ function numberToStringV2(numero) {
 function numberToStringV3(numero) {
   if (!numero && numero !== 0) return '0,00';
   return numberToString(numero);
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function importResultHtml(result) {
+  const modified = Array.isArray(result?.modified) ? result.modified : [];
+  const unchanged = result?.unchanged ?? {};
+  const byReason = Array.isArray(unchanged.byReason) ? unchanged.byReason : [];
+  const unchangedItems = Array.isArray(unchanged.items) ? unchanged.items : [];
+  const unchangedTotal = unchanged.total ?? 0;
+
+  const list = (items, render) => `
+    <ul style="max-height:180px;overflow:auto;margin:5px 0;padding-left:20px;text-align:left;font-size:13px;">
+      ${items.map(render).join('')}
+    </ul>`;
+
+  let html = `
+    <div style="text-align:left;font-size:14px;">
+      <p style="margin:6px 0;"><strong>Modificadas:</strong> ${modified.length}</p>
+      <p style="margin:6px 0;"><strong>Sin cambios:</strong> ${unchangedTotal}</p>`;
+
+  if (modified.length > 0) {
+    html += `
+      <details style="margin-top:8px;">
+        <summary style="cursor:pointer;">Detalle de modificadas (${modified.length})</summary>
+        ${list(
+          modified,
+          (m) =>
+            `<li>${escapeHtml(m.code || m.id)} — "${escapeHtml(m.from)}" → "${escapeHtml(m.to)}"${
+              m.matchedBy === 'id' ? ' (buscado por Id)' : ''
+            }</li>`
+        )}
+      </details>`;
+  }
+
+  if (byReason.length > 0) {
+    html += `
+      <details style="margin-top:8px;">
+        <summary style="cursor:pointer;">Motivos de sin cambios</summary>
+        ${list(byReason, (r) => `<li>${escapeHtml(r.reason)}: ${r.count}</li>`)}
+      </details>`;
+  }
+
+  if (unchangedItems.length > 0) {
+    html += `
+      <details style="margin-top:8px;">
+        <summary style="cursor:pointer;">Detalle de sin cambios (${unchangedItems.length} de ${unchangedTotal})</summary>
+        ${list(
+          unchangedItems,
+          (u) =>
+            `<li>Fila ${u.row}${u.code ? ` · ${escapeHtml(u.code)}` : ''}${
+              u.id ? ` · id ${u.id}` : ''
+            } — ${escapeHtml(u.reason)}</li>`
+        )}
+      </details>`;
+  }
+
+  html += '</div>';
+  return { html, modifiedCount: modified.length, unchangedTotal, byReason };
 }
 
 function PosComponentV2(props) {
@@ -81,11 +146,17 @@ function PosComponentV2(props) {
     if (!file) return;
     setImporting(true);
     try {
-      const result = await importProductsAndEquivalences(file);
+      const result = await importEquivalences(file);
+      const { html, modifiedCount, byReason } = importResultHtml(result);
+      const notApplied = byReason
+        .filter((r) => r.reason !== 'Descripción sin cambios')
+        .reduce((sum, r) => sum + r.count, 0);
+
       Swal.fire({
-        icon: 'success',
+        icon: notApplied > 0 ? 'warning' : modifiedCount > 0 ? 'success' : 'info',
         title: 'Importación completa',
-        text: `Equivalencias actualizadas: ${result.updatedEquivalences} | Productos actualizados: ${result.updatedProducts} | Omitidos: ${result.skipped}`,
+        html,
+        confirmButtonText: 'Aceptar',
       });
     } catch (error) {
       Swal.fire({

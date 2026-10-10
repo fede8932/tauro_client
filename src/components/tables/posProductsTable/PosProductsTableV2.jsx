@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { searchProductsAndEquivalencesRequest } from '../../../redux/productEquivalence';
 import { discountApplicationV2, numberToString } from '../../../utils';
-import { uploadProductImage, exportProductsAndEquivalences } from '../../../request/productRequest';
+import { uploadProductImage, exportEquivalences } from '../../../request/productRequest';
 import { uploadEquivalenceImage, editDescriptionEquivalence } from '../../../request/equivalencesRequest';
 import Swal from 'sweetalert2';
 import { Pagination, Select } from 'semantic-ui-react';
@@ -685,7 +685,7 @@ function PosProductsTableV2(props) {
   const handleExport = useCallback(async () => {
     setExporting(true);
     try {
-      await exportProductsAndEquivalences(searchFilters);
+      await exportEquivalences(searchFilters);
     } catch (error) {
       Swal.fire({
         icon: 'error',
