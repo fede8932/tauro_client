@@ -270,6 +270,20 @@ function SideBarComponent(props) {
             ],
           }}
         />
+        <CustomAcordion
+          props={{
+            textButton: 'Mercado Libre',
+            icon01: 'fa-solid fa-shop',
+            items: [
+              {
+                textButton: 'Gestionar MELI',
+                fn: () => {
+                  fnNavigate('/meli');
+                },
+              },
+            ],
+          }}
+        />
       </div>
       <ProtectedComponent listAccesss={[1]}>
         <Separador props={{ clase: 'sideSeparador' }} />
