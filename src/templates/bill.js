@@ -7,6 +7,37 @@ import {
 // import logoAfip from "../assets/afip/logo-vector-afip.jpg";
 // import logoBlase from "../assets/logo/logoBlase.png";
 
+function normalizeText(value) {
+  return (value || '')
+    .toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+}
+
+const IVA_LABELS = {
+  0: 'Responsable Inscripto',
+  1: 'Monotributista',
+  2: 'Exento',
+  3: 'No Gravado',
+  4: 'Consumidor Final',
+  ResponsableInscripto: 'Responsable Inscripto',
+  Monotributista: 'Monotributista',
+  Excento: 'Exento',
+  NoGravado: 'No Gravado',
+  Final: 'Consumidor Final',
+};
+
+function formatDocNumber(docType, docNumber, fallback) {
+  const digits = String(docNumber ?? '').replace(/\D/g, '');
+  if (!digits || Number(digits) === 0) return fallback || '';
+  if ((docType === 80 || docType === 86) && digits.length === 11) {
+    return `${digits.slice(0, 2)}-${digits.slice(2, 10)}-${digits.slice(10)}`;
+  }
+  return digits;
+}
+
 export const billHtml = async (
   billData,
   order,
@@ -19,6 +50,29 @@ export const billHtml = async (
 ) => {
   // console.log("order --->", order);
   // console.log('billdata:', billData);
+  const docType = billData?.DocTipo;
+  const docNumber = billData?.DocNro;
+  const isDni = docType === 96;
+  const isCuil = docType === 86;
+  const isConsumidorFinalDoc = docType === 99;
+  const clientRazonSocial = order?.client?.razonSocial || 'Consumidor Final';
+  const isGenericConsumer =
+    isConsumidorFinalDoc ||
+    normalizeText(clientRazonSocial) === 'consumidor final';
+  const ivaLabel =
+    IVA_LABELS[order?.client?.iva] ||
+    (isDni || isConsumidorFinalDoc
+      ? 'Consumidor Final'
+      : order?.client?.iva || '-');
+  const docLabel = isDni ? 'DNI' : isCuil ? 'CUIL' : 'CUIT';
+  const docValue =
+    isDni || isCuil
+      ? formatDocNumber(docType, docNumber, '')
+      : formatDocNumber(docType, docNumber, order?.client?.cuit) || '-';
+  const address = `${order?.client?.calle || ''} ${
+    order?.client?.altura ?? ''
+  }, ${order?.client?.localidad || ''}`.trim();
+
   const lista = list.map((item) => {
     return `<tr>
               <td>${/*item?.product?.article*/"-"}</td>
@@ -293,14 +347,16 @@ export const billHtml = async (
         </div>
       </div>
       <div class="clientContainer">
-          <span class="clientInfoText">Razon Social: <span class="clientInfoTextDos">${
-            order.client.razonSocial
-          }</span></span>
-          <span class="clientInfoText">Dirección<span class="clientInfoTextDos">${`${order.client.calle} ${order.client.altura}, ${order.client.localidad}`}</span></span>
+          <span class="clientInfoText">Razon Social: <span class="clientInfoTextDos">${clientRazonSocial}</span></span>
+          ${
+            !isGenericConsumer && address
+              ? `<span class="clientInfoText">Dirección<span class="clientInfoTextDos">${address}</span></span>`
+              : ''
+          }
         <div class="ivaClient">
-          <span class="clientInfoText">IVA:<span class="clientInfoTextDos">${`IVA ${order.client.iva}`}</span></span>
-          <span class="clientInfoText">CUIT:<span class="clientInfoTextDos">${
-            order.client.cuit
+          <span class="clientInfoText">IVA:<span class="clientInfoTextDos">${ivaLabel}</span></span>
+          <span class="clientInfoText">${isConsumidorFinalDoc ? 'Documento' : docLabel}:<span class="clientInfoTextDos">${
+            isConsumidorFinalDoc ? 'Consumidor Final' : docValue || '-'
           }</span></span>
         </div>
         <div class="ivaClient">

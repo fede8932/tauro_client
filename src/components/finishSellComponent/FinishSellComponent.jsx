@@ -77,14 +77,16 @@ function FinishSellComponent(props) {
   const clientIva = isEmpresaAnonima || (isClienteAnonimo && tipoFactura === 1)
     ? billingIva
     : selectClient?.iva || '';
-  const isConsumidorFinal = isEmpresaAnonima || isClienteAnonimo
-    ? false
-    : normalizeText(order?.razonSocial) === 'consumidor final';
+  const isConsumidorFinal = !isEmpresaAnonima && !isClienteAnonimo &&
+    (normalizeText(order?.razonSocial) === 'consumidor final' ||
+      isIvaConsumidorFinal(selectClient?.iva));
   const isMonotributista = isIvaMonotributista(clientIva);
   const isResponsableInscripto = isIvaResponsableInscripto(clientIva);
 
-  const total = (order?.subTotal || 0) * 1.21;
-  const requiresDni = isConsumidorFinal && tipoFactura === 1 && total >= 10000000;
+  // Mismo redondeo que usa el backend para decidir el umbral.
+  const total = Math.round((order?.subTotal || 0) * 1.21 * 100) / 100;
+  const showDniField = isConsumidorFinal && tipoFactura === 1;
+  const requiresDni = showDniField && total >= 10000000;
   const requiresBilling = (isEmpresaAnonima || isClienteAnonimo) && tipoFactura === 1;
 
   // Determinar el tipo de factura oficial según el IVA del cliente
@@ -197,22 +199,35 @@ function FinishSellComponent(props) {
       sendData.bank = bank;
     }
 
-    if (requiresDni) {
-      if (dni === '' || dni.length < 7) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Debe ingresar un DNI válido para factura oficial con importe mayor o igual a $10.000.000',
-        });
-        return;
-      }
-      sendData.dni = dni;
+    const dniDigits = dni.replace(/\D/g, '');
+    if (requiresDni && dniDigits.length === 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Debe ingresar el DNI para factura oficial a Consumidor Final con importe mayor o igual a $10.000.000.',
+      });
+      return;
+    }
+    if (dniDigits.length > 0 && (dniDigits.length < 7 || dniDigits.length > 8)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'El DNI debe tener entre 7 y 8 dígitos.',
+      });
+      return;
+    }
+    if (dniDigits.length > 0) {
+      sendData.dni = dniDigits;
     }
 
     dispatch(finishSellPosAsync(sendData))
       .then(async (res) => {
         if (res.error) {
-          const serverMsg = res.error?.response?.data?.message || res.error?.response?.data?.title || '';
+          const serverMsg =
+            res.error?.response?.data?.error ||
+            res.error?.response?.data?.message ||
+            res.error?.response?.data?.title ||
+            '';
           Swal.fire({
             icon: 'error',
             title: 'Error',
@@ -343,21 +358,31 @@ function FinishSellComponent(props) {
           </div>
         </div>
       )}
-      {requiresDni && (
+      {showDniField && (
         <div className={styles.billTypeContainer}>
           <p>
             <i className="fa-solid fa-id-card"></i>
             <span>DNI del Cliente</span>
           </p>
           <div className={styles.inputCont}>
-            <label>DNI (requerido para factura oficial)</label>
-            <input 
-              type="number"
-              value={dni} 
-              onChange={(e) => setDni(e.target.value)}
+            <label>
+              {requiresDni
+                ? 'DNI (obligatorio para importes desde $10.000.000)'
+                : 'DNI (opcional)'}
+            </label>
+            <input
+              type="tel"
+              inputMode="numeric"
+              value={dni}
+              onChange={(e) => setDni(e.target.value.replace(/\D/g, ''))}
               placeholder="Ingrese DNI sin puntos"
             />
           </div>
+          {!requiresDni && (
+            <span className={styles.helperText}>
+              Podés informarlo para que la factura salga identificada con DNI. Si lo dejás vacío, se emite a Consumidor Final.
+            </span>
+          )}
         </div>
       )}
       {payMethod.Transferencia.enabled && (

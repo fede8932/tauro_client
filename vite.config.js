@@ -4,6 +4,12 @@ import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: {
+    allowedHosts: ["client.facturar.fun", ".facturar.fun", "localhost"],
+  },
+  preview: {
+    allowedHosts: ["client.facturar.fun", ".facturar.fun", "localhost"],
+  },
   plugins: [
     react(),
     VitePWA({
