@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Swal from 'sweetalert2';
 import styles from './melimanage.module.css';
 import ErrorChip from './MeliErrorChip';
-import { getMeliCatalog, publishProduct, publishBatchProducts } from '../../request/meliRequest';
+import { getMeliCatalog, publishProduct, publishBatchProducts, getPublishQueueStatus, retryFailedPublications } from '../../request/meliRequest';
 
 /* ------------------------------------------------------------------ */
 /* Constantes y helpers                                                */
@@ -397,7 +397,7 @@ function MeliCatalogTab({ onPublished }) {
     if (totalSelected === 0) return;
     const confirm = await Swal.fire({
       title: '¿Estás seguro?',
-      text: `Se publicarán ${totalSelected} producto(s) en MELI en estado pausado.`,
+      text: `Se publicarán ${totalSelected} producto(s) en MELI en estado pausado. Las imágenes se formatean y suben automáticamente.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -408,17 +408,13 @@ function MeliCatalogTab({ onPublished }) {
     if (!confirm.isConfirmed) return;
     setBusyId('batch');
     try {
-      const results = await publishBatchProducts(selected);
-      const ok = results.filter((r) => r.ok).length;
-      const failed = results.length - ok;
+      const res = await publishBatchProducts(selected);
       setSelected([]);
-      await load();
-      onPublished?.();
-      Swal.fire({
-        icon: failed > 0 ? 'warning' : 'success',
-        title: 'Publicación en lote finalizada',
-        text: `${ok} exitosos, ${failed} con error.`,
-      });
+      const skipped = res.skippedAlreadyPublished?.length || 0;
+      const toastMsg = `${res.enqueued} publicación(es) encoladas.${skipped ? ` ${skipped} ya estaban publicadas y se omitieron.` : ''}`;
+      Swal.fire({ icon: 'success', title: 'Publicaciones encoladas', text: toastMsg });
+      // Seguimiento en vivo de la cola hasta que termine.
+      await trackPublishQueue();
     } catch (e) {
       Swal.fire({
         icon: 'error',
@@ -427,6 +423,74 @@ function MeliCatalogTab({ onPublished }) {
       });
     } finally {
       setBusyId(null);
+    }
+  };
+
+  // Reencola todos los intentos que quedaron en estado error y sigue la cola igual que
+  // la publicación masiva.
+  const retryFailed = async () => {
+    const confirm = await Swal.fire({
+      title: '¿Reintentar publicaciones fallidas?',
+      text: 'Se reencolarán todos los intentos que quedaron en estado error.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, reintentar',
+      cancelButtonText: 'Cancelar',
+    });
+    if (!confirm.isConfirmed) return;
+    setBusyId('batch');
+    try {
+      const res = await retryFailedPublications();
+      if (!res?.enqueued) {
+        Swal.fire({ icon: 'info', title: 'Sin fallos pendientes', text: 'No hay publicaciones fallidas para reintentar.' });
+        return;
+      }
+      await trackPublishQueue();
+    } catch (e) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: e.response?.data?.message || 'Error al reintentar publicaciones',
+      });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  // Consulta el estado de la cola de publicación cada pocos segundos y refresca la
+  // lista; cierra el seguimiento cuando no queda nada pendiente ni procesando.
+  const trackPublishQueue = async () => {
+    const maxMs = 10 * 60 * 1000; // techo de seguimiento
+    const started = Date.now();
+    while (Date.now() - started < maxMs) {
+      await new Promise((r) => setTimeout(r, 4000));
+      let st;
+      try {
+        st = await getPublishQueueStatus();
+      } catch {
+        continue;
+      }
+      if (st.pending === 0 && !st.isProcessing) {
+        await load();
+        onPublished?.();
+        if (st.failed > 0) {
+          const errs = (st.recentErrors || [])
+            .slice(0, 5)
+            .map((e) => `Producto ${e.key ?? e.Key}: ${e.value ?? e.Value}`)
+            .join('\n');
+          Swal.fire({
+            icon: 'warning',
+            title: 'Publicación masiva finalizada',
+            text: `${st.succeeded} exitosas, ${st.failed} con error.\n\n${errs}`,
+          });
+        } else if (st.succeeded > 0) {
+          Swal.fire({ icon: 'success', title: 'Publicación masiva finalizada', text: `${st.succeeded} publicaciones creadas en estado pausado.` });
+        }
+        return;
+      }
+      await load();
     }
   };
 
@@ -539,6 +603,15 @@ function MeliCatalogTab({ onPublished }) {
             </button>
           );
         })}
+        <button
+          type="button"
+          className={styles.filterChip}
+          onClick={retryFailed}
+          disabled={busyId === 'batch'}
+          title="Reencola los intentos de publicación que quedaron en estado error"
+        >
+          <i className="fas fa-rotate-right" /> Reintentar fallidos
+        </button>
       </div>
 
       {/* ---------- Panel de filtros avanzados ---------- */}

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import styles from './melimanage.module.css';
 import MeliCatalogTab from './MeliCatalogTab';
+import MeliPricingExceptions from './MeliPricingExceptions';
 import ErrorChip from './MeliErrorChip';
 import {
   getMeliAuthStatus,
@@ -425,15 +426,16 @@ function MeliManage() {
                   <td data-label="Acciones" className={styles.actions}>
                     {(!it.meliItemId || it.status === 'error' || it.status === 'draft') && (
                       <button
-                        className={`${styles.btn} ${styles.btnPrimary} ${styles.btnSmall}`}
+                        className={`${styles.btn} ${styles.btnPrimary} ${styles.btnIcon}`}
                         onClick={() => handlePublishSingle(it.productId, it.status === 'error')}
+                        title="Publicar en MELI"
                       >
-                        Publicar
+                        <i className="fas fa-upload" />
                       </button>
                     )}
                     {!it.meliItemId && (
                       <button
-                        className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
+                        className={`${styles.btn} ${styles.btnGhost} ${styles.btnIcon}`}
                         onClick={async () => {
                           const res = await Swal.fire({
                             title: '¿Descartar intento fallido?',
@@ -446,32 +448,36 @@ function MeliManage() {
                           if (res.isConfirmed)
                             rowAction(() => discardFailedListing(it.productId), 'Intento descartado');
                         }}
+                        title="Descartar intento fallido"
                       >
-                        Descartar
+                        <i className="fas fa-trash" />
                       </button>
                     )}
                     {it.meliItemId && (
                       <>
                         <button
-                          className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
+                          className={`${styles.btn} ${styles.btnGhost} ${styles.btnIcon}`}
                           onClick={() => rowAction(() => activateProduct(it.productId), 'Activada')}
+                          title="Activar publicación"
                         >
-                          Activar
+                          <i className="fas fa-play" />
                         </button>
                         <button
-                          className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
+                          className={`${styles.btn} ${styles.btnGhost} ${styles.btnIcon}`}
                           onClick={() => rowAction(() => pauseProduct(it.productId), 'Pausada')}
+                          title="Pausar publicación"
                         >
-                          Pausar
+                          <i className="fas fa-pause" />
                         </button>
                         <button
-                          className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
+                          className={`${styles.btn} ${styles.btnGhost} ${styles.btnIcon}`}
                           onClick={() => rowAction(() => syncNow(it.productId), 'Sincronizada')}
+                          title="Sincronizar precio y stock ahora"
                         >
-                          Sync
+                          <i className="fas fa-rotate" />
                         </button>
                         <button
-                          className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
+                          className={`${styles.btn} ${styles.btnGhost} ${styles.btnIcon}`}
                           onClick={async () => {
                             const res = await Swal.fire({
                               title: 'Precio fijo para MELI',
@@ -495,11 +501,12 @@ function MeliManage() {
                               'Override actualizado'
                             );
                           }}
+                          title="Precio fijo para MELI (vacío limpia)"
                         >
-                          Override
+                          <i className="fas fa-tag" />
                         </button>
                         <button
-                          className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
+                          className={`${styles.btn} ${styles.btnDanger} ${styles.btnIcon}`}
                           onClick={async () => {
                             const res = await Swal.fire({
                               title: '¿Cerrar publicación en MELI?',
@@ -514,8 +521,9 @@ function MeliManage() {
                             if (res.isConfirmed)
                               rowAction(() => removeFromMeli(it.productId), 'Cerrada');
                           }}
+                          title="Cerrar publicación en MELI"
                         >
-                          Cerrar
+                          <i className="fas fa-xmark" />
                         </button>
                       </>
                     )}
@@ -674,6 +682,10 @@ function MeliManage() {
                 {sim.fee} — neto Tauro Parts: <b>${sim.net}</b>
               </p>
             )}
+          </div>
+
+          <div className={styles.fullRow}>
+            <MeliPricingExceptions onMessage={setMsg} />
           </div>
         </div>
       )}
