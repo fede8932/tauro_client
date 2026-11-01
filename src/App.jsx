@@ -49,6 +49,7 @@ import Pos from './views/pos/Pos';
 import PosV2 from './views/pos/PosV2';
 import PosEcommerce from './views/pos/PosEcommerce';
 import SearchPresupuesto from './views/searchPresupuesto/SearchPresupuesto';
+import MeliManage from './views/meliManage/MeliManage';
 
 function App() {
   const signalHub = `${import.meta.env.VITE_API_URL}/${
@@ -475,6 +476,14 @@ function App() {
                       element={
                         <ProtectedView listAccesss={[1, 2, 5, 6]}>
                           <PosEcommerce />
+                        </ProtectedView>
+                      }
+                    />
+                    <Route
+                      path="meli"
+                      element={
+                        <ProtectedView listAccesss={[1, 2]}>
+                          <MeliManage />
                         </ProtectedView>
                       }
                     />
