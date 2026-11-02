@@ -87,6 +87,37 @@
   background: rgba(0, 0, 0, 0.7);
 }
 
+.downloadBtn {
+  position: absolute;
+  top: 12px;
+  right: 104px;
+  z-index: 10;
+  background: rgba(0, 137, 123, 0.85);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  font-size: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.downloadBtn:hover {
+  background: #00897b;
+  transform: scale(1.08);
+}
+
+.downloadBtn:disabled {
+  cursor: default;
+  opacity: 0.85;
+  transform: none;
+}
+
 /* Override Ant Design carousel arrows to match theme */
 :global(.ant-carousel .slick-prev),
 :global(.ant-carousel .slick-next) {

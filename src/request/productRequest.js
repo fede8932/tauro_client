@@ -94,6 +94,18 @@ export const deleteProductImage = async (imageId) => {
   );
   return data;
 };
+
+export const downloadProductImage = async (imageId) => {
+  const response = await axios.get(
+    `${apiUrl}/api/productos/images/${imageId}/download`,
+    {
+      responseType: 'blob',
+      withCredentials: true,
+      params: { t: Date.now() }, // evita respuestas cacheadas (p.ej. un 404 previo)
+    }
+  );
+  return response;
+};
 export const searchProducts = async (productData) => {
   try {
     // Cancelar la solicitud anterior si existe (evita respuestas fuera de orden al tipear)
