@@ -19,6 +19,7 @@ function AddProductFormContainer(props) {
     description: false,
     location: false,
     stock: false,
+    ecommerceVisible: false,
   });
   const [selectStatus, setSelectStatus] = useState(true);
   const [selectedFiles, setSelectedFiles] = useState([]);

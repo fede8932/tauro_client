@@ -12,6 +12,12 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
   const products = equivalence.products ?? [];
   const [selectedProductId, setSelectedProductId] = useState(products[0]?.id ?? null);
   const [activeTab, setActiveTab] = useState('description');
+  const descriptionProducts = useMemo(
+    () => products.filter((product) => product.ecommerceVisible !== false),
+    [products]
+  );
+  const displayedProducts = activeTab === 'description' ? descriptionProducts : products;
+  const galleryProducts = activeTab === 'description' ? descriptionProducts : products;
   const [quantity, setQuantity] = useState(1);
   const [mainImageIndex, setMainImageIndex] = useState(0);
   const [zoom, setZoom] = useState(null);
@@ -29,17 +35,17 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
     };
 
     add(equivalence.image);
-    if (Array.isArray(equivalence.images)) {
+    if (activeTab !== 'description' && Array.isArray(equivalence.images)) {
       equivalence.images.forEach(add);
     }
-    products.forEach((p) => {
+    galleryProducts.forEach((p) => {
       if (Array.isArray(p.images)) {
         p.images.forEach(add);
       }
     });
 
     return list;
-  }, [equivalence, products]);
+  }, [equivalence, galleryProducts, activeTab]);
 
   const selectedProduct = useMemo(
     () => products.find((p) => p.id === selectedProductId) || null,
@@ -66,6 +72,12 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
     setQuantity(1);
   }, [equivalence.id, products]);
 
+  useEffect(() => {
+    if (!displayedProducts.some((product) => product.id === selectedProductId)) {
+      setSelectedProductId(displayedProducts[0]?.id ?? null);
+    }
+  }, [displayedProducts, selectedProductId]);
+
   const handlePrevMain = (e) => {
     if (e) e.stopPropagation();
     setMainImageIndex((prev) => (prev <= 0 ? Math.max(visibleImages.length - 1, 0) : prev - 1));
@@ -82,7 +94,7 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
   };
 
   const handleAdd = () => {
-    if (!selectedProduct || !addProduct) return;
+    if (!selectedProduct || selectedProduct.ecommerceVisible === false || !addProduct) return;
     const sellPrice = Number(selectedProduct.price) || 0;
     if (sellPrice <= 0) return;
     const basePrice = sellPrice / 1.21;
@@ -140,7 +152,7 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
       );
     }
 
-    if (products.length === 0) {
+    if (displayedProducts.length === 0) {
       return (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>
@@ -167,7 +179,7 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => {
+            {displayedProducts.map((product) => {
               const isSelected = selectedProductId === product.id;
               const isMatched = product._matched === true;
               const stockBadge = getStockBadge(product.stock ?? 0);
@@ -320,7 +332,7 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
                   <div>
                     <h2 className={styles.headerTitle}>Grupo de Equivalencias</h2>
                     <p className={styles.headerSubtitle}>
-                      {products.length} producto(s) disponible(s)
+                      {displayedProducts.length} producto(s) disponible(s)
                     </p>
                   </div>
                 </div>
@@ -400,7 +412,7 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
                 <button
                   className={styles.addBtn}
                   onClick={handleAdd}
-                  disabled={!selectedProduct || !(Number(selectedProduct.price) > 0)}
+                  disabled={!selectedProduct || selectedProduct.ecommerceVisible === false || !(Number(selectedProduct.price) > 0)}
                 >
                   <i className="fa-solid fa-cart-plus" />
                   Agregar

@@ -1,7 +1,9 @@
 .checkContainer {
   display: flex;
-  width: 400px;
-  justify-content: space-between;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 8px 18px;
 }
 .addUserContainer {
   height: calc(100% - 25px);

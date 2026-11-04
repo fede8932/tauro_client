@@ -52,7 +52,7 @@ function AddProductsFormComponent(props) {
     <FormProvider {...methods}>
       <div className={styles.checkContainer}>
         <Checkbox
-          label="Precio"
+          label="Costo"
           name="price"
           checked={checks.price}
           onClick={changeCheck}
@@ -73,6 +73,12 @@ function AddProductsFormComponent(props) {
           label="Stock"
           name="stock"
           checked={checks.stock}
+          onClick={changeCheck}
+        />
+        <Checkbox
+          label="Visible en e-commerce"
+          name="ecommerceVisible"
+          checked={checks.ecommerceVisible}
           onClick={changeCheck}
         />
       </div>
@@ -98,6 +104,9 @@ function AddProductsFormComponent(props) {
               </Button>
             </div>
             <div className={styles.uploadContainer}>
+              <p style={{ marginBottom: '8px', fontSize: '13px' }}>
+                Costo es el precio de compra que ofrece cada proveedor, sin IVA. ECOMMERCE usa 0 para ocultar y 1 para mostrar el producto en el catálogo. En productos existentes, las casillas controlan los cambios; los productos nuevos se crean con los datos de la planilla.
+              </p>
               <ExcelUpload
                 label={true}
                 selectedFile={selectedFile}
