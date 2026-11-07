@@ -10,7 +10,7 @@ const getStockBadge = (stock) => {
 
 function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
   const products = equivalence.products ?? [];
-  const [selectedProductId, setSelectedProductId] = useState(products[0]?.id ?? null);
+  const [selectedProductId, setSelectedProductId] = useState(products.length === 1 ? products[0].id : null);
   const [activeTab, setActiveTab] = useState('description');
   const descriptionProducts = useMemo(
     () => products.filter((product) => product.ecommerceVisible !== false),
@@ -67,16 +67,16 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
   }, [onClose, zoom]);
 
   useEffect(() => {
-    setSelectedProductId(products[0]?.id ?? null);
+    setSelectedProductId(products.length === 1 ? products[0].id : null);
     setMainImageIndex(0);
     setQuantity(1);
   }, [equivalence.id, products]);
 
   useEffect(() => {
     if (!displayedProducts.some((product) => product.id === selectedProductId)) {
-      setSelectedProductId(displayedProducts[0]?.id ?? null);
+      setSelectedProductId(products.length === 1 ? products[0].id : null);
     }
-  }, [displayedProducts, selectedProductId]);
+  }, [displayedProducts, products, selectedProductId]);
 
   const handlePrevMain = (e) => {
     if (e) e.stopPropagation();

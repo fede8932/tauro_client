@@ -226,6 +226,7 @@ function PosComponentV2(props) {
   };
 
   const printPresupuesto = async () => {
+    let nuevaVentana = null;
     try {
       if (!order.clientId || (order.items || []).length === 0) {
         Swal.fire({
@@ -243,8 +244,18 @@ function PosComponentV2(props) {
         payMethod: 0, // Efectivo por defecto
       };
 
+      // Abrir la ventana AHORA, dentro del gesto del usuario, para que el
+      // navegador no la bloquee mientras esperamos la respuesta del backend.
+      nuevaVentana = window.open('', '', 'width=900,height=1250');
+      if (!nuevaVentana) {
+        throw new Error(
+          'No se pudo abrir la ventana de impresión. Verifique los pop-ups del navegador.'
+        );
+      }
+
       const res = await dispatch(finishSellPosAsync(sendData));
       if (res.error) {
+        nuevaVentana.close();
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -259,8 +270,6 @@ function PosComponentV2(props) {
       const itemsPerPage = 10;
       const totalPresPages = Math.ceil(factPresItems.length / itemsPerPage) || 1;
       const logoBase64 = await convertImageToBase64(logoBlase);
-
-      let nuevaVentana = window.open('', '', 'width=900,height=1250');
 
       for (let i = 0; i < factPresItems.length; i += itemsPerPage) {
         const pagePresNumber = Math.floor(i / itemsPerPage) + 1;
@@ -312,6 +321,7 @@ function PosComponentV2(props) {
       dispatch(resetPosSellOrderState());
       setDrawer(false);
     } catch (err) {
+      if (nuevaVentana) nuevaVentana.close();
       Swal.fire({
         icon: 'error',
         title: 'Error',

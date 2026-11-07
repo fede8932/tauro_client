@@ -51,18 +51,19 @@ export function applyBillingSnapshot(purchaseOrder, billInfo) {
  * - billType 1 = Factura A, 6 = Factura B (oficial AFIP)
  * - billType 0 / "P" = Presupuesto (Factura X)
  */
-export async function printPosBill(billData) {
+export async function printPosBill(billData, preOpenedWindow = null) {
   const { numComprobante, ptoVenta, id, billType } = billData;
 
-  const logoAfipBase64 = await convertImageToBase64(logoAfip);
-  const logoBlaseBase64 = await convertImageToBase64(logoBlase);
-
-  const nuevaVentana = window.open('', '', 'width=900,height=1250');
+  const nuevaVentana =
+    preOpenedWindow || window.open('', '', 'width=900,height=1250');
   if (!nuevaVentana) {
     throw new Error(
       'No se pudo abrir la ventana de impresión. Verifique los pop-ups del navegador.'
     );
   }
+
+  const logoAfipBase64 = await convertImageToBase64(logoAfip);
+  const logoBlaseBase64 = await convertImageToBase64(logoBlase);
 
   let purchaseOrder = null;
   let numRemito = null;

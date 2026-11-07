@@ -530,6 +530,7 @@ function ProductsTable(props) {
     <div className={'ag-theme-quartz'} style={{ height: 665 }}>
       <AgGridReact
         rowData={products.data.list}
+        getRowId={(params) => String(params.data.id)}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
       />

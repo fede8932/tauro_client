@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styles from './searchProduct.module.css';
 import SearchProductContainer from '../../containers/SearchProductContainer';
 import { useDispatch } from 'react-redux';
@@ -7,6 +7,7 @@ import { resetFilterProduct } from '../../redux/filtersProducts';
 
 function SearchProduct() {
   const dispatch = useDispatch();
+  const scrollContainerRef = useRef(null);
 
   useEffect(() => {
     return () => {
@@ -15,10 +16,10 @@ function SearchProduct() {
     };
   }, []);
   return (
-    <div className={styles.addUserContainer}>
+    <div ref={scrollContainerRef} className={styles.addUserContainer}>
       <h6 className={styles.formTitle}>Buscador de productos</h6>
       <div>
-        <SearchProductContainer />
+        <SearchProductContainer scrollContainerRef={scrollContainerRef} />
       </div>
     </div>
   );

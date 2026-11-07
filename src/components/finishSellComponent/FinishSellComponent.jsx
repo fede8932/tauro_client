@@ -220,9 +220,14 @@ function FinishSellComponent(props) {
       sendData.dni = dniDigits;
     }
 
+    // Abrir la ventana AHORA, dentro del gesto del usuario, para que el
+    // navegador no la bloquee mientras esperamos la respuesta del backend.
+    const printWindow = window.open('', '', 'width=900,height=1250');
+
     dispatch(finishSellPosAsync(sendData))
       .then(async (res) => {
         if (res.error) {
+          if (printWindow) printWindow.close();
           const serverMsg =
             res.error?.response?.data?.error ||
             res.error?.response?.data?.message ||
@@ -238,8 +243,9 @@ function FinishSellComponent(props) {
 
         // Imprimir factura/presupuesto automáticamente
         try {
-          await printPosBill(res.payload);
+          await printPosBill(res.payload, printWindow);
         } catch (printErr) {
+          if (printWindow) printWindow.close();
           Swal.fire({
             icon: 'warning',
             title: 'Venta registrada, pero no se pudo imprimir',
@@ -254,6 +260,7 @@ function FinishSellComponent(props) {
         closeModal();
       })
       .catch((err) => {
+        if (printWindow) printWindow.close();
         Swal.fire({
           icon: 'error',
           title: 'Error',

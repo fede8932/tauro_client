@@ -25,6 +25,19 @@ function SearchProductContainer(props) {
     dispatch(searchProductsRequest({ page: 1, text: null }));
   };
   const deleteProduct = (id) => {
+    const scrollContainer = props.scrollContainerRef?.current;
+    const scrollPosition = {
+      x: window.scrollX,
+      y: window.scrollY,
+      containerTop: scrollContainer?.scrollTop ?? 0,
+    };
+    const restoreScrollPosition = () => {
+      window.requestAnimationFrame(() => {
+        window.scrollTo(scrollPosition.x, scrollPosition.y);
+        if (scrollContainer) scrollContainer.scrollTop = scrollPosition.containerTop;
+      });
+    };
+
     // console.log(id);
     Swal.fire({
       title: 'Estás seguro?',
@@ -34,36 +47,43 @@ function SearchProductContainer(props) {
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Si, eliminar!',
+      returnFocus: false,
     }).then((result) => {
       if (result.isConfirmed) {
         dispatch(deleteProductRequest(id))
-          .then((res) => {
+          .then(async (res) => {
             if (!res.payload) {
-              Swal.fire({
+              await Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
                 text: 'No es posible borrar el producto',
                 showConfirmButton: false, // Oculta el botón "OK"
                 timer: 2500,
+                returnFocus: false,
               });
+              restoreScrollPosition();
               return;
             }
-            Swal.fire({
+            await Swal.fire({
               title: 'Eliminado!',
               text: 'El producto ya no está en los registros',
               icon: 'success',
               showConfirmButton: false, // Oculta el botón "OK"
               timer: 1000,
+              returnFocus: false,
             });
+            restoreScrollPosition();
           })
-          .catch((err) => {
-            Swal.fire({
+          .catch(async (err) => {
+            await Swal.fire({
               icon: 'error',
               title: 'Oops...',
               text: 'Ocurrio un error en el servidor',
               showConfirmButton: false, // Oculta el botón "OK"
               timer: 2500,
+              returnFocus: false,
             });
+            restoreScrollPosition();
           });
       }
     });
