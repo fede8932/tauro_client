@@ -69,14 +69,17 @@ const productSlice = createSlice({
     },
     [updateProductRequest.fulfilled]: (state, action) => {
       state.loading = false;
+      const payload = action.payload || {};
       const newList = state.data.list.map((prod) => {
-        if (prod.id == action.payload.id) {
-          prod.location = action.payload.location;
-          prod.article = action.payload.article;
-          prod.description = action.payload.description;
-          prod.stock = action.payload.stock;
-          prod.rentabilidad = action.payload.rentabilidad;
-          prod.images = action.payload.images;
+        if (prod.id == payload.id) {
+          const updated = { ...prod };
+          if (payload.location !== undefined) updated.location = payload.location;
+          if (payload.article !== undefined) updated.article = payload.article;
+          if (payload.description !== undefined) updated.description = payload.description;
+          if (payload.stock !== undefined) updated.stock = payload.stock;
+          if (payload.rentabilidad !== undefined) updated.rentabilidad = payload.rentabilidad;
+          if (Array.isArray(payload.images)) updated.images = payload.images;
+          return updated;
         }
         return prod;
       });

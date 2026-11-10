@@ -34,9 +34,9 @@ const CustomComp = ({ data, props }) => {
         size="lg"
         popupText="Ver imágenes"
         images={
-          data.images.length > 0
+          (data.images || []).length > 0
             ? data.images
-            : data.equivalence?.images?.length > 0
+            : (data.equivalence?.images || []).length > 0
               ? data.equivalence?.images
               : []
         }
@@ -248,6 +248,8 @@ function ProductsTable(props) {
 
   const dispatch = useDispatch();
 
+  const gridRef = useRef(null);
+
   const products = useSelector((state) => state.product);
 
   // No cargar nada del storage, dejar que Redux maneje el estado en memoria
@@ -445,6 +447,14 @@ function ProductsTable(props) {
     };
   }, [filterProducts]);
 
+  // Refrescar las celdas cuando cambia la lista de productos (p. ej. al actualizar imágenes)
+  // para que el botón de ver imagen y el modal reflejen los cambios sin perder el filtro.
+  useEffect(() => {
+    if (gridRef.current?.api) {
+      gridRef.current.api.refreshCells({ force: true });
+    }
+  }, [products.data.list]);
+
   const selectChange = (e, d) => {
     dispatch(setFilterProduct({ name: 'pageSize', value: d.value }));
   };
@@ -529,6 +539,7 @@ function ProductsTable(props) {
   return (
     <div className={'ag-theme-quartz'} style={{ height: 665 }}>
       <AgGridReact
+        ref={gridRef}
         rowData={products.data.list}
         getRowId={(params) => String(params.data.id)}
         columnDefs={columnDefs}
