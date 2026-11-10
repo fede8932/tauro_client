@@ -46,13 +46,12 @@ function EditProductContainer(props) {
     if (selectedFiles.length > 0) {
       data.images = selectedFiles;
     }
-    dispatch(updateProductRequest({ productId: id, updateData: data })).then(
-      (res) => {
-        // Recargar solo el producto actual para reflejar los cambios en el modal
-        forceFormResetRef.current = true;
-        dispatch(getProductIdRequest(id));
-        
-        // Mostrar mensaje de éxito sin cerrar el modal
+    dispatch(updateProductRequest({ productId: id, updateData: data }))
+      .unwrap()
+      .then(() => {
+        // Cerrar el modal si la actualización fue correcta
+        if (closeModal) closeModal();
+        // Mostrar mensaje de éxito
         Swal.fire({
           icon: 'success',
           title: 'Producto actualizado',
@@ -60,10 +59,17 @@ function EditProductContainer(props) {
           timer: 2000,
           showConfirmButton: false,
         });
-        // NO recargamos la lista completa para evitar que se cierre el modal
-        // La lista se actualizará automáticamente gracias al reducer de updateProductRequest
-      }
-    );
+        // La lista se actualiza automáticamente gracias al reducer de updateProductRequest
+      })
+      .catch((error) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error?.response?.data?.message || 'No se pudo actualizar el producto',
+          timer: 2500,
+          showConfirmButton: false,
+        });
+      });
   };
 
   const handleChangeActiveSupplier = async (productId, supplierId) => {
