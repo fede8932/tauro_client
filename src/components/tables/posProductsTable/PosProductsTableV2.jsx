@@ -282,7 +282,7 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
         _isExpanded: expandedIds.includes(eq.id)
       });
       if (expandedIds.includes(eq.id)) {
-        eq.products.forEach(prod => {
+        (eq.products || []).filter((prod) => prod.brandEcommerce !== false).forEach(prod => {
           rows.push({
             ...prod,
             type: 'EQUIV_PRODUCT',
@@ -387,7 +387,7 @@ const AgGridWrapper = React.memo(function AgGridWrapper({
       },
       cellRenderer: (params) => {
         if (params.data.type === 'EQUIVALENCE') {
-          const count = (params.data.products || []).length;
+          const count = (params.data.products || []).filter((p) => p.brandEcommerce !== false).length;
           const desc = params.data.description
             ? (/^despiece/i.test(params.data.description) ? 'DESPIECE' : params.data.description.toUpperCase())
             : '';

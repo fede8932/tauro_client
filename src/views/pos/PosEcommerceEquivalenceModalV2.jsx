@@ -13,7 +13,7 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
   const [selectedProductId, setSelectedProductId] = useState(products.length === 1 ? products[0].id : null);
   const [activeTab, setActiveTab] = useState('description');
   const descriptionProducts = useMemo(
-    () => products.filter((product) => product.ecommerceVisible !== false),
+    () => products.filter((product) => product.ecommerceVisible !== false && product.brandEcommerce !== false),
     [products]
   );
   const displayedProducts = activeTab === 'description' ? descriptionProducts : products;
@@ -74,7 +74,7 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
 
   useEffect(() => {
     if (!displayedProducts.some((product) => product.id === selectedProductId)) {
-      setSelectedProductId(products.length === 1 ? products[0].id : null);
+      setSelectedProductId(displayedProducts.length === 1 ? displayedProducts[0].id : null);
     }
   }, [displayedProducts, products, selectedProductId]);
 
@@ -94,7 +94,7 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
   };
 
   const handleAdd = () => {
-    if (!selectedProduct || selectedProduct.ecommerceVisible === false || !addProduct) return;
+    if (!selectedProduct || selectedProduct.ecommerceVisible === false || selectedProduct.brandEcommerce === false || !addProduct) return;
     const sellPrice = Number(selectedProduct.price) || 0;
     if (sellPrice <= 0) return;
     const basePrice = sellPrice / 1.21;
@@ -412,7 +412,7 @@ function PosEcommerceEquivalenceModalV2({ equivalence, onClose, addProduct }) {
                 <button
                   className={styles.addBtn}
                   onClick={handleAdd}
-                  disabled={!selectedProduct || selectedProduct.ecommerceVisible === false || !(Number(selectedProduct.price) > 0)}
+                  disabled={!selectedProduct || selectedProduct.ecommerceVisible === false || selectedProduct.brandEcommerce === false || !(Number(selectedProduct.price) > 0)}
                 >
                   <i className="fa-solid fa-cart-plus" />
                   Agregar
