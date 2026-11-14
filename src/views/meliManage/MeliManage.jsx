@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import styles from './melimanage.module.css';
 import MeliCatalogTab from './MeliCatalogTab';
+import MeliCategoryPicker from './MeliCategoryPicker';
 import MeliPricingExceptions from './MeliPricingExceptions';
 import ErrorChip from './MeliErrorChip';
 import {
@@ -68,6 +69,7 @@ function MeliManage() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
   const [simPrice, setSimPrice] = useState(10000);
+  const [picker, setPicker] = useState(null);
 
   const loadAll = async (override) => {
     const f = { ...filters, ...(override || {}) };
@@ -167,21 +169,7 @@ function MeliManage() {
     }
   };
 
-  const handlePublishSingle = async (productId, askCategory = false) => {
-    let categoryId = null;
-    if (askCategory) {
-      const res = await Swal.fire({
-        title: 'Categoría de MELI',
-        input: 'text',
-        inputLabel: 'ID de categoría (ej. MLA373345)',
-        inputPlaceholder: 'Dejá vacío para predicción automática',
-        showCancelButton: true,
-        confirmButtonText: 'Publicar',
-        cancelButtonText: 'Cancelar',
-      });
-      if (!res.isConfirmed) return;
-      categoryId = (res.value || '').trim() || null;
-    }
+  const doPublishSingle = async (productId, categoryId = null) => {
     setLoading(true);
     try {
       const res = await publishProduct(productId, categoryId);
@@ -192,6 +180,18 @@ function MeliManage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePublishSingle = (productId, askCategory = false) => {
+    if (askCategory) {
+      const it = listings.items.find((x) => x.productId === productId);
+      setPicker({
+        productId,
+        initialQuery: `${it?.description || ''} ${it?.brand || ''}`.trim(),
+      });
+      return;
+    }
+    doPublishSingle(productId, null);
   };
 
   const simulatePrice = () => {
@@ -689,6 +689,17 @@ function MeliManage() {
           </div>
         </div>
       )}
+
+      <MeliCategoryPicker
+        open={!!picker}
+        initialQuery={picker?.initialQuery || ''}
+        onClose={() => setPicker(null)}
+        onSelect={(cat) => {
+          const productId = picker?.productId;
+          setPicker(null);
+          if (productId) doPublishSingle(productId, cat.id);
+        }}
+      />
     </div>
   );
 }

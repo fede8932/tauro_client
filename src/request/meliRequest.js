@@ -68,6 +68,40 @@ export const getMeliCatalog = async (params) => {
   }
 };
 
+export const searchMeliCategories = async (q, limit = 8) => {
+  try {
+    const { data } = await axios.get(`${apiUrl}/api/meli/categories/search`, {
+      params: { q, limit },
+      withCredentials: true,
+    });
+    return data;
+  } catch (error) {
+    return handleAuthError(error);
+  }
+};
+
+export const getMeliCategoryRoot = async () => {
+  try {
+    const { data } = await axios.get(`${apiUrl}/api/meli/categories/root`, {
+      withCredentials: true,
+    });
+    return data;
+  } catch (error) {
+    return handleAuthError(error);
+  }
+};
+
+export const getMeliCategoryNode = async (id) => {
+  try {
+    const { data } = await axios.get(`${apiUrl}/api/meli/categories/${id}`, {
+      withCredentials: true,
+    });
+    return data;
+  } catch (error) {
+    return handleAuthError(error);
+  }
+};
+
 export const publishProduct = async (productId, categoryId = null) => {
   try {
     const { data } = await axios.post(

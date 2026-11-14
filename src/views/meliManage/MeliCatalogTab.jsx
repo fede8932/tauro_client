@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Swal from 'sweetalert2';
 import styles from './melimanage.module.css';
 import ErrorChip from './MeliErrorChip';
+import MeliCategoryPicker from './MeliCategoryPicker';
 import { getMeliCatalog, publishProduct, publishBatchProducts, getPublishQueueStatus, retryFailedPublications } from '../../request/meliRequest';
 
 /* ------------------------------------------------------------------ */
@@ -284,6 +285,7 @@ function MeliCatalogTab({ onPublished }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [busyId, setBusyId] = useState(null);
+  const [picker, setPicker] = useState(null);
 
   const runSearch = useCallback((value) => {
     setSearch(value);
@@ -356,21 +358,7 @@ function MeliCatalogTab({ onPublished }) {
     setSelected(allVisibleSelected ? [] : [...new Set([...selected, ...publishables])]);
   };
 
-  const publishOne = async (p, askCategory = false) => {
-    let categoryId = null;
-    if (askCategory) {
-      const res = await Swal.fire({
-        title: 'Categoría de MELI',
-        input: 'text',
-        inputLabel: 'ID de categoría (ej. MLA373345)',
-        inputPlaceholder: 'Dejá vacío para predicción automática',
-        showCancelButton: true,
-        confirmButtonText: 'Publicar',
-        cancelButtonText: 'Cancelar',
-      });
-      if (!res.isConfirmed) return;
-      categoryId = (res.value || '').trim() || null;
-    }
+  const doPublish = async (p, categoryId = null) => {
     setBusyId(p.productId);
     try {
       const res = await publishProduct(p.productId, categoryId);
@@ -391,6 +379,17 @@ function MeliCatalogTab({ onPublished }) {
     } finally {
       setBusyId(null);
     }
+  };
+
+  const publishOne = (p, askCategory = false) => {
+    if (askCategory) {
+      setPicker({
+        product: p,
+        initialQuery: `${p.description || ''} ${p.brand || ''}`.trim(),
+      });
+      return;
+    }
+    doPublish(p, null);
   };
 
   const publishSelected = async () => {
@@ -924,6 +923,17 @@ function MeliCatalogTab({ onPublished }) {
           </div>
         </>
       )}
+
+      <MeliCategoryPicker
+        open={!!picker}
+        initialQuery={picker?.initialQuery || ''}
+        onClose={() => setPicker(null)}
+        onSelect={(cat) => {
+          const product = picker?.product;
+          setPicker(null);
+          if (product) doPublish(product, cat.id);
+        }}
+      />
     </div>
   );
 }

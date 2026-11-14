@@ -32,38 +32,50 @@ import logoBlase from '../../assets/logo/logoBlase.png';
 import CustomModal from '../../commonds/customModal/CustomModal';
 import InvoiceForm from '../newBillDiscount/NewBillDiscount';
 import { Label, LabelGroup, Popup } from 'semantic-ui-react';
+import { applyBillingSnapshot } from '../../utils/printPosBill';
 
 const TotalComponent = (props) => {
-  const { client, order, closeModal, discountList, removeDiscount } = props;
+  const { client, order, closeModal, discountList, removeDiscount, isMeli } = props;
   const listOrder = useSelector((state) => state.listOrderItems).data;
   const loading = useSelector((state) => state.searchOrders.loading);
   const filterSellOrder = useSelector((state) => state.filterSellOrder);
+
+  const [fiscalCondition, setFiscalCondition] = useState('Final');
+  const [dni, setDni] = useState('');
+  const [cuit, setCuit] = useState('');
+  const [razonSocial, setRazonSocial] = useState('');
 
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
 
+  const effectiveList = isMeli
+    ? (listOrder || []).map((i) => ({ ...i, fact: true }))
+    : listOrder || [];
+
   const totalFacturado = useCallback(
     () =>
-      listOrder.reduce((accumulator, object) => {
+      effectiveList.reduce((accumulator, object) => {
         if (object.fact) {
           return accumulator + object.sellPrice * object.amount * 1.21;
         } else {
           return accumulator;
         }
       }, 0),
-    [listOrder]
+    [effectiveList]
   );
   const totalNoFacturado = useCallback(
     () =>
-      listOrder.reduce((accumulator, object) => {
-        if (!object.fact) {
-          return accumulator + object.sellPrice * object.amount;
-        } else {
-          return accumulator;
-        }
-      }, 0),
-    [listOrder]
+      isMeli
+        ? 0
+        : (listOrder || []).reduce((accumulator, object) => {
+            if (!object.fact) {
+              return accumulator + object.sellPrice * object.amount;
+            } else {
+              return accumulator;
+            }
+          }, 0),
+    [isMeli, listOrder]
   );
 
   const totalDesFacturado = useCallback(
@@ -99,6 +111,7 @@ const TotalComponent = (props) => {
     // Obtener datos de la factura
     if (totalFacturado > 0) {
       const billData = await printBillRequest(order.id);
+      order = applyBillingSnapshot(order, billData);
       const codigoQR = await QRCode.toDataURL(billData.url);
       numRemito = billData.billData.ResultGet.CbteDesde;
 
@@ -269,22 +282,92 @@ const TotalComponent = (props) => {
     nuevaVentana.print();
   };
   const newBill = () => {
-    // console.log(client);
-    const facturaType = client.iva == 'Monotributista' ? 'A' : 'A';
+    // Validaciones fiscales para ventas MELI
+    if (isMeli) {
+      const total = redondearADosDecimales(totalFacturado());
+      if (fiscalCondition === 'Final' && total >= 10000000) {
+        const dniDigits = dni.replace(/\\D/g, '');
+        if (dniDigits.length < 7 || dniDigits.length > 8) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'DNI obligatorio',
+            text: 'Para consumidor final con total mayor o igual a $10.000.000 debe ingresar el DNI (7 u 8 dígitos).',
+          });
+          return;
+        }
+      }
+      if (fiscalCondition === 'Monotributista' || fiscalCondition === 'ResponsableInscripto') {
+        const cuitDigits = cuit.replace(/\\D/g, '');
+        if (cuitDigits.length !== 11) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'CUIT inválido',
+            text: 'Debe ingresar un CUIT válido de 11 dígitos.',
+          });
+          return;
+        }
+        if (!razonSocial.trim()) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Razón social obligatoria',
+            text: 'Debe ingresar la razón social.',
+          });
+          return;
+        }
+      }
+    }
+
+    const facturaType = isMeli
+      ? fiscalCondition === 'ResponsableInscripto'
+        ? 'A'
+        : 'B'
+      : client.iva == 'Monotributista'
+      ? 'A'
+      : 'A';
+
+    let tipoDocumento = 'CUIT';
+    let numeroDocumento = cuitTransformToNumber(client.cuit);
+    let billingRazonSocial = null;
+    let billingCuit = null;
+    let billingIva = null;
+
+    if (isMeli) {
+      billingIva = fiscalCondition;
+      if (fiscalCondition === 'Final') {
+        tipoDocumento = dni.replace(/\\D/g, '').length >= 7 ? 'DNI' : 'ConsumidorFinal';
+        numeroDocumento =
+          tipoDocumento === 'DNI' ? parseInt(dni.replace(/\\D/g, ''), 10) : 0;
+        billingRazonSocial = 'Consumidor Final';
+        billingCuit = null;
+      } else {
+        tipoDocumento = 'CUIT';
+        numeroDocumento = cuitTransformToNumber(cuit);
+        billingRazonSocial = razonSocial.trim();
+        billingCuit = cuit;
+      }
+    }
+
+    const forcedList = isMeli
+      ? (listOrder || []).map((i) => ({ ...i, fact: true }))
+      : listOrder;
+
     let sendData = {
       concepto: 'Productos',
       type: 'Factura',
       tipo_de_factura: facturaType,
-      tipo_de_documento: 'CUIT',
-      numero_de_documento: cuitTransformToNumber(client.cuit),
+      tipo_de_documento: tipoDocumento,
+      numero_de_documento: numeroDocumento,
       importe_gravado: redondearADosDecimales(totalFacturado() / 1.21),
       importe_excento: 0,
       purchaseOrderId: order.id,
       salePoint: 13,
       iva: 21,
-      importe_no_facturado: totalNoFacturado(),
-      listOrder: listOrder,
+      importe_no_facturado: isMeli ? 0 : totalNoFacturado(),
+      listOrder: forcedList,
       discountList: discountList,
+      billingRazonSocial,
+      billingCuit,
+      billingIva,
     };
     dispatch(confirmSellOrderRequest(sendData)).then((res) => {
       closeModal();
@@ -312,6 +395,54 @@ const TotalComponent = (props) => {
 
   return (
     <div className={styles.buttonContainer}>
+      {isMeli ? (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            width: '100%',
+            marginBottom: '10px',
+          }}
+        >
+          <span style={{ fontWeight: 'bold' }}>Datos fiscales (venta MELI)</span>
+          <select
+            value={fiscalCondition}
+            onChange={(e) => setFiscalCondition(e.target.value)}
+            style={{ padding: '6px' }}
+          >
+            <option value="Final">Consumidor Final</option>
+            <option value="Monotributista">Monotributista</option>
+            <option value="ResponsableInscripto">Responsable Inscripto</option>
+          </select>
+          {fiscalCondition === 'Final' ? (
+            <input
+              type="text"
+              placeholder="DNI (obligatorio si total >= $10.000.000)"
+              value={dni}
+              onChange={(e) => setDni(e.target.value)}
+              style={{ padding: '6px' }}
+            />
+          ) : (
+            <>
+              <input
+                type="text"
+                placeholder="CUIT (11 dígitos)"
+                value={cuit}
+                onChange={(e) => setCuit(e.target.value)}
+                style={{ padding: '6px' }}
+              />
+              <input
+                type="text"
+                placeholder="Razón social"
+                value={razonSocial}
+                onChange={(e) => setRazonSocial(e.target.value)}
+                style={{ padding: '6px' }}
+              />
+            </>
+          )}
+        </div>
+      ) : null}
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <span>
           {`Total facturado:`}
@@ -510,6 +641,7 @@ function NewBill(props) {
           closeModal={closeModal}
           discountList={discountList}
           removeDiscount={removeDiscount}
+          isMeli={order?.numero?.startsWith('ML-') || order?.origin === 'meli'}
         />
       </div>
     </div>
