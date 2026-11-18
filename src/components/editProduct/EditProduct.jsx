@@ -25,6 +25,9 @@ function EditProduct(props) {
   const activeSupplierId = product?.data?.activeSupplierId;
   const purchasePrice = product?.data?.purchasePrice;
   const calculatedSalePrice = product?.data?.calculatedSalePrice;
+  const activeSupplier = product?.data?.activeSupplier;
+  const activeSupplierInBrand = brandSuppliers.some((bs) => bs.supplierId === activeSupplierId);
+  const orphanActiveSupplier = activeSupplierId && !activeSupplierInBrand ? activeSupplier : null;
 
 
   const handleSupplierChange = async (supplierId) => {
@@ -387,6 +390,17 @@ function EditProduct(props) {
               })}
             </div>
             
+            {orphanActiveSupplier && (
+              <div className={styles.warningMessage}>
+                <i className="fa-solid fa-triangle-exclamation"></i>
+                <span>
+                  El proveedor activo actual (
+                  <b>{orphanActiveSupplier.razonSocial || `ID ${activeSupplierId}`}</b>) no está
+                  asociado a la marca. Asigná un proveedor de la lista o corregí la marca.
+                </span>
+              </div>
+            )}
+
             {!activeSupplierId && supplierPrices.some(sp => sp.purchasePrice != null) && (
               <div className={styles.warningMessage}>
                 <i className="fa-solid fa-info-circle"></i>
